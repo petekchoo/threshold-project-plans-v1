@@ -9,7 +9,16 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint . --ignore-pattern dist --ignore-pattern .next"
+    "lint": "eslint . --ignore-pattern dist --ignore-pattern .next",
+    "typecheck": "tsc --noEmit --incremental false",
+    "map:generate": "node scripts/implementation-map.mjs generate",
+    "map:check": "node scripts/implementation-map.mjs validate",
+    "db:status": "supabase migration list",
+    "db:lint": "supabase db lint --linked --level warning",
+    "db:push:dry-run": "supabase db push --dry-run",
+    "db:push": "supabase db push",
+    "db:types": "supabase gen types typescript --linked --schema public > database.types.ts",
+    "verify": "pnpm map:check && pnpm typecheck && pnpm lint"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.112.4",
@@ -24,8 +33,10 @@
     "@types/react-dom": "19.2.3",
     "eslint": "9.39.4",
     "eslint-config-next": "16.2.6",
+    "supabase": "^2.116.0",
     "tailwindcss": "4.2.1",
-    "typescript": "5.9.3"
+    "typescript": "5.9.3",
+    "yaml": "^2.9.0"
   },
   "type": "module"
 }

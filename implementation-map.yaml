@@ -1,0 +1,389 @@
+version: 1
+source: DESIGN.md functional specification
+generated_section: DESIGN.md#implementation-map
+preamble: |-
+  This map connects the functional specification to its current implementation. Requirement IDs are stable references for discussion, implementation, review, and testing. File paths and named symbols are preferred over line numbers because symbols remain useful as files change.
+
+  ### Maintenance convention
+
+  - Begin implementation work from the applicable requirement ID and inspect every mapped UI, application, and database location before changing behavior.
+  - Update the specification, decision log, implementation map, and verification entry in the same change whenever user-visible behavior changes.
+  - Add a new requirement ID when a capability does not fit an existing row; do not silently extend an unrelated requirement.
+  - Mark coverage **Partial**, **Planned**, or **Deferred** when implementation does not fully satisfy the confirmed behavior.
+  - When code moves, update symbol references without changing the requirement ID.
+  - Cross-check in both directions during feature review: every confirmed requirement must be mapped, and every material product behavior in code must have a requirement ID.
+  - Database migrations are cumulative and applied in filename order. Later migrations that replace functions are the authoritative implementation of those functions.
+
+  ### Path and verification key
+
+  - `app/*`: Next.js routes and document metadata.
+  - `components/threshold-app.tsx`: Current application shell, views, forms, date logic, and client-side validation.
+  - `lib/supabase.ts`: Browser Supabase client configuration.
+  - `supabase/migrations/*`: Persistent schema, row-level access, database functions, and triggers.
+  - `app/globals.css` and `app/extended.css`: Responsive layout, visual system, and component presentation.
+  - **Manual UI** means the behavior has been inspected in the running local application. There is currently no automated test suite.
+  - `implementation-map.yaml` is the editable traceability source. The readable map in `DESIGN.md` is generated and verified in CI.
+  - Supabase migrations, including RLS policies, are versioned in `supabase/migrations/*` and applied through the CLI workflow documented in `supabase/README.md`.
+groups:
+  - title: Authentication, shell, and shared data
+    columns:
+      - ID
+      - Capability
+      - Primary implementation
+      - Database / persistence
+      - Coverage
+      - Verification / known gap
+    requirements:
+      - ID: AUTH-01
+        Capability: Sign up, sign in, sign out, and redirect unauthenticated users
+        Primary implementation: "`app/sign-in/page.tsx`; `ThresholdApp`; `Sidebar`; `MobileNav`"
+        Database / persistence: Supabase Auth; `profiles`; `handle_new_user`
+        Coverage: Implemented
+        Verification / known gap: Manual UI; no automated auth tests.
+      - ID: AUTH-02
+        Capability: Universal authenticated access to shared MVP data
+        Primary implementation: "`loadData`; `lib/supabase.ts`"
+        Database / persistence: RLS policies named `authenticated shared access` in `202608290001_initial_schema.sql`
+        Coverage: Implemented
+        Verification / known gap: Database policy inspection; role-based access intentionally deferred.
+      - ID: DATA-01
+        Capability: Load shared planning data and refresh on database changes
+        Primary implementation: "`loadData`; `ThresholdApp.refresh`; `threshold-live` realtime channel"
+        Database / persistence: Projects, activities, types, owners, links, and dependencies tables
+        Coverage: Implemented
+        Verification / known gap: Manual UI. Realtime behavior has no automated integration test.
+      - ID: DATA-02
+        Capability: Recover once from a transient JWT/session timing error without a refresh loop
+        Primary implementation: "`isRetryableAuthError`; `ThresholdApp.refresh`; `refreshInFlight`"
+        Database / persistence: Supabase session refresh
+        Coverage: Implemented
+        Verification / known gap: Type check and manual reload. Retry is bounded to one session refresh and one data retry.
+      - ID: DATA-03
+        Capability: Retain created/updated timestamps for future history surfaces
+        Primary implementation: Not currently displayed
+        Database / persistence: "`created_at`; `updated_at`; `set_updated_at` triggers"
+        Coverage: Partial
+        Verification / known gap: Timestamps are stored, but visible history remains open under D-39.
+      - ID: NAV-01
+        Capability: Desktop sidebar navigation and account controls
+        Primary implementation: "`Sidebar`; routes under `app/`"
+        Database / persistence: Profile name from `profiles`
+        Coverage: Implemented
+        Verification / known gap: Manual desktop UI.
+      - ID: NAV-02
+        Capability: Mobile bottom navigation with administration/account overflow
+        Primary implementation: "`MobileNav`; `app/extended.css`"
+        Database / persistence: Supabase sign-out
+        Coverage: Implemented
+        Verification / known gap: Manual responsive UI; breakpoint-specific keyboard testing remains.
+      - ID: SHELL-01
+        Capability: Product metadata, document shell, and application identity
+        Primary implementation: "`app/layout.tsx`; `RootLayout`; public favicon and logo assets"
+        Database / persistence: None
+        Coverage: Implemented
+        Verification / known gap: Metadata names Threshold Projects; social-image treatment is not defined.
+  - title: Overview and portfolio planning
+    columns:
+      - ID
+      - Capability
+      - Primary implementation
+      - Database / persistence
+      - Coverage
+      - Verification / known gap
+    requirements:
+      - ID: OVR-01
+        Capability: Cross-project overview timeline with project bars
+        Primary implementation: "`Overview`; `timelinePosition`; `/` route"
+        Database / persistence: Project dates and statuses
+        Coverage: Partial
+        Verification / known gap: Actual dates position bars. Adaptive day/week/month/quarter headers and overview sort/filter controls are incomplete.
+      - ID: OVR-02
+        Capability: Week, Month, Quarter, Half-year, Year, and All Events ranges; Month default
+        Primary implementation: "`Overview` range state and range tabs"
+        Database / persistence: None
+        Coverage: Partial
+        Verification / known gap: Range domains change, but each range currently renders five evenly spaced labels rather than the specified granularity.
+      - ID: OVR-03
+        Capability: Draft and completed project visibility controls
+        Primary implementation: "`Overview` visibility state"
+        Database / persistence: Project status
+        Coverage: Implemented
+        Verification / known gap: Manual UI.
+      - ID: OVR-04
+        Capability: Overdue, due-in-seven-days, and unassigned metrics
+        Primary implementation: "`Overview`; `isoDate`; `addDays`"
+        Database / persistence: Activity dates, status, and owners
+        Coverage: Implemented
+        Verification / known gap: Derived client-side; no boundary-date unit tests.
+      - ID: OVR-05
+        Capability: Activity breakdown by owner segmented by status
+        Primary implementation: "`OwnerBreakdown`"
+        Database / persistence: Team members, activity owners, activity status
+        Coverage: Implemented
+        Verification / known gap: Manual UI.
+      - ID: OVR-06
+        Capability: Mobile project tiles with health, progress, counts, and next activity
+        Primary implementation: "`ProjectCard`; `progress`; `app/extended.css`"
+        Database / persistence: Projects and activities
+        Coverage: Implemented
+        Verification / known gap: Manual responsive UI.
+  - title: Projects
+    columns:
+      - ID
+      - Capability
+      - Primary implementation
+      - Database / persistence
+      - Coverage
+      - Verification / known gap
+    requirements:
+      - ID: PRJ-01
+        Capability: Searchable, sortable project list with required default columns
+        Primary implementation: "`Projects`; `/projects` route; shared search in `ThresholdApp`"
+        Database / persistence: Projects, types, owners, activities
+        Coverage: Partial
+        Verification / known gap: Core columns and selector sorting exist. Labels shorten “Activity Progress” and “Overdue Activities,” and status sorting is lexical rather than workflow ordered.
+      - ID: PRJ-02
+        Capability: Create and edit project name, description, type, status, dates, and owners
+        Primary implementation: "`ProjectForm`; `Editor`; `ProjectDetail`"
+        Database / persistence: "`save_project`; `projects`; `project_owners`"
+        Coverage: Implemented
+        Verification / known gap: Client and database date-order validation; no automated CRUD test.
+      - ID: PRJ-03
+        Capability: Manually selected project status remains distinct from calculated activity progress
+        Primary implementation: "`statusLabel`; `Pill`; `progress`; `Projects`; `ProjectDetail`"
+        Database / persistence: "`project_status`; project `status`"
+        Coverage: Implemented
+        Verification / known gap: Archived activities are excluded because active data is passed to `progress`.
+      - ID: PRJ-04
+        Capability: Project detail summary, timeline before activity list, and quick activity editing
+        Primary implementation: "`ProjectDetail`; `ProjectActivityList`; `ActivityPanel`; `/projects/[id]` route"
+        Database / persistence: Projects, activities, dependencies
+        Coverage: Partial
+        Verification / known gap: Ordering and editing exist. Activity timeline positions are based on list order rather than actual dates and do not draw dependency links.
+      - ID: PRJ-05
+        Capability: Project date changes respect activity timing constraints and cannot place project start after active work
+        Primary implementation: "`ProjectForm`; `projectTimingConflict`; earliest-activity validation"
+        Database / persistence: "`validate_project_activity_timing` trigger, authoritative version in `202608300004_project_start_envelope.sql`"
+        Coverage: Partial
+        Verification / known gap: Client feedback names dates and differences and the database rejects invalid direct writes. Database fallback errors do not yet provide the same full context.
+  - title: Activities and activity details
+    columns:
+      - ID
+      - Capability
+      - Primary implementation
+      - Database / persistence
+      - Coverage
+      - Verification / known gap
+    requirements:
+      - ID: ACT-01
+        Capability: Cross-project activity table with required columns
+        Primary implementation: "`Activities`; `/activities` route"
+        Database / persistence: Activities, projects, types, owners
+        Coverage: Implemented
+        Verification / known gap: Manual UI.
+      - ID: ACT-02
+        Capability: Filter activities by owner, type, status, priority, due date, and archive state; sort meaningful fields
+        Primary implementation: "`Activities` filter and sort state"
+        Database / persistence: Activity fields and ownership
+        Coverage: Partial
+        Verification / known gap: Filters work. Status and priority currently sort lexically rather than by defined workflow/priority order; due-date options cover overdue and next seven days only.
+      - ID: ACT-03
+        Capability: Create and edit required dates, owners, type, status, priority, notes, and project
+        Primary implementation: "`ActivityForm`; `Editor`; `ActivityPanel`; `ActivityDetail`"
+        Database / persistence: Authoritative `save_activity` in `202608300003_project_timing_constraints.sql`; activities and `activity_owners`
+        Coverage: Implemented
+        Verification / known gap: Client and database date-order validation; no automated CRUD test.
+      - ID: ACT-04
+        Capability: Multiple labeled external links
+        Primary implementation: "`loadData`; `LinkEditor`; `ActivityForm`; `ActivityDetail` references panel"
+        Database / persistence: "`activity_links`; authoritative `save_activity` in migration `202608300003`"
+        Coverage: Partial
+        Verification / known gap: Add/edit/remove controls work, but archived rows are not filtered and can remain visible or be reactivated. Links render in the side panel rather than the specified bottom position; unsaved links use positional React keys.
+      - ID: ACT-05
+        Capability: Full activity detail page with schedule context, notes, owners, links, and relationships
+        Primary implementation: "`ActivityDetail`; `/activities/[id]` route"
+        Database / persistence: Activity query assembled in `loadData`
+        Coverage: Partial
+        Verification / known gap: Core details exist. Project-timing rule is editable but is not yet summarized on the read-only detail surface.
+      - ID: ACT-06
+        Capability: Derived overdue state permits past dates and excludes completed work
+        Primary implementation: "`Activities`; `Overview`; `ProjectCard`"
+        Database / persistence: Required activity dates; no overdue status column
+        Coverage: Implemented
+        Verification / known gap: Client-derived; no date/time-zone unit tests.
+      - ID: ACT-07
+        Capability: Multiple owners and unassigned activities
+        Primary implementation: "`OwnerPicker`; `AvatarList`; metrics and filters"
+        Database / persistence: "`activity_owners`; team members"
+        Coverage: Implemented
+        Verification / known gap: Manual UI.
+  - title: Scheduling and dependencies
+    columns:
+      - ID
+      - Capability
+      - Primary implementation
+      - Database / persistence
+      - Coverage
+      - Verification / known gap
+    requirements:
+      - ID: DEP-01
+        Capability: Search, add, configure, follow, and remove activity prerequisites
+        Primary implementation: "`ActivityForm` dependency picker; `ActivityDetail` prerequisite links"
+        Database / persistence: "`activity_dependencies`; authoritative `save_activity` in migration `202608300003`"
+        Coverage: Partial
+        Verification / known gap: Core controls work, but search is inline rather than the specified modal, and configure/remove controls are available only in edit mode. Dependents are not shown on activity detail.
+      - ID: DEP-02
+        Capability: Finish-to-start and finish-to-finish constraints
+        Primary implementation: "`ActivityForm.submit`; constraint selector"
+        Database / persistence: "`dependency_type`; `activity_dependencies`"
+        Coverage: Partial
+        Verification / known gap: Direct dependent-activity adjustments exist. Database writes do not enforce FTS/FTF date validity, and prerequisite edits do not inspect downstream activities.
+      - ID: DEP-03
+        Capability: Preview and confirm dependency-driven date changes while preserving valid scheduling space
+        Primary implementation: "`ActivityForm.submit`; neutral confirmation copy"
+        Database / persistence: Authoritative `save_activity` performs atomic activity/owner/link/dependency save
+        Coverage: Partial
+        Verification / known gap: Handles direct changes to the edited dependent. Multi-level propagation, downstream impact previews, reverse prerequisite proposals, and the specified update/remove resolution are not implemented.
+      - ID: DEP-04
+        Capability: Prevent circular dependencies and explain the relationship path
+        Primary implementation: Dependency candidate exclusion of self; database `prevent_dependency_cycle` trigger
+        Database / persistence: "`prevent_dependency_cycle` in initial schema"
+        Coverage: Partial
+        Verification / known gap: Database blocks cycles, but selection-time path detection and full-path explanation are not implemented.
+      - ID: DEP-05
+        Capability: Activity-level dependency timeline shows project, selected activity, prerequisites, and dependents with filters
+        Primary implementation: "`ActivityDetail` focus timeline"
+        Database / persistence: Dependency data
+        Coverage: Partial
+        Verification / known gap: Project and selected activity render. Relationship lanes, dependents, direction labels, and All/Prerequisites/Dependents filters are not implemented.
+      - ID: DEP-06
+        Capability: "Advance project deadline: finish N calendar days before project start or end"
+        Primary implementation: "`ActivityForm` Project timing controls; `projectTimingDeadline`; `projectTimingConflict`"
+        Database / persistence: Activity timing columns; `validate_activity_project_timing`; updated `save_activity`
+        Coverage: Implemented
+        Verification / known gap: Type check, manual UI, and live schema verification. No automated boundary tests.
+      - ID: DEP-07
+        Capability: "Post-project completion window: finish within N calendar days after project end; start may occur earlier"
+        Primary implementation: "`ActivityForm` Project timing controls; `projectTimingDeadline`; `projectTimingConflict`"
+        Database / persistence: Activity timing columns; validation triggers; authoritative `save_activity`
+        Coverage: Implemented
+        Verification / known gap: Deadline persistence/enforcement and after-project warning suppression are scoped to the finish date. No automated boundary tests.
+      - ID: DEP-08
+        Capability: Neutral, factual scheduling warnings identify dates and quantify differences
+        Primary implementation: "`projectTimingConflict`; dependency adjustment and outside-window copy in `ActivityForm`"
+        Database / persistence: Database errors provide neutral fallback messages
+        Coverage: Partial
+        Verification / known gap: New timing messages follow the convention. Older archive and dependency messages need a comprehensive language review.
+      - ID: DEP-09
+        Capability: Activities may finish after project end with an explicit exception
+        Primary implementation: "`ActivityForm.submit`"
+        Database / persistence: "`allow_outside_project`"
+        Coverage: Partial
+        Verification / known gap: The UI obtains confirmation for an unauthorized after-project finish, but direct authenticated writes can still set the stored exception flag.
+      - ID: DEP-10
+        Capability: Project start is on or before every active activity start; an earlier activity atomically proposes moving project start
+        Primary implementation: "`ActivityForm.submit`; `ProjectForm.submit`; `movesProjectStart`; neutral confirmation copy"
+        Database / persistence: "`validate_activity_project_timing`; `validate_project_activity_timing`; `save_activity` in `202608300004_project_start_envelope.sql`"
+        Coverage: Implemented
+        Verification / known gap: Client and database enforcement are implemented; automated boundary and transaction tests remain under `QA-03` and `QA-04`.
+  - title: Administration, archives, responsive design, and presentation
+    columns:
+      - ID
+      - Capability
+      - Primary implementation
+      - Database / persistence
+      - Coverage
+      - Verification / known gap
+    requirements:
+      - ID: ADM-01
+        Capability: Centrally manage team members, project types, and activity types
+        Primary implementation: "`Administration`; `AdminList`; `/administration` route"
+        Database / persistence: "`team_members`; `project_types`; `activity_types`; active-name uniqueness migration"
+        Coverage: Implemented
+        Verification / known gap: Add, rename, and archive exist. Administration permission policy remains universal for MVP.
+      - ID: ARC-01
+        Capability: Hide archived projects and activities by default and expose them through filters
+        Primary implementation: "`loadData`; `Projects`; `Activities`"
+        Database / persistence: "`archived_at` fields"
+        Coverage: Partial
+        Verification / known gap: Archived rows appear through filters, but their detail routes resolve only active records and therefore render no detail content.
+      - ID: ARC-02
+        Capability: Archive projects and their activities/links/dependencies
+        Primary implementation: "`ProjectDetail.archiveProject`"
+        Database / persistence: "`archive_project`"
+        Coverage: Implemented
+        Verification / known gap: Confirmation exists; no restore flow.
+      - ID: ARC-03
+        Capability: Archive an activity with downstream-impact preview and archive affected relationships
+        Primary implementation: No complete UI entry point
+        Database / persistence: "`archive_activity` in migration `202608300002` archives the activity, links, and relationships"
+        Coverage: Partial
+        Verification / known gap: Database function exists but is unreachable from the app. Activity archive control and required downstream-impact preview are missing.
+      - ID: ARC-04
+        Capability: Retain archived dependency relationships for history while hiding them and excluding them from scheduling/cycle logic
+        Primary implementation: "`loadData` filters active dependencies"
+        Database / persistence: "`archive_activity`; `archive_project`; `prevent_dependency_cycle`; dependency `archived_at`"
+        Coverage: Implemented
+        Verification / known gap: Active scheduling and cycle traversal ignore archived relationships. No visible history surface or integration test exists.
+      - ID: RSP-01
+        Capability: Full desktop and mobile creation/editing
+        Primary implementation: Shared forms; `Sidebar`; `MobileNav`; mobile cards; responsive CSS
+        Database / persistence: Same persistence paths on all viewports
+        Coverage: Implemented
+        Verification / known gap: Manual responsive inspection; systematic device matrix remains.
+      - ID: A11Y-01
+        Capability: Semantic, keyboard-accessible UI with focus visibility and suitable contrast
+        Primary implementation: Form labels, fieldsets, status roles, dialog attributes; global/extended CSS
+        Database / persistence: None
+        Coverage: Partial
+        Verification / known gap: No automated accessibility audit; modal focus trapping/restoration and comprehensive keyboard testing remain.
+      - ID: VIS-01
+        Capability: Threshold identity with warm editorial and restrained operational styling
+        Primary implementation: "`Sidebar`; logo assets; `app/globals.css`; `app/extended.css`"
+        Database / persistence: "`public/threshold-logo.png`; `public/threshold-logo-white.png`"
+        Coverage: Implemented
+        Verification / known gap: Exact brand typography and color confirmation remain open under D-16.
+      - ID: VIS-02
+        Capability: Gentle responsive transitions, restrained status colors, and no dark mode
+        Primary implementation: Global and extended CSS
+        Database / persistence: None
+        Coverage: Implemented
+        Verification / known gap: Visual review only.
+  - title: Verification and delivery coverage
+    columns:
+      - ID
+      - Capability
+      - Current implementation
+      - Coverage
+      - Next verification need
+    requirements:
+      - ID: QA-01
+        Capability: Type safety
+        Current implementation: "`database.types.ts`; typed client in `lib/supabase.ts`; `tsconfig.json`; `pnpm typecheck`; `.github/workflows/verify.yml`"
+        Coverage: Implemented
+        Next verification need: CI and local verification run `tsc --noEmit`; regenerate `database.types.ts` after every schema migration.
+      - ID: QA-02
+        Capability: Static code quality
+        Current implementation: "`eslint.config.mjs`; `postcss.config.mjs`; `package.json` scripts"
+        Coverage: Implemented
+        Next verification need: Existing warnings for image optimization, unused prototype/fallback values, and the PostCSS export remain.
+      - ID: QA-03
+        Capability: Automated unit tests for scheduling calculations
+        Current implementation: None
+        Coverage: Planned
+        Next verification need: Cover date arithmetic, both dependency types, both project-timing rules, project edits, and neutral conflict messages.
+      - ID: QA-04
+        Capability: Database integration tests
+        Current implementation: None
+        Coverage: Planned
+        Next verification need: Cover atomic saves, cycle rejection, timing triggers, archive behavior, and RLS.
+      - ID: QA-05
+        Capability: End-to-end core-journey tests
+        Current implementation: None
+        Coverage: Planned
+        Next verification need: Cover authentication, overview, filters, project/activity CRUD, dependencies, administration, and responsive navigation.
+      - ID: QA-06
+        Capability: Build and deployment target
+        Current implementation: "`package.json`; `next.config.ts`; `.github/workflows/verify.yml`; Tailwind/PostCSS configuration; Supabase CLI configuration and migrations"
+        Coverage: Partial
+        Next verification need: Pull requests and main are verified in CI. Vercel remains the specified target, but deployment verification is not documented.

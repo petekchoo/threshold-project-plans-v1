@@ -21,6 +21,7 @@ export async function loadData(): Promise<AppData> {
   const dependencies = (d.data || []) as Dependency[];
   const allActivities = ((a.data || []) as Activity[]).map((activity) => ({
     ...activity,
+    activity_links: (activity.activity_links || []).filter((link) => !link.archived_at),
     activity_dependencies: dependencies.filter((dependency) => dependency.activity_id === activity.id),
   }));
   const allProjects = (p.data || []) as Project[];

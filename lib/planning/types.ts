@@ -43,6 +43,7 @@ export type ActivityLink = {
   label: string;
   url: string;
   sort_order?: number;
+  archived_at?: string | null;
 };
 
 export type ProjectTimingRule = 'advance_deadline' | 'post_project_deadline';

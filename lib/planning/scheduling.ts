@@ -1,17 +1,13 @@
 import { addDays, date, dayDifference } from './dates';
-import type { Project, ProjectBoundary, ProjectTimingRule } from './types';
-
-const boundaryLabel = (boundary: ProjectBoundary) =>
-  boundary === 'start' ? 'project start date' : 'project end date';
+import type { Project, ProjectTimingRule } from './types';
 
 export function projectTimingDeadline(
   project: Project,
   rule: ProjectTimingRule,
-  boundary: ProjectBoundary,
   offset: number,
 ) {
   return rule === 'advance_deadline'
-    ? addDays(boundary === 'start' ? project.start_date : project.end_date, -offset)
+    ? addDays(project.end_date, -offset)
     : addDays(project.end_date, offset);
 }
 
@@ -20,16 +16,15 @@ export function projectTimingConflict(
   due: string,
   project: Project,
   rule: ProjectTimingRule,
-  boundary: ProjectBoundary,
   offset: number,
 ) {
-  const deadline = projectTimingDeadline(project, rule, boundary, offset);
+  const deadline = projectTimingDeadline(project, rule, offset);
   if (due <= deadline) return '';
 
   const days = dayDifference(deadline, due);
   const basis =
     rule === 'advance_deadline'
-      ? `${offset} calendar day${offset === 1 ? '' : 's'} before the ${boundaryLabel(boundary)}`
+      ? `${offset} calendar day${offset === 1 ? '' : 's'} before the project end date`
       : `within ${offset} calendar day${offset === 1 ? '' : 's'} after the project end date`;
 
   return `“${name}” must finish by ${date(deadline)}—${basis}. Its current finish date is ${date(due)}, ${days} day${days === 1 ? '' : 's'} later.`;

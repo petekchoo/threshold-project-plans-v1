@@ -197,11 +197,11 @@ groups:
         Coverage: Implemented
         Verification / known gap: Team members are staged in a searchable multi-select modal and shown with explicit Remove actions. Client and database date-order validation; no automated CRUD test.
       - ID: ACT-04
-        Capability: Multiple labeled external links
+        Capability: Add multiple labeled external links through a staged modal and manage them as clickable, removable tiles
         Primary implementation: "`lib/data/planning-data.ts`; `components/activities/link-editor.tsx`; `components/activities/activity-form.tsx`; `components/activities/activity-detail.tsx`"
         Database / persistence: "`activity_links`; authoritative `save_activity` in migration `202608300003`"
         Coverage: Partial
-        Verification / known gap: Add/edit/remove controls work, but archived rows are not filtered and can remain visible or be reactivated. Links render in the side panel rather than the specified bottom position; unsaved links use positional React keys.
+        Verification / known gap: Modal Save/Cancel, clickable tiles, explicit removal, and active-link filtering are implemented. Links render in the side panel rather than the specified bottom position.
       - ID: ACT-05
         Capability: Full activity detail page with schedule context, notes, assigned team members, links, and relationships
         Primary implementation: "`components/activities/activity-detail.tsx`; `/activities/[id]` route"
@@ -230,13 +230,13 @@ groups:
       - Verification / known gap
     requirements:
       - ID: DEP-01
-        Capability: Search, add, configure, follow, and remove activity prerequisites
+        Capability: Filter non-archived activities by project, search by Activity Name, then stage, save, configure, follow, and remove prerequisites
         Primary implementation: "`components/activities/dependency-picker.tsx`; `components/activities/activity-form.tsx`; `components/activities/activity-detail.tsx`"
         Database / persistence: "`activity_dependencies`; authoritative `save_activity` in migration `202608300003`"
         Coverage: Partial
-        Verification / known gap: Selected prerequisites have explicit constraint and Remove controls in edit mode. Search remains inline rather than the specified modal, and dependents are not shown on activity detail.
+        Verification / known gap: Project-filtered Activity Name search and staged single-selection Save/Cancel are implemented in a modal. Selected prerequisites have explicit constraint and Remove controls. Dependents are not shown on activity detail.
       - ID: DEP-02
-        Capability: Finish-to-start and finish-to-finish constraints
+        Capability: "Can't-start-until-completed and can't-finish-until-completed prerequisite constraints"
         Primary implementation: "`components/activities/activity-form.tsx` (`submit`, constraint selector)"
         Database / persistence: "`dependency_type`; `activity_dependencies`"
         Coverage: Partial
@@ -260,13 +260,13 @@ groups:
         Coverage: Partial
         Verification / known gap: Project and selected activity render. Relationship lanes, dependents, direction labels, and All/Prerequisites/Dependents filters are not implemented.
       - ID: DEP-06
-        Capability: "Advance project deadline: finish N calendar days before project start or end"
+        Capability: "Complete N calendar days before project end without an additional date selection"
         Primary implementation: "`components/activities/activity-form.tsx` Project timing controls; `lib/planning/scheduling.ts` (`projectTimingDeadline`, `projectTimingConflict`)"
-        Database / persistence: Activity timing columns; `validate_activity_project_timing`; updated `save_activity`
+        Database / persistence: "Activity timing columns; end-boundary normalization and enforcement in `202608310001_project_end_timing_rules.sql`; `validate_activity_project_timing`; updated `save_activity`"
         Coverage: Implemented
-        Verification / known gap: Type check, manual UI, and live schema verification. No automated boundary tests.
+        Verification / known gap: Type check verifies the end-date-only client path. Migration is authored but not applied; no automated boundary tests or authenticated legacy-data audit.
       - ID: DEP-07
-        Capability: "Post-project completion window: finish within N calendar days after project end; start may occur earlier"
+        Capability: "Complete within N calendar days after project end; start may occur earlier"
         Primary implementation: "`components/activities/activity-form.tsx` Project timing controls; `lib/planning/scheduling.ts` (`projectTimingDeadline`, `projectTimingConflict`)"
         Database / persistence: Activity timing columns; validation triggers; authoritative `save_activity`
         Coverage: Implemented
@@ -339,7 +339,7 @@ groups:
         Primary implementation: Form labels, fieldsets, status roles, dialog attributes; global/extended CSS
         Database / persistence: None
         Coverage: Partial
-        Verification / known gap: No automated accessibility audit; modal focus trapping/restoration and comprehensive keyboard testing remain.
+        Verification / known gap: Nested picker Escape/backdrop dismissal leaves the activity pane open. No automated accessibility audit; modal focus trapping/restoration and comprehensive keyboard testing remain.
       - ID: VIS-01
         Capability: Threshold identity with warm editorial and restrained operational styling
         Primary implementation: "`components/shell/sidebar.tsx`; logo assets; `app/globals.css`; `app/extended.css`"

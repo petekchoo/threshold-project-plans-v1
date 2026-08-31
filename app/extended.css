@@ -102,3 +102,8 @@ button.schedule-row-label{cursor:pointer}button.schedule-row-label:hover{backgro
 .overview-grid-line{position:absolute;z-index:1;inset:0 auto 0 0;width:1px;background:#e3dfd6}
 .overview-grid-line.is-terminal{transform:translateX(-1px)}
 .overview-timeline{background:none;overflow:hidden}.overview-timeline .bar{min-width:0;max-width:100%;clip-path:none;border-radius:2px}.overview-timeline .bar.bar-extends-before{clip-path:polygon(10px 0,100% 0,100% 100%,10px 100%,0 50%)}.overview-timeline .bar.bar-extends-after{clip-path:polygon(0 0,calc(100% - 10px) 0,100% 50%,calc(100% - 10px) 100%,0 100%)}.overview-timeline .bar.bar-extends-before.bar-extends-after{clip-path:polygon(10px 0,calc(100% - 10px) 0,100% 50%,calc(100% - 10px) 100%,10px 100%,0 50%)}
+
+.brand{display:flex;flex-direction:column;align-items:center;padding-bottom:34px}
+.brand-logo-crop{position:relative;width:110px;height:66px;overflow:hidden;flex:0 0 auto}
+.brand-logo-crop img{display:block;width:178px;height:178px;max-width:none;object-fit:fill;transform:translate(-35px,-47px)}
+.brand span{margin:10px 0 0;text-align:center}

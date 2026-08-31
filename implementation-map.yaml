@@ -345,7 +345,7 @@ groups:
         Primary implementation: "`components/shell/sidebar.tsx`; logo assets; `app/globals.css`; `app/extended.css`"
         Database / persistence: "`public/threshold-logo.png`; `public/threshold-logo-white.png`"
         Coverage: Implemented
-        Verification / known gap: Shared typography tokens increase detail, metadata, and label legibility; maintenance forms deliberately prioritize comfortable reading over maximum density. Exact brand typography and color confirmation remain open under D-16.
+        Verification / known gap: Sidebar presentation crops the square assets' transparent margins at display time so the Threshold mark and Projects wordmark form a balanced lockup without modifying source artwork. Shared typography tokens prioritize legibility. Exact brand typography and color confirmation remain open under D-16.
       - ID: VIS-02
         Capability: Gentle responsive transitions, restrained status colors, and no dark mode
         Primary implementation: Global and extended CSS

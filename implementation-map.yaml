@@ -336,10 +336,10 @@ groups:
         Verification / known gap: Manual responsive inspection; systematic device matrix remains.
       - ID: A11Y-01
         Capability: Semantic, keyboard-accessible UI with focus visibility and suitable contrast
-        Primary implementation: Form labels, fieldsets, status roles, dialog attributes; global/extended CSS
+        Primary implementation: "Form labels, fieldsets, status roles, dialog attributes; `components/shared/modal-keyboard.ts`; global/extended CSS"
         Database / persistence: None
         Coverage: Partial
-        Verification / known gap: Nested picker Escape/backdrop dismissal leaves the activity pane open. No automated accessibility audit; modal focus trapping/restoration and comprehensive keyboard testing remain.
+        Verification / known gap: Central keyboard policy makes Enter save and Escape cancel the topmost modal while preserving multiline input and validation/disabled states. Nested picker dismissal leaves the activity pane open. No automated accessibility audit; modal focus trapping/restoration and comprehensive keyboard testing remain.
       - ID: VIS-01
         Capability: Threshold identity with warm editorial and restrained operational styling
         Primary implementation: "`components/shell/sidebar.tsx`; logo assets; `app/globals.css`; `app/extended.css`"

@@ -76,6 +76,7 @@ Initial success measures remain to be defined. Candidate prototype measures incl
 - **Administration:** Centrally manage project types, activity types, and team members.
 - **Create/edit surfaces:** Projects and activities; exact use of pages, drawers, dialogs, and inline controls remains partly open.
 - The project-level activity editing pane closes without saving when the user chooses Cancel, presses Escape, or clicks the backdrop outside the pane. When a child modal is open within the pane, Escape or a click on that modal's backdrop closes only the child modal and leaves the activity pane open.
+- Modal keyboard behavior follows one shared policy: Enter/Return performs the active modal's Save action, Escape performs its Cancel action, and only the topmost modal responds. Enter does not bypass validation or a disabled Save action, and multiline text fields retain Enter for line breaks unless a specific editor explicitly overrides that behavior.
 
 ### Navigation
 
@@ -327,7 +328,7 @@ This map connects the functional specification to its current implementation. Re
 | ARC-03 | Archive an activity with downstream-impact preview and archive affected relationships | No complete UI entry point | `archive_activity` in migration `202608300002` archives the activity, links, and relationships | Partial | Database function exists but is unreachable from the app. Activity archive control and required downstream-impact preview are missing. |
 | ARC-04 | Retain archived dependency relationships for history while hiding them and excluding them from scheduling/cycle logic | `lib/data/planning-data.ts` filters active dependencies | `archive_activity`; `archive_project`; `prevent_dependency_cycle`; dependency `archived_at` | Implemented | Active scheduling and cycle traversal ignore archived relationships. No visible history surface or integration test exists. |
 | RSP-01 | Full desktop and mobile creation/editing | Feature forms; `components/shell/*`; `components/overview/project-card.tsx`; responsive CSS | Same persistence paths on all viewports | Implemented | Manual responsive inspection; systematic device matrix remains. |
-| A11Y-01 | Semantic, keyboard-accessible UI with focus visibility and suitable contrast | Form labels, fieldsets, status roles, dialog attributes; global/extended CSS | None | Partial | Nested picker Escape/backdrop dismissal leaves the activity pane open. No automated accessibility audit; modal focus trapping/restoration and comprehensive keyboard testing remain. |
+| A11Y-01 | Semantic, keyboard-accessible UI with focus visibility and suitable contrast | Form labels, fieldsets, status roles, dialog attributes; `components/shared/modal-keyboard.ts`; global/extended CSS | None | Partial | Central keyboard policy makes Enter save and Escape cancel the topmost modal while preserving multiline input and validation/disabled states. Nested picker dismissal leaves the activity pane open. No automated accessibility audit; modal focus trapping/restoration and comprehensive keyboard testing remain. |
 | VIS-01 | Threshold identity with warm editorial and restrained operational styling | `components/shell/sidebar.tsx`; logo assets; `app/globals.css`; `app/extended.css` | `public/threshold-logo.png`; `public/threshold-logo-white.png` | Implemented | Exact brand typography and color confirmation remain open under D-16. |
 | VIS-02 | Gentle responsive transitions, restrained status colors, and no dark mode | Global and extended CSS | None | Implemented | Visual review only. |
 
@@ -399,6 +400,7 @@ This map connects the functional specification to its current implementation. Re
 | 2026-08-31 | Anchor both project-relative timing rules to project end and collect only a calendar-day offset. | Removes an unnecessary date choice and makes the before/after rules symmetrical and explicit. | Confirmed |
 | 2026-08-31 | Add external links and prerequisite activities through staged modals, then show saved selections as removable tiles or relationship rows. | Keeps the activity editor concise while preserving explicit Save/Cancel control. | Confirmed |
 | 2026-08-31 | Dismiss only the topmost child modal when Escape or its backdrop is used inside the activity editing pane. | Prevents an attempt to close a picker from also discarding the entire activity edit. | Confirmed |
+| 2026-08-31 | Use a centralized modal keyboard policy with per-modal Save, Cancel, and validation configuration. | Makes Enter/Return and Escape consistent without coupling shared keyboard behavior to each modal's business logic. | Confirmed |
 
 ## Open Questions
 
@@ -468,3 +470,4 @@ This register is cumulative. Questions remain here until answered, explicitly de
 - 2026-08-29: Closed activity-level Gantt presentation with labeled prerequisite/dependent lanes, relationship filters, and a lower-density mobile default.
 - 2026-08-29: Confirmed Threshold Projects identity and visual direction; recorded the supplied logo variants as pending accessible asset files.
 - 2026-08-31: Simplified project timing to end-date-only before/after rules; moved external-link and prerequisite addition into staged modals; clarified prerequisite labels and nested-modal dismissal behavior.
+- 2026-08-31: Standardized modal keyboard behavior so Enter saves, Escape cancels, only the topmost surface responds, and multiline fields retain line-break input.

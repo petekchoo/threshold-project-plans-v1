@@ -2,6 +2,8 @@
 
 This repository is the durable handoff between development tasks. A new task should inspect the local checkout before making changes rather than relying on prior chat context.
 
+Coding agents must also follow the agent-specific authorization and documentation rules in `AGENTS.md`.
+
 ## Starting a task
 
 1. Read `DESIGN.md` for product behavior and decisions.
@@ -31,6 +33,8 @@ GitHub authentication is machine-local and should remain in the operating system
 Use the project-local CLI through the package scripts in `package.json`. The canonical migration, schema-check, type-generation, and credential-safety workflow is documented in `supabase/README.md`.
 
 Supabase authentication and project linking are machine-local. Verify them with `pnpm db:status` before database work. Apply migrations only after reviewing `pnpm db:push:dry-run` and receiving explicit authorization for the database write.
+
+If `pnpm` is available but a project script reports `node: not found`, load or activate the workspace's Node.js runtime before retrying. Keep runtime paths and other machine-specific configuration out of the repository.
 
 ## Finishing a task
 

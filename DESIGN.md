@@ -75,6 +75,7 @@ Initial success measures remain to be defined. Candidate prototype measures incl
 - **Activity detail:** A full-page editing surface with owners, required dates, status, priority, plain-text notes, labeled external links, dependency search/assignment, and linked dependency references.
 - **Administration:** Centrally manage project types, activity types, and team members.
 - **Create/edit surfaces:** Projects and activities; exact use of pages, drawers, dialogs, and inline controls remains partly open.
+- The project-level activity editing pane closes without saving when the user chooses Cancel, presses Escape, or clicks the backdrop outside the pane.
 
 ### Navigation
 
@@ -149,6 +150,8 @@ Exact colors, fonts, imagery, and component styling require further visual inspe
 - Projects and activities each have centrally administered types. Example project types include Maintenance, Event, and Marketing. Example activity types include Menu Development and Social Media Post.
 - Team members are centrally administered, and an activity can have multiple owners.
 - Project owners are manually assigned by the creating/editing user and are not derived from activity ownership.
+- The interface calls assigned people **team members** at the project and activity levels. “Owner” remains an internal data-model term only and is not user-facing vocabulary.
+- Project and activity forms show only currently assigned team members. An **Add team member** button opens a searchable multi-select modal populated from Administration; saving the modal applies the staged selection to the form, and each assigned team member has an explicit Remove action.
 - Each activity requires a start date and end/due date before it can be saved.
 - Each activity supports plain-text notes.
 - Each activity has a priority: Low, Normal, High, or Urgent.
@@ -164,6 +167,7 @@ Exact colors, fonts, imagery, and component styling require further visual inspe
 - Activities may finish after their project's end date. A conforming post-project completion window is explicit scheduling intent and does not also trigger the generic after-project warning.
 - Scheduling warnings use neutral, factual language: state the change, identify the constraint and dates, quantify the difference where possible, and present choices without judgment or urgency language.
 - Users find dependencies through a search-and-select modal. Selected dependencies appear as visible links in activity detail, open the referenced activity when clicked, expose their constraint type through a dropdown, and can be removed.
+- In activity editing, selected prerequisites are displayed as concrete relationship rows with their constraint type and an explicit Remove action.
 - When adding a dependency to an activity with dates already entered, the app evaluates its date constraints. If dates must change, it previews the affected dates and asks for confirmation. Confirming saves the dependency and adjusted dates; declining saves neither change.
 - Activity dates always remain editable within dependency constraints. An invalid edit is rejected with a message naming the dependency and offering the user the choice to update that dependency or remove the relationship.
 - When a prerequisite's dates move later, affected downstream activities move forward only after the user confirms a summary of all affected changes.
@@ -199,7 +203,7 @@ The confirmed stack is React, TypeScript, Tailwind CSS, GitHub, Vercel free tier
   - Ranges longer than a year: quarter columns.
 - **Mobile:** The leading direction is a tile-based project overview suited to available screen width. Final treatment remains open.
 - Summary metrics include overdue activities, activities due in the next seven days, and unassigned activities. Active and at-risk/blocked project health is primarily communicated by the master Gantt itself.
-- A lower dashboard section should show **Activity breakdown by owner** as a bar chart: total activity volume per team member, segmented by activity-status color.
+- A lower dashboard section should show **Activity breakdown by team member** as a bar chart: total activity volume per team member, segmented by activity-status color.
 
 ### Timeline hierarchy
 
@@ -212,10 +216,10 @@ The confirmed stack is React, TypeScript, Tailwind CSS, GitHub, Vercel free tier
 
 ### List and card views
 
-- The cross-project Activities table defaults to columns for Activity, Project, Type, Owners, Status, Priority, Start, Due, and Overdue.
+- The cross-project Activities table defaults to columns for Activity, Project, Type, Team members, Status, Priority, Start, Due, and Overdue.
 - Columns are sortable where meaningful; filter controls sit above the table.
 - The dedicated Projects destination provides a searchable list/table in addition to the visual overview.
-- Default Projects columns are Project, Type, Status, Start, End, Activity Progress, Overdue Activities, and Owners.
+- Default Projects columns are Project, Type, Status, Start, End, Activity Progress, Overdue Activities, and Team members.
 - **Activity Progress** is calculated as completed active activities divided by all active activities; archived activities are excluded. It is distinct from manually selected project Status, which communicates the owner's judgment of project health.
 - Project owners are selected manually rather than inferred from activity owners.
 - Archived projects and activities are hidden by default in list views and exposed through a **Show archived** filter.
@@ -270,7 +274,7 @@ This map connects the functional specification to its current implementation. Re
 | OVR-02 | Week, Month, Quarter, Half-year, Year, and All Events ranges; Month default | `Overview` range state and range tabs | None | Partial | Range domains change, but each range currently renders five evenly spaced labels rather than the specified granularity. |
 | OVR-03 | Draft and completed project visibility controls | `Overview` visibility state | Project status | Implemented | Manual UI. |
 | OVR-04 | Overdue, due-in-seven-days, and unassigned metrics | `Overview`; `isoDate`; `addDays` | Activity dates, status, and owners | Implemented | Derived client-side; no boundary-date unit tests. |
-| OVR-05 | Activity breakdown by owner segmented by status | `OwnerBreakdown` | Team members, activity owners, activity status | Implemented | Manual UI. |
+| OVR-05 | Activity breakdown by team member segmented by status | `OwnerBreakdown` | Team members, activity owners, activity status | Implemented | Manual UI. |
 | OVR-06 | Mobile project tiles with health, progress, counts, and next activity | `ProjectCard`; `progress`; `app/extended.css` | Projects and activities | Implemented | Manual responsive UI. |
 
 ### Projects
@@ -278,9 +282,9 @@ This map connects the functional specification to its current implementation. Re
 | ID | Capability | Primary implementation | Database / persistence | Coverage | Verification / known gap |
 | --- | --- | --- | --- | --- | --- |
 | PRJ-01 | Searchable, sortable project list with required default columns | `Projects`; `/projects` route; shared search in `ThresholdApp` | Projects, types, owners, activities | Partial | Core columns and selector sorting exist. Labels shorten “Activity Progress” and “Overdue Activities,” and status sorting is lexical rather than workflow ordered. |
-| PRJ-02 | Create and edit project name, description, type, status, dates, and owners | `ProjectForm`; `Editor`; `ProjectDetail` | `save_project`; `projects`; `project_owners` | Implemented | Client and database date-order validation; no automated CRUD test. |
+| PRJ-02 | Create and edit project name, description, type, status, dates, and assigned team members | `ProjectForm`; `Editor`; `ProjectDetail` | `save_project`; `projects`; `project_owners` | Implemented | Team members are staged in a searchable multi-select modal and shown with explicit Remove actions. Client and database date-order validation; no automated CRUD test. |
 | PRJ-03 | Manually selected project status remains distinct from calculated activity progress | `statusLabel`; `Pill`; `progress`; `Projects`; `ProjectDetail` | `project_status`; project `status` | Implemented | Archived activities are excluded because active data is passed to `progress`. |
-| PRJ-04 | Project detail summary, timeline before activity list, and quick activity editing | `ProjectDetail`; `ProjectActivityList`; `ActivityPanel`; `/projects/[id]` route | Projects, activities, dependencies | Partial | Ordering and editing exist. Activity timeline positions are based on list order rather than actual dates and do not draw dependency links. |
+| PRJ-04 | Project detail summary, timeline before activity list, and quick activity editing | `ProjectDetail`; `ProjectActivityList`; `ActivityPanel`; `/projects/[id]` route | Projects, activities, dependencies | Partial | Ordering and editing exist; the activity pane supports Cancel, Escape, and backdrop dismissal without saving. Activity timeline positions are based on list order rather than actual dates and do not draw dependency links. |
 | PRJ-05 | Project date changes respect activity timing constraints and cannot place project start after active work | `ProjectForm`; `projectTimingConflict`; earliest-activity validation | `validate_project_activity_timing` trigger, authoritative version in `202608300004_project_start_envelope.sql` | Partial | Client feedback names dates and differences and the database rejects invalid direct writes. Database fallback errors do not yet provide the same full context. |
 
 ### Activities and activity details
@@ -288,18 +292,18 @@ This map connects the functional specification to its current implementation. Re
 | ID | Capability | Primary implementation | Database / persistence | Coverage | Verification / known gap |
 | --- | --- | --- | --- | --- | --- |
 | ACT-01 | Cross-project activity table with required columns | `Activities`; `/activities` route | Activities, projects, types, owners | Implemented | Manual UI. |
-| ACT-02 | Filter activities by owner, type, status, priority, due date, and archive state; sort meaningful fields | `Activities` filter and sort state | Activity fields and ownership | Partial | Filters work. Status and priority currently sort lexically rather than by defined workflow/priority order; due-date options cover overdue and next seven days only. |
-| ACT-03 | Create and edit required dates, owners, type, status, priority, notes, and project | `ActivityForm`; `Editor`; `ActivityPanel`; `ActivityDetail` | Authoritative `save_activity` in `202608300003_project_timing_constraints.sql`; activities and `activity_owners` | Implemented | Client and database date-order validation; no automated CRUD test. |
+| ACT-02 | Filter activities by team member, type, status, priority, due date, and archive state; sort meaningful fields | `Activities` filter and sort state | Activity fields and ownership | Partial | Filters work. Status and priority currently sort lexically rather than by defined workflow/priority order; due-date options cover overdue and next seven days only. |
+| ACT-03 | Create and edit required dates, assigned team members, type, status, priority, notes, and project | `ActivityForm`; `Editor`; `ActivityPanel`; `ActivityDetail` | Authoritative `save_activity` in `202608300003_project_timing_constraints.sql`; activities and `activity_owners` | Implemented | Team members are staged in a searchable multi-select modal and shown with explicit Remove actions. Client and database date-order validation; no automated CRUD test. |
 | ACT-04 | Multiple labeled external links | `loadData`; `LinkEditor`; `ActivityForm`; `ActivityDetail` references panel | `activity_links`; authoritative `save_activity` in migration `202608300003` | Partial | Add/edit/remove controls work, but archived rows are not filtered and can remain visible or be reactivated. Links render in the side panel rather than the specified bottom position; unsaved links use positional React keys. |
-| ACT-05 | Full activity detail page with schedule context, notes, owners, links, and relationships | `ActivityDetail`; `/activities/[id]` route | Activity query assembled in `loadData` | Partial | Core details exist. Project-timing rule is editable but is not yet summarized on the read-only detail surface. |
+| ACT-05 | Full activity detail page with schedule context, notes, assigned team members, links, and relationships | `ActivityDetail`; `/activities/[id]` route | Activity query assembled in `loadData` | Partial | Core details exist. Project-timing rule is editable but is not yet summarized on the read-only detail surface. |
 | ACT-06 | Derived overdue state permits past dates and excludes completed work | `Activities`; `Overview`; `ProjectCard` | Required activity dates; no overdue status column | Implemented | Client-derived; no date/time-zone unit tests. |
-| ACT-07 | Multiple owners and unassigned activities | `OwnerPicker`; `AvatarList`; metrics and filters | `activity_owners`; team members | Implemented | Manual UI. |
+| ACT-07 | Multiple assigned team members and unassigned activities | `OwnerPicker`; team-member selection modal; `AvatarList`; metrics and filters | `activity_owners`; team members | Implemented | Manual UI verifies multi-select staging and explicit removal; persistence has no automated CRUD test. |
 
 ### Scheduling and dependencies
 
 | ID | Capability | Primary implementation | Database / persistence | Coverage | Verification / known gap |
 | --- | --- | --- | --- | --- | --- |
-| DEP-01 | Search, add, configure, follow, and remove activity prerequisites | `ActivityForm` dependency picker; `ActivityDetail` prerequisite links | `activity_dependencies`; authoritative `save_activity` in migration `202608300003` | Partial | Core controls work, but search is inline rather than the specified modal, and configure/remove controls are available only in edit mode. Dependents are not shown on activity detail. |
+| DEP-01 | Search, add, configure, follow, and remove activity prerequisites | `DependencyPicker`; `ActivityForm`; `ActivityDetail` prerequisite links | `activity_dependencies`; authoritative `save_activity` in migration `202608300003` | Partial | Selected prerequisites have explicit constraint and Remove controls in edit mode. Search remains inline rather than the specified modal, and dependents are not shown on activity detail. |
 | DEP-02 | Finish-to-start and finish-to-finish constraints | `ActivityForm.submit`; constraint selector | `dependency_type`; `activity_dependencies` | Partial | Direct dependent-activity adjustments exist. Database writes do not enforce FTS/FTF date validity, and prerequisite edits do not inspect downstream activities. |
 | DEP-03 | Preview and confirm dependency-driven date changes while preserving valid scheduling space | `ActivityForm.submit`; neutral confirmation copy | Authoritative `save_activity` performs atomic activity/owner/link/dependency save | Partial | Handles direct changes to the edited dependent. Multi-level propagation, downstream impact previews, reverse prerequisite proposals, and the specified update/remove resolution are not implemented. |
 | DEP-04 | Prevent circular dependencies and explain the relationship path | Dependency candidate exclusion of self; database `prevent_dependency_cycle` trigger | `prevent_dependency_cycle` in initial schema | Partial | Database blocks cycles, but selection-time path detection and full-path explanation are not implemented. |
@@ -379,6 +383,8 @@ This map connects the functional specification to its current implementation. Re
 | 2026-08-30 | Keep project-relative timing separate from activity prerequisites. | Project boundaries and activity relationships establish different scheduling constraints and belong in different editing sections. | Confirmed |
 | 2026-08-30 | Support advance deadlines and post-project completion windows as activity-level hard constraints measured in calendar days. | Covers preparation deadlines and time-limited follow-up work while retaining explicit user control over activity dates. | Confirmed |
 | 2026-08-30 | Allow a post-project activity to start before project end while enforcing only its latest finish date. | Reflection, analysis, and other follow-up work may begin during an event but still needs a defined completion window. | Confirmed |
+| 2026-08-30 | Use “team members” for assigned people throughout the interface and reserve “owner” for internal implementation terminology. | Keeps Administration, project assignment, and activity assignment language consistent. | Confirmed |
+| 2026-08-30 | Add team members through a searchable multi-select modal and show explicit Remove actions for team-member and prerequisite relationships. | Keeps forms manageable as the team directory grows and makes relationship removal discoverable. | Confirmed |
 | 2026-08-30 | Treat a conforming post-project rule as explicit authorization for dates outside the project window. | Avoids showing a redundant generic warning for an intentionally configured schedule. | Confirmed |
 | 2026-08-30 | Use neutral, factual language for scheduling conflicts and warnings. | Helps users evaluate constraints without judgmental or unnecessarily urgent phrasing. | Confirmed |
 | 2026-08-30 | Make `implementation-map.yaml` the editable traceability source and generate its readable representation in this document. | Preserves human readability while preventing two manually maintained maps from drifting. | Confirmed |

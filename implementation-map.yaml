@@ -116,7 +116,7 @@ groups:
         Coverage: Implemented
         Verification / known gap: Derived client-side; no boundary-date unit tests.
       - ID: OVR-05
-        Capability: Activity breakdown by owner segmented by status
+        Capability: Activity breakdown by team member segmented by status
         Primary implementation: "`OwnerBreakdown`"
         Database / persistence: Team members, activity owners, activity status
         Coverage: Implemented
@@ -143,11 +143,11 @@ groups:
         Coverage: Partial
         Verification / known gap: Core columns and selector sorting exist. Labels shorten “Activity Progress” and “Overdue Activities,” and status sorting is lexical rather than workflow ordered.
       - ID: PRJ-02
-        Capability: Create and edit project name, description, type, status, dates, and owners
+        Capability: Create and edit project name, description, type, status, dates, and assigned team members
         Primary implementation: "`ProjectForm`; `Editor`; `ProjectDetail`"
         Database / persistence: "`save_project`; `projects`; `project_owners`"
         Coverage: Implemented
-        Verification / known gap: Client and database date-order validation; no automated CRUD test.
+        Verification / known gap: Team members are staged in a searchable multi-select modal and shown with explicit Remove actions. Client and database date-order validation; no automated CRUD test.
       - ID: PRJ-03
         Capability: Manually selected project status remains distinct from calculated activity progress
         Primary implementation: "`statusLabel`; `Pill`; `progress`; `Projects`; `ProjectDetail`"
@@ -159,7 +159,7 @@ groups:
         Primary implementation: "`ProjectDetail`; `ProjectActivityList`; `ActivityPanel`; `/projects/[id]` route"
         Database / persistence: Projects, activities, dependencies
         Coverage: Partial
-        Verification / known gap: Ordering and editing exist. Activity timeline positions are based on list order rather than actual dates and do not draw dependency links.
+        Verification / known gap: Ordering and editing exist; the activity pane supports Cancel, Escape, and backdrop dismissal without saving. Activity timeline positions are based on list order rather than actual dates and do not draw dependency links.
       - ID: PRJ-05
         Capability: Project date changes respect activity timing constraints and cannot place project start after active work
         Primary implementation: "`ProjectForm`; `projectTimingConflict`; earliest-activity validation"
@@ -182,17 +182,17 @@ groups:
         Coverage: Implemented
         Verification / known gap: Manual UI.
       - ID: ACT-02
-        Capability: Filter activities by owner, type, status, priority, due date, and archive state; sort meaningful fields
+        Capability: Filter activities by team member, type, status, priority, due date, and archive state; sort meaningful fields
         Primary implementation: "`Activities` filter and sort state"
         Database / persistence: Activity fields and ownership
         Coverage: Partial
         Verification / known gap: Filters work. Status and priority currently sort lexically rather than by defined workflow/priority order; due-date options cover overdue and next seven days only.
       - ID: ACT-03
-        Capability: Create and edit required dates, owners, type, status, priority, notes, and project
+        Capability: Create and edit required dates, assigned team members, type, status, priority, notes, and project
         Primary implementation: "`ActivityForm`; `Editor`; `ActivityPanel`; `ActivityDetail`"
         Database / persistence: Authoritative `save_activity` in `202608300003_project_timing_constraints.sql`; activities and `activity_owners`
         Coverage: Implemented
-        Verification / known gap: Client and database date-order validation; no automated CRUD test.
+        Verification / known gap: Team members are staged in a searchable multi-select modal and shown with explicit Remove actions. Client and database date-order validation; no automated CRUD test.
       - ID: ACT-04
         Capability: Multiple labeled external links
         Primary implementation: "`loadData`; `LinkEditor`; `ActivityForm`; `ActivityDetail` references panel"
@@ -200,7 +200,7 @@ groups:
         Coverage: Partial
         Verification / known gap: Add/edit/remove controls work, but archived rows are not filtered and can remain visible or be reactivated. Links render in the side panel rather than the specified bottom position; unsaved links use positional React keys.
       - ID: ACT-05
-        Capability: Full activity detail page with schedule context, notes, owners, links, and relationships
+        Capability: Full activity detail page with schedule context, notes, assigned team members, links, and relationships
         Primary implementation: "`ActivityDetail`; `/activities/[id]` route"
         Database / persistence: Activity query assembled in `loadData`
         Coverage: Partial
@@ -212,11 +212,11 @@ groups:
         Coverage: Implemented
         Verification / known gap: Client-derived; no date/time-zone unit tests.
       - ID: ACT-07
-        Capability: Multiple owners and unassigned activities
-        Primary implementation: "`OwnerPicker`; `AvatarList`; metrics and filters"
+        Capability: Multiple assigned team members and unassigned activities
+        Primary implementation: "`OwnerPicker`; team-member selection modal; `AvatarList`; metrics and filters"
         Database / persistence: "`activity_owners`; team members"
         Coverage: Implemented
-        Verification / known gap: Manual UI.
+        Verification / known gap: Manual UI verifies multi-select staging and explicit removal; persistence has no automated CRUD test.
   - title: Scheduling and dependencies
     columns:
       - ID
@@ -228,10 +228,10 @@ groups:
     requirements:
       - ID: DEP-01
         Capability: Search, add, configure, follow, and remove activity prerequisites
-        Primary implementation: "`ActivityForm` dependency picker; `ActivityDetail` prerequisite links"
+        Primary implementation: "`DependencyPicker`; `ActivityForm`; `ActivityDetail` prerequisite links"
         Database / persistence: "`activity_dependencies`; authoritative `save_activity` in migration `202608300003`"
         Coverage: Partial
-        Verification / known gap: Core controls work, but search is inline rather than the specified modal, and configure/remove controls are available only in edit mode. Dependents are not shown on activity detail.
+        Verification / known gap: Selected prerequisites have explicit constraint and Remove controls in edit mode. Search remains inline rather than the specified modal, and dependents are not shown on activity detail.
       - ID: DEP-02
         Capability: Finish-to-start and finish-to-finish constraints
         Primary implementation: "`ActivityForm.submit`; constraint selector"

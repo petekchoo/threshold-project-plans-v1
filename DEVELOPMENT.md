@@ -14,6 +14,12 @@ Coding agents must also follow the agent-specific authorization and documentatio
 
 Do not discard local changes merely because they are absent from GitHub. Determine whether they are intentional work, generated output, or temporary state first.
 
+## Local development server
+
+Start the application with `pnpm dev`. When using the bundled Codex Node.js runtime, ensure its `bin` directory is present in `PATH` before starting the command. Do not invoke Next.js directly with an absolute Node path: Turbopack launches child Node.js processes that must also resolve `node` through `PATH`.
+
+Before reporting the server as ready, request `http://localhost:3000` and confirm that it returns an HTTP 200 response. If `pnpm` is available but startup or compilation reports `node: not found`, load or activate the workspace's Node.js runtime, ensure it is inherited through `PATH`, and retry. Keep runtime paths and other machine-specific configuration out of the repository.
+
 ## GitHub CLI
 
 GitHub CLI is the standard interface for pull requests and GitHub checks.
@@ -33,8 +39,6 @@ GitHub authentication is machine-local and should remain in the operating system
 Use the project-local CLI through the package scripts in `package.json`. The canonical migration, schema-check, type-generation, and credential-safety workflow is documented in `supabase/README.md`.
 
 Supabase authentication and project linking are machine-local. Verify them with `pnpm db:status` before database work. Apply migrations only after reviewing `pnpm db:push:dry-run` and receiving explicit authorization for the database write.
-
-If `pnpm` is available but a project script reports `node: not found`, load or activate the workspace's Node.js runtime before retrying. Keep runtime paths and other machine-specific configuration out of the repository.
 
 ## Finishing a task
 

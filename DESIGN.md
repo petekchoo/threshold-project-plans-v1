@@ -100,7 +100,7 @@ The product should borrow design cues from [Threshold's public website](https://
 ### Product identity
 
 - Product name: **Threshold Projects**.
-- Use the supplied Threshold curved horizontal logos, with light and dark variants selected for sufficient contrast. The asset files must be reattached or placed in the project folder before implementation because their referenced download paths are unavailable.
+- Use the supplied Threshold curved horizontal logos, with light and dark variants selected for sufficient contrast. The square PNG canvases contain substantial transparent margins, so display treatments crop those margins without altering the source artwork.
 
 Confirmed brand cues from the website's content and structure:
 
@@ -333,7 +333,7 @@ This map connects the functional specification to its current implementation. Re
 | ARC-04 | Retain archived dependency relationships for history while hiding them and excluding them from scheduling/cycle logic | `lib/data/planning-data.ts` filters active dependencies | `archive_activity`; `archive_project`; `prevent_dependency_cycle`; dependency `archived_at` | Implemented | Active scheduling and cycle traversal ignore archived relationships. No visible history surface or integration test exists. |
 | RSP-01 | Full desktop and mobile creation/editing | Feature forms; `components/shell/*`; `components/overview/project-card.tsx`; responsive CSS | Same persistence paths on all viewports | Implemented | Editor grids stack on small screens while retaining readable 16px controls and touch-sized actions. Manual responsive inspection; systematic device matrix remains. |
 | A11Y-01 | Semantic, keyboard-accessible UI with focus visibility and suitable contrast | Form labels, fieldsets, status roles, dialog attributes; `components/shared/modal-keyboard.ts`; global/extended CSS | None | Partial | Central keyboard policy makes Enter save and Escape cancel the topmost modal while preserving multiline input. Editors use enlarged labels, instructions, fields, actions, picker content, and visible focus rings; nested picker dismissal leaves the underlying editor open. No automated accessibility audit; modal focus trapping/restoration and comprehensive keyboard testing remain. |
-| VIS-01 | Threshold identity with warm editorial and restrained operational styling | `components/shell/sidebar.tsx`; logo assets; `app/globals.css`; `app/extended.css` | `public/threshold-logo.png`; `public/threshold-logo-white.png` | Implemented | Shared typography tokens increase detail, metadata, and label legibility; maintenance forms deliberately prioritize comfortable reading over maximum density. Exact brand typography and color confirmation remain open under D-16. |
+| VIS-01 | Threshold identity with warm editorial and restrained operational styling | `components/shell/sidebar.tsx`; logo assets; `app/globals.css`; `app/extended.css` | `public/threshold-logo.png`; `public/threshold-logo-white.png` | Implemented | Sidebar presentation crops the square assets' transparent margins at display time so the Threshold mark and Projects wordmark form a balanced lockup without modifying source artwork. Shared typography tokens prioritize legibility. Exact brand typography and color confirmation remain open under D-16. |
 | VIS-02 | Gentle responsive transitions, restrained status colors, and no dark mode | Global and extended CSS | None | Implemented | Responsive project summaries allocate content-sized columns and a wrapping Next Due region; status pills use stronger semantic colors. Visual review only. |
 
 ### Verification and delivery coverage
@@ -454,7 +454,7 @@ This register is cumulative. Questions remain here until answered, explicitly de
 | D-31 | Progress | How is project completion calculated, and does it replace status? | Confirmed | Activity Progress = completed active activities / all active activities. Archived activities are excluded. Status remains a separate manual health judgment. |
 | D-32 | Project list | Which columns appear by default, and how are owners determined? | Confirmed | Project, Type, Status, Start, End, Activity Progress, Overdue Activities, Owners. Owners are manually assigned. |
 | D-33 | Archives | How are archived projects and activities accessed? | Confirmed | Hidden by default; available through a Show archived filter. |
-| D-34 | Product identity | What is the application called and which logo treatment should it use? | Partially answered | Name is Threshold Projects. Use the supplied curved horizontal logo variants; files need to be reattached or copied into the project folder before implementation. |
+| D-34 | Product identity | What is the application called and which logo treatment should it use? | Confirmed | Name is Threshold Projects. Use the supplied curved horizontal logo variants and compensate for their transparent canvas margins in presentation styling. |
 | D-35 | Visual tone | What balance of brand atmosphere, density, color, motion, and theme should guide the UI? | Confirmed | Even editorial/operational balance; comfortable spacing; restrained status color; gentle transitions; elegant Art Deco influence; dark mode deferred. |
 | D-36 | Project fields | Beyond name, type, owners, status, and dates, which notes, links, location, budget, or other fields belong on a project? | Open | — |
 | D-37 | Activity creation | From which screens can users create activities, and should the current project/date/filter context prefill the form? | Open | — |
@@ -490,3 +490,4 @@ This register is cumulative. Questions remain here until answered, explicitly de
 - 2026-08-31: Changed ordinary maintenance-form labels to regular weight while preserving emphasis for section headings, warnings, selected record names, and actions.
 - 2026-08-31: Removed the global top utility bar and added linked overview sections for overdue, next-seven-day, and unassigned activities with in-place shared-panel editing.
 - 2026-08-31: Moved Team Workload below the detailed overview lists and rebuilt the Month-default portfolio ranges as fitted forward calendar windows with day, week, month, or quarter subdivisions.
+- 2026-08-31: Rebalanced the sidebar brand lockup by cropping transparent PNG margins at display time and proportioning the Threshold mark against the Projects wordmark.

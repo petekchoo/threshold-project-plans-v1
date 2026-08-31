@@ -68,7 +68,7 @@ button.schedule-row-label{cursor:pointer}button.schedule-row-label:hover{backgro
 .form-section{padding:24px;gap:18px}
 .form-section legend,.dependency-picker legend{font-size:22px;line-height:1.25}
 .form-section>p,.dependency-picker>p{max-width:660px;font-size:14px;line-height:1.55}
-.edit-form label{gap:9px;font-size:13px;line-height:1.4;text-transform:none;letter-spacing:normal}
+.edit-form label{gap:9px;font-size:13px;font-weight:400;line-height:1.4;text-transform:none;letter-spacing:normal}
 .edit-form input:not([type="checkbox"]):not([type="radio"]),.edit-form select,.edit-form textarea{min-height:44px;padding:11px 12px;font-size:16px;line-height:1.5}
 .edit-form textarea{min-height:130px}
 .edit-form input:focus,.edit-form select:focus,.edit-form textarea:focus{border-color:#806b43;box-shadow:0 0 0 3px #b5935228}

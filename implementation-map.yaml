@@ -195,7 +195,7 @@ groups:
         Primary implementation: "`components/activities/activity-form.tsx`; `components/shared/editor.tsx`; `components/activities/activity-panel.tsx`; `components/activities/activity-detail.tsx`"
         Database / persistence: Authoritative `save_activity` in `202608300003_project_timing_constraints.sql`; activities and `activity_owners`
         Coverage: Implemented
-        Verification / known gap: Shared editor styling uses 16px field text, 13px labels, 14px instructions/actions, visible focus treatment, and approximately 44px controls for comfortable maintenance. Team members are staged in a searchable multi-select modal. Client and database date-order validation; no automated CRUD test.
+        Verification / known gap: Shared editor styling uses 16px field text, regular-weight 13px labels, 14px instructions/actions, visible focus treatment, and approximately 44px controls for comfortable maintenance. Team members are staged in a searchable multi-select modal. Client and database date-order validation; no automated CRUD test.
       - ID: ACT-04
         Capability: Add multiple labeled external links through a staged modal and manage them as clickable, removable tiles
         Primary implementation: "`lib/data/planning-data.ts`; `components/activities/link-editor.tsx`; `components/activities/activity-form.tsx`; `components/activities/activity-detail.tsx`"

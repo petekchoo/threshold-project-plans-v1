@@ -1,0 +1,21 @@
+'use client';
+
+import Link from 'next/link';
+import { useState } from 'react';
+import { Heading } from '../shared/page-heading';
+import { statusLabel } from '../shared/status-pill';
+import { addDays, date, isoDate } from '../../lib/planning/dates';
+import { progress } from '../../lib/planning/progress';
+import { timelinePosition } from '../../lib/planning/scheduling';
+import type { AppData } from '../../lib/planning/types';
+import { OwnerBreakdown } from './owner-breakdown';
+import { ProjectCard } from './project-card';
+
+export function Overview({ data, query }: { data: AppData; query: string }) {
+  const today=isoDate(new Date()),weekEnd=addDays(today,7),[range,setRange]=useState<'Week'|'Month'|'Quarter'|'Half-year'|'Year'|'All Events'>('Month'),[showDraft,setShowDraft]=useState(true),[showCompleted,setShowCompleted]=useState(false);
+  const visible=data.projects.filter(project=>project.name.toLowerCase().includes(query.toLowerCase())&&(showDraft||project.status!=='draft')&&(showCompleted||project.status!=='completed'));
+  const rangeDays={'Week':7,'Month':35,'Quarter':95,'Half-year':185,'Year':370,'All Events':0}[range],domainStart=range==='All Events'?(visible.map(project=>project.start_date).sort()[0]||today):today,domainEnd=range==='All Events'?(visible.map(project=>project.end_date).sort().at(-1)||addDays(today,35)):addDays(today,rangeDays);
+  const ticks=Array.from({length:5},(_,index)=>addDays(domainStart,Math.round((new Date(`${domainEnd}T12:00:00`).getTime()-new Date(`${domainStart}T12:00:00`).getTime())/86400000/4*index)));
+  const overdue=data.activities.filter(activity=>activity.status!=='completed'&&activity.due_date<today).length,dueSoon=data.activities.filter(activity=>activity.status!=='completed'&&activity.due_date>=today&&activity.due_date<=weekEnd).length;
+  return <><Heading eyebrow={new Intl.DateTimeFormat('en-US',{weekday:'long',month:'long',day:'numeric'}).format(new Date())} title="Threshold at a glance" copy="What is moving, what needs attention, and what comes next."/><section className="metric-grid"><article><div className="metric-icon overdue">!</div><div><strong>{overdue}</strong><span>Overdue activities</span></div><small>Incomplete work past its due date</small></article><article><div className="metric-icon due">↗</div><div><strong>{dueSoon}</strong><span>Due in 7 days</span></div><small>Across active projects</small></article><article><div className="metric-icon unassigned">○</div><div><strong>{data.activities.filter(activity=>!activity.activity_owners?.length).length}</strong><span>Unassigned</span></div><small>Ready for a team member</small></article></section><section className="portfolio-card"><div className="section-head"><div><p className="eyebrow">Portfolio timeline</p><h2>Active projects</h2></div><div className="timeline-visibility"><label><input type="checkbox" checked={showDraft} onChange={event=>setShowDraft(event.target.checked)}/> Draft</label><label><input type="checkbox" checked={showCompleted} onChange={event=>setShowCompleted(event.target.checked)}/> Completed</label><Link href="/projects">View all →</Link></div></div><div className="range-tabs">{(['Week','Month','Quarter','Half-year','Year','All Events'] as const).map(option=><button className={range===option?'selected':''} onClick={()=>setRange(option)} key={option}>{option}</button>)}</div><div className="gantt desktop-only"><div className="gantt-header"><div>Project</div><div className="weeks">{ticks.map(tick=><span key={tick}>{date(tick)}</span>)}</div></div>{visible.map(project=><div className="gantt-row" key={project.id}><Link className="project-label" href={`/projects/${project.id}`}><strong>{project.name}</strong><span>{project.project_types?.name} · {progress(project,data.activities)}% complete</span></Link><div className="timeline"><div className={`bar status-${project.status}`} style={timelinePosition(project.start_date,project.end_date,domainStart,domainEnd)}><span>{statusLabel(project.status)}</span><b style={{width:`${progress(project,data.activities)}%`}}/></div></div></div>)}</div><div className="project-cards mobile-only">{visible.map(project=><ProjectCard key={project.id} p={project} activities={data.activities}/>)}</div></section><OwnerBreakdown data={data}/></>;
+}

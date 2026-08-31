@@ -199,13 +199,16 @@ The confirmed stack is React, TypeScript, Tailwind CSS, GitHub, Vercel free tier
 - **Desktop:** The homepage centers on a master Gantt containing all projects. Each project row exposes its timeline, status, and key metrics, with filtering and sorting within the view. Initial sort options include start date, end date, and status.
 - The master Gantt defaults to **Month** and offers Week, Quarter, Half-year, Year, and All Events ranges.
 - Timeline granularity adapts to the selected range:
-  - Week: day columns.
-  - Month and quarter: week columns, with bars positioned using actual start and end dates rather than rounded to whole weeks.
-  - Half-year and year: month columns.
-  - Ranges longer than a year: quarter columns.
+  - Week: the seven-day window beginning today, divided by day.
+  - Month: today through one calendar month forward, divided by week.
+  - Quarter: today through three calendar months forward, with labelled month boundaries and weekly subdivision lines.
+  - Half-year: today through six calendar months forward, divided at calendar-month boundaries.
+  - Year: today through twelve calendar months forward, divided at calendar-quarter boundaries.
+  - All Events: the complete visible-project date span expanded to quarter boundaries and divided by quarter.
+- Project bars use inclusive project end dates, are clipped cleanly to the selected window, and retain proportional positions. A bar continuing before or after the visible window ends in an outward triangular point on that side; a fully contained bar has flat ends. Every range fits the available timeline pane without horizontal scrolling.
 - **Mobile:** The leading direction is a tile-based project overview suited to available screen width. Final treatment remains open.
-- Summary metrics include overdue activities, non-overdue activities due from today through the next seven days, and unassigned activities. Each metric links to its matching detailed section below Team Workload. Activity rows in those sections open the same editing panel used by project detail, and successful saves refresh the overview in place. Active and at-risk/blocked project health is primarily communicated by the master Gantt itself.
-- A lower dashboard section should show **Activity breakdown by team member** as a bar chart: total activity volume per team member, segmented by activity-status color.
+- Summary metrics include overdue activities, non-overdue activities due from today through the next seven days, and unassigned activities. Each metric links to its matching detailed section above Team Workload. Activity rows in those sections open the same editing panel used by project detail, and successful saves refresh the overview in place. Active and at-risk/blocked project health is primarily communicated by the master Gantt itself.
+- After those detailed activity lists, **Activity breakdown by team member** appears as a bar chart: total activity volume per team member, segmented by activity-status color.
 
 ### Timeline hierarchy
 
@@ -275,10 +278,10 @@ This map connects the functional specification to its current implementation. Re
 
 | ID | Capability | Primary implementation | Database / persistence | Coverage | Verification / known gap |
 | --- | --- | --- | --- | --- | --- |
-| OVR-01 | Cross-project overview timeline with project bars | `components/overview/overview.tsx`; `lib/planning/scheduling.ts` (`timelinePosition`); `/` route | Project dates and statuses | Partial | Actual dates position bars. Adaptive day/week/month/quarter headers and overview sort/filter controls are incomplete. |
-| OVR-02 | Week, Month, Quarter, Half-year, Year, and All Events ranges; Month default | `components/overview/overview.tsx` range state and range tabs | None | Partial | Range domains change, but each range currently renders five evenly spaced labels rather than the specified granularity. |
+| OVR-01 | Cross-project overview timeline with project bars | `components/overview/overview.tsx`; `lib/planning/overview-timeline.ts`; `/` route | Project dates and statuses | Implemented | Integer calendar-day positioning clips inclusive project ranges to the selected half-open window and fits every subdivision into the pane. Outward triangular ends indicate continuation before or after the visible window. No automated date-boundary tests. |
+| OVR-02 | Week, Month, Quarter, Half-year, Year, and All Events ranges; Month default | `components/overview/overview.tsx` range state and range tabs; `lib/planning/overview-timeline.ts` | None | Implemented | Month is the default. Forward windows all begin today and end after 7 days or 1, 3, 6, or 12 calendar months; All Events uses the quarter-normalized full visible-project span. Quarter uses monthly labels with weekly subdivision lines; other views use day, week, month, or quarter divisions as specified. |
 | OVR-03 | Draft and completed project visibility controls | `components/overview/overview.tsx` visibility state | Project status | Implemented | Manual UI. |
-| OVR-04 | Linked overdue, due-in-seven-days, and unassigned metrics with actionable activity lists | `components/overview/overview.tsx`; `components/overview/activity-attention-list.tsx`; `components/activities/activity-panel.tsx`; `lib/planning/dates.ts` (`isoDate`, `addDays`) | Activity dates, status, and owners | Implemented | Metric cards link to matching sections below team workload. Rows open the shared activity editor panel; due-in-seven-days explicitly excludes overdue work. Derived client-side; no boundary-date unit tests. |
+| OVR-04 | Linked overdue, due-in-seven-days, and unassigned metrics with actionable activity lists | `components/overview/overview.tsx`; `components/overview/activity-attention-list.tsx`; `components/activities/activity-panel.tsx`; `lib/planning/dates.ts` (`isoDate`, `addDays`) | Activity dates, status, and owners | Implemented | Metric cards link to matching sections above Team Workload. Rows open the shared activity editor panel; due-in-seven-days explicitly excludes overdue work. Derived client-side; no boundary-date unit tests. |
 | OVR-05 | Activity breakdown by team member segmented by status | `components/overview/owner-breakdown.tsx` | Team members, activity owners, activity status | Implemented | Manual UI. |
 | OVR-06 | Mobile project tiles with health, progress, counts, and next activity | `components/overview/project-card.tsx`; `lib/planning/progress.ts`; `app/extended.css` | Projects and activities | Implemented | Manual responsive UI. |
 
@@ -408,7 +411,9 @@ This map connects the functional specification to its current implementation. Re
 | 2026-08-31 | Remove the project Attention panel and redundant row-level Edit affordance. | Gives the schedule the full content width and relies on the filterable, clickable activity list for the same actionable information. | Confirmed |
 | 2026-08-31 | Size shared maintenance forms for comfortable older-user legibility rather than dense data entry. | These records require sustained reading and editing; 16px fields, larger supporting text, clear focus, and touch-sized controls reduce avoidable strain. | Confirmed |
 | 2026-08-31 | Remove the global top utility bar and rely on view-specific filters and page-level creation actions. | The global search, connection indicator, and context-switching create button duplicate clearer controls within the core pages. | Confirmed |
-| 2026-08-31 | Link overview attention metrics to detailed activity sections below Team Workload and edit those rows with the shared activity panel. | Converts summary counts into direct, in-context action without duplicating editor behavior. | Confirmed |
+| 2026-08-31 | Link overview attention metrics to detailed activity sections and edit those rows with the shared activity panel. | Converts summary counts into direct, in-context action without duplicating editor behavior. | Confirmed |
+| 2026-08-31 | Default the overview timeline to Month and use today-anchored forward calendar windows with range-specific subdivisions fitted to the pane. | Keeps current work visible in every range and connects project-bar positions to actual calendar time rather than five decorative labels. | Confirmed |
+| 2026-08-31 | Place Team Workload after the detailed overview activity lists. | Keeps metric-linked actionable records together before the aggregate ownership visualization. | Confirmed |
 
 ## Open Questions
 
@@ -484,3 +489,4 @@ This register is cumulative. Questions remain here until answered, explicitly de
 - 2026-08-31: Enlarged shared project/activity editor typography, help text, picker content, focus treatment, spacing, and control targets for comfortable record maintenance by older users.
 - 2026-08-31: Changed ordinary maintenance-form labels to regular weight while preserving emphasis for section headings, warnings, selected record names, and actions.
 - 2026-08-31: Removed the global top utility bar and added linked overview sections for overdue, next-seven-day, and unassigned activities with in-place shared-panel editing.
+- 2026-08-31: Moved Team Workload below the detailed overview lists and rebuilt the Month-default portfolio ranges as fitted forward calendar windows with day, week, month, or quarter subdivisions.

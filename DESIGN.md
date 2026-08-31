@@ -68,7 +68,7 @@ Initial success measures remain to be defined. Candidate prototype measures incl
 ### Information architecture
 
 - **Sign in**
-- **Overview / Home:** Cross-project Gantt, project status, project visibility controls, and summary activity metrics.
+- **Overview / Home:** Cross-project Gantt, project status, project visibility controls, linked summary activity metrics, team workload, and actionable overdue, due-in-seven-days, and unassigned activity lists.
 - **Projects:** A dedicated searchable and sortable project list/table in addition to the overview Gantt.
 - **Project detail:** Project summary, followed by a full-width project-level Gantt, followed by the activity list. The summary uses compact content-sized Status, Dates, and Activity Progress regions, while Next Due receives the remaining width and wraps long activity names. The activity list provides the same status, priority, team member, type, due-date, sort, and archive controls as the global Activities view; its project scope is implicit. The whole activity row opens editing, without a separate Edit affordance. A separate Attention-count panel is intentionally omitted because the filterable activity list exposes the actionable work directly.
 - **Activities:** Filterable, sortable cross-project activity table.
@@ -82,6 +82,7 @@ Initial success measures remain to be defined. Candidate prototype measures incl
 
 - **Desktop:** Persistent left sidebar with Overview, Projects, Activities, Administration, and user/profile controls.
 - **Mobile:** Bottom navigation with Overview, Projects, and Activities. Administration and account controls live in an overflow/menu surface.
+- The shell does not include a global top search, connection-status indicator, or create button; Projects and Activities provide local text search and filters, while creation actions remain on their owning pages.
 - Navigation destinations and all creation/editing capabilities are available on both desktop and mobile.
 
 ### Responsive behavior
@@ -203,7 +204,7 @@ The confirmed stack is React, TypeScript, Tailwind CSS, GitHub, Vercel free tier
   - Half-year and year: month columns.
   - Ranges longer than a year: quarter columns.
 - **Mobile:** The leading direction is a tile-based project overview suited to available screen width. Final treatment remains open.
-- Summary metrics include overdue activities, activities due in the next seven days, and unassigned activities. Active and at-risk/blocked project health is primarily communicated by the master Gantt itself.
+- Summary metrics include overdue activities, non-overdue activities due from today through the next seven days, and unassigned activities. Each metric links to its matching detailed section below Team Workload. Activity rows in those sections open the same editing panel used by project detail, and successful saves refresh the overview in place. Active and at-risk/blocked project health is primarily communicated by the master Gantt itself.
 - A lower dashboard section should show **Activity breakdown by team member** as a bar chart: total activity volume per team member, segmented by activity-status color.
 
 ### Timeline hierarchy
@@ -268,7 +269,7 @@ This map connects the functional specification to its current implementation. Re
 | DATA-03 | Retain created/updated timestamps for future history surfaces | Not currently displayed | `created_at`; `updated_at`; `set_updated_at` triggers | Partial | Timestamps are stored, but visible history remains open under D-39. |
 | NAV-01 | Desktop sidebar navigation and account controls | `components/shell/sidebar.tsx`; routes under `app/` | Profile name from `profiles` | Implemented | Manual desktop UI. |
 | NAV-02 | Mobile bottom navigation with administration/account overflow | `components/shell/mobile-nav.tsx`; `app/extended.css` | Supabase sign-out | Implemented | Manual responsive UI; breakpoint-specific keyboard testing remains. |
-| SHELL-01 | Product metadata, document shell, and application identity | `app/layout.tsx`; `RootLayout`; public favicon and logo assets | None | Implemented | Metadata names Threshold Projects; social-image treatment is not defined. |
+| SHELL-01 | Product metadata, document shell, and application identity | `app/layout.tsx`; `RootLayout`; public favicon and logo assets | None | Implemented | Metadata names Threshold Projects; the shell omits the redundant global search, connection indicator, and context-switching create action. Social-image treatment is not defined. |
 
 ### Overview and portfolio planning
 
@@ -277,7 +278,7 @@ This map connects the functional specification to its current implementation. Re
 | OVR-01 | Cross-project overview timeline with project bars | `components/overview/overview.tsx`; `lib/planning/scheduling.ts` (`timelinePosition`); `/` route | Project dates and statuses | Partial | Actual dates position bars. Adaptive day/week/month/quarter headers and overview sort/filter controls are incomplete. |
 | OVR-02 | Week, Month, Quarter, Half-year, Year, and All Events ranges; Month default | `components/overview/overview.tsx` range state and range tabs | None | Partial | Range domains change, but each range currently renders five evenly spaced labels rather than the specified granularity. |
 | OVR-03 | Draft and completed project visibility controls | `components/overview/overview.tsx` visibility state | Project status | Implemented | Manual UI. |
-| OVR-04 | Overdue, due-in-seven-days, and unassigned metrics | `components/overview/overview.tsx`; `lib/planning/dates.ts` (`isoDate`, `addDays`) | Activity dates, status, and owners | Implemented | Derived client-side; no boundary-date unit tests. |
+| OVR-04 | Linked overdue, due-in-seven-days, and unassigned metrics with actionable activity lists | `components/overview/overview.tsx`; `components/overview/activity-attention-list.tsx`; `components/activities/activity-panel.tsx`; `lib/planning/dates.ts` (`isoDate`, `addDays`) | Activity dates, status, and owners | Implemented | Metric cards link to matching sections below team workload. Rows open the shared activity editor panel; due-in-seven-days explicitly excludes overdue work. Derived client-side; no boundary-date unit tests. |
 | OVR-05 | Activity breakdown by team member segmented by status | `components/overview/owner-breakdown.tsx` | Team members, activity owners, activity status | Implemented | Manual UI. |
 | OVR-06 | Mobile project tiles with health, progress, counts, and next activity | `components/overview/project-card.tsx`; `lib/planning/progress.ts`; `app/extended.css` | Projects and activities | Implemented | Manual responsive UI. |
 
@@ -296,12 +297,12 @@ This map connects the functional specification to its current implementation. Re
 | ID | Capability | Primary implementation | Database / persistence | Coverage | Verification / known gap |
 | --- | --- | --- | --- | --- | --- |
 | ACT-01 | Cross-project activity table with required columns | `components/activities/activities-list.tsx`; `/activities` route | Activities, projects, types, owners | Implemented | Manual UI. |
-| ACT-02 | Filter activities by project, team member, type, status, priority, due date, and archive state; sort meaningful fields | `components/activities/activity-filters.tsx`; `components/activities/activities-list.tsx`; `components/projects/project-activity-list.tsx` | Activity fields and ownership | Partial | Shared filters drive both the global list and the project-scoped activity list; the global list adds Project while project detail fixes that scope implicitly. Status and priority currently sort lexically rather than by defined workflow/priority order; due-date options cover overdue and next seven days only. |
-| ACT-03 | Create and edit required dates, assigned team members, type, status, priority, notes, and project | `components/activities/activity-form.tsx`; `components/shared/editor.tsx`; `components/activities/activity-panel.tsx`; `components/activities/activity-detail.tsx` | Authoritative `save_activity` in `202608300003_project_timing_constraints.sql`; activities and `activity_owners` | Implemented | Shared editor styling uses 16px field text, regular-weight 13px labels, 14px instructions/actions, visible focus treatment, and approximately 44px controls for comfortable maintenance. Team members are staged in a searchable multi-select modal. Client and database date-order validation; no automated CRUD test. |
+| ACT-02 | Filter activities by project, team member, type, status, priority, due date, and archive state; sort meaningful fields | `components/activities/activity-filters.tsx`; `components/activities/activities-list.tsx`; `components/projects/project-activity-list.tsx` | Activity fields and ownership | Partial | Shared text search and filters drive both the global list and the project-scoped activity list; the global list adds Project while project detail fixes that scope implicitly. Status and priority currently sort lexically rather than by defined workflow/priority order; due-date options cover overdue and next seven days only. |
+| ACT-03 | Create and edit required dates, assigned team members, type, status, priority, notes, and project | `components/activities/activity-form.tsx`; `components/shared/editor.tsx`; `components/activities/activity-panel.tsx`; `components/activities/activity-detail.tsx`; overview and project-detail launch points | Authoritative `save_activity` in `202608300003_project_timing_constraints.sql`; activities and `activity_owners` | Implemented | Shared editor styling uses 16px field text, regular-weight 13px labels, 14px instructions/actions, visible focus treatment, and approximately 44px controls for comfortable maintenance. Team members are staged in a searchable multi-select modal. Client and database date-order validation; no automated CRUD test. |
 | ACT-04 | Add multiple labeled external links through a staged modal and manage them as clickable, removable tiles | `lib/data/planning-data.ts`; `components/activities/link-editor.tsx`; `components/activities/activity-form.tsx`; `components/activities/activity-detail.tsx` | `activity_links`; authoritative `save_activity` in migration `202608300003` | Partial | Modal Save/Cancel, clickable tiles, explicit removal, and active-link filtering are implemented. Links render in the side panel rather than the specified bottom position. |
 | ACT-05 | Full activity detail page with schedule context, notes, assigned team members, links, and relationships | `components/activities/activity-detail.tsx`; `/activities/[id]` route | Activity query assembled in `lib/data/planning-data.ts` (`loadData`) | Partial | Core details exist. Project-timing rule is editable but is not yet summarized on the read-only detail surface. |
-| ACT-06 | Derived overdue state permits past dates and excludes completed work | `components/activities/activities-list.tsx`; `components/overview/overview.tsx`; `components/overview/project-card.tsx` | Required activity dates; no overdue status column | Implemented | Client-derived; no date/time-zone unit tests. |
-| ACT-07 | Multiple assigned team members and unassigned activities | `components/activities/team-member-picker.tsx`; `components/shared/avatar-list.tsx`; overview metrics and activity filters | `activity_owners`; team members | Implemented | Manual UI verifies multi-select staging and explicit removal; persistence has no automated CRUD test. |
+| ACT-06 | Derived overdue state permits past dates and excludes completed work | `components/activities/activities-list.tsx`; `components/overview/overview.tsx`; `components/overview/project-card.tsx` | Required activity dates; no overdue status column | Implemented | Client-derived overview metric and detail list share the same incomplete-and-before-today predicate; the next-seven-days list begins today and excludes overdue work. No date/time-zone unit tests. |
+| ACT-07 | Multiple assigned team members and unassigned activities | `components/activities/team-member-picker.tsx`; `components/shared/avatar-list.tsx`; overview metric/detail list and activity filters | `activity_owners`; team members | Implemented | Manual UI verifies multi-select staging and explicit removal; persistence has no automated CRUD test. |
 
 ### Scheduling and dependencies
 
@@ -406,6 +407,8 @@ This map connects the functional specification to its current implementation. Re
 | 2026-08-31 | Use one shared activity-filter model globally and within project detail, with Project added only to the cross-project view. | Keeps filter behavior consistent while avoiding a redundant project selector inside an already scoped project page. | Confirmed |
 | 2026-08-31 | Remove the project Attention panel and redundant row-level Edit affordance. | Gives the schedule the full content width and relies on the filterable, clickable activity list for the same actionable information. | Confirmed |
 | 2026-08-31 | Size shared maintenance forms for comfortable older-user legibility rather than dense data entry. | These records require sustained reading and editing; 16px fields, larger supporting text, clear focus, and touch-sized controls reduce avoidable strain. | Confirmed |
+| 2026-08-31 | Remove the global top utility bar and rely on view-specific filters and page-level creation actions. | The global search, connection indicator, and context-switching create button duplicate clearer controls within the core pages. | Confirmed |
+| 2026-08-31 | Link overview attention metrics to detailed activity sections below Team Workload and edit those rows with the shared activity panel. | Converts summary counts into direct, in-context action without duplicating editor behavior. | Confirmed |
 
 ## Open Questions
 
@@ -480,3 +483,4 @@ This register is cumulative. Questions remain here until answered, explicitly de
 - 2026-08-31: Expanded the project schedule to full width, removed redundant Attention and Edit affordances, shared activity filters between project detail and the global list, and added a global Project filter.
 - 2026-08-31: Enlarged shared project/activity editor typography, help text, picker content, focus treatment, spacing, and control targets for comfortable record maintenance by older users.
 - 2026-08-31: Changed ordinary maintenance-form labels to regular weight while preserving emphasis for section headings, warnings, selected record names, and actions.
+- 2026-08-31: Removed the global top utility bar and added linked overview sections for overdue, next-seven-day, and unassigned activities with in-place shared-panel editing.

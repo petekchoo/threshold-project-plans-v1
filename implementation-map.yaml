@@ -84,7 +84,7 @@ groups:
         Primary implementation: "`app/layout.tsx`; `RootLayout`; public favicon and logo assets"
         Database / persistence: None
         Coverage: Implemented
-        Verification / known gap: Metadata names Threshold Projects; social-image treatment is not defined.
+        Verification / known gap: Metadata names Threshold Projects; the shell omits the redundant global search, connection indicator, and context-switching create action. Social-image treatment is not defined.
   - title: Overview and portfolio planning
     columns:
       - ID
@@ -113,11 +113,11 @@ groups:
         Coverage: Implemented
         Verification / known gap: Manual UI.
       - ID: OVR-04
-        Capability: Overdue, due-in-seven-days, and unassigned metrics
-        Primary implementation: "`components/overview/overview.tsx`; `lib/planning/dates.ts` (`isoDate`, `addDays`)"
+        Capability: Linked overdue, due-in-seven-days, and unassigned metrics with actionable activity lists
+        Primary implementation: "`components/overview/overview.tsx`; `components/overview/activity-attention-list.tsx`; `components/activities/activity-panel.tsx`; `lib/planning/dates.ts` (`isoDate`, `addDays`)"
         Database / persistence: Activity dates, status, and owners
         Coverage: Implemented
-        Verification / known gap: Derived client-side; no boundary-date unit tests.
+        Verification / known gap: Metric cards link to matching sections below team workload. Rows open the shared activity editor panel; due-in-seven-days explicitly excludes overdue work. Derived client-side; no boundary-date unit tests.
       - ID: OVR-05
         Capability: Activity breakdown by team member segmented by status
         Primary implementation: "`components/overview/owner-breakdown.tsx`"
@@ -189,10 +189,10 @@ groups:
         Primary implementation: "`components/activities/activity-filters.tsx`; `components/activities/activities-list.tsx`; `components/projects/project-activity-list.tsx`"
         Database / persistence: Activity fields and ownership
         Coverage: Partial
-        Verification / known gap: Shared filters drive both the global list and the project-scoped activity list; the global list adds Project while project detail fixes that scope implicitly. Status and priority currently sort lexically rather than by defined workflow/priority order; due-date options cover overdue and next seven days only.
+        Verification / known gap: Shared text search and filters drive both the global list and the project-scoped activity list; the global list adds Project while project detail fixes that scope implicitly. Status and priority currently sort lexically rather than by defined workflow/priority order; due-date options cover overdue and next seven days only.
       - ID: ACT-03
         Capability: Create and edit required dates, assigned team members, type, status, priority, notes, and project
-        Primary implementation: "`components/activities/activity-form.tsx`; `components/shared/editor.tsx`; `components/activities/activity-panel.tsx`; `components/activities/activity-detail.tsx`"
+        Primary implementation: "`components/activities/activity-form.tsx`; `components/shared/editor.tsx`; `components/activities/activity-panel.tsx`; `components/activities/activity-detail.tsx`; overview and project-detail launch points"
         Database / persistence: Authoritative `save_activity` in `202608300003_project_timing_constraints.sql`; activities and `activity_owners`
         Coverage: Implemented
         Verification / known gap: Shared editor styling uses 16px field text, regular-weight 13px labels, 14px instructions/actions, visible focus treatment, and approximately 44px controls for comfortable maintenance. Team members are staged in a searchable multi-select modal. Client and database date-order validation; no automated CRUD test.
@@ -213,10 +213,10 @@ groups:
         Primary implementation: "`components/activities/activities-list.tsx`; `components/overview/overview.tsx`; `components/overview/project-card.tsx`"
         Database / persistence: Required activity dates; no overdue status column
         Coverage: Implemented
-        Verification / known gap: Client-derived; no date/time-zone unit tests.
+        Verification / known gap: Client-derived overview metric and detail list share the same incomplete-and-before-today predicate; the next-seven-days list begins today and excludes overdue work. No date/time-zone unit tests.
       - ID: ACT-07
         Capability: Multiple assigned team members and unassigned activities
-        Primary implementation: "`components/activities/team-member-picker.tsx`; `components/shared/avatar-list.tsx`; overview metrics and activity filters"
+        Primary implementation: "`components/activities/team-member-picker.tsx`; `components/shared/avatar-list.tsx`; overview metric/detail list and activity filters"
         Database / persistence: "`activity_owners`; team members"
         Coverage: Implemented
         Verification / known gap: Manual UI verifies multi-select staging and explicit removal; persistence has no automated CRUD test.

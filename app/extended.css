@@ -84,3 +84,15 @@ button.schedule-row-label{cursor:pointer}button.schedule-row-label:hover{backgro
 .edit-form .link-picker-fields>label{font-size:13px;line-height:1.4;text-transform:none;letter-spacing:normal}
 .member-picker-modal .modal-close{width:44px;height:44px;display:grid;place-items:center;flex:0 0 auto}
 @media(max-width:620px){.form-section{padding:20px 16px}.activity-panel{padding:24px 16px}.form-section legend,.dependency-picker legend{font-size:21px}}
+
+.metric-grid>a{display:block;min-width:0}.metric-grid>a article{height:100%}.metric-grid>a:focus-visible{outline:3px solid #806b43;outline-offset:3px}
+.filter-search{min-width:190px;border:1px solid var(--line);background:#fff;border-radius:3px;padding:10px;font-size:12px;outline:none}.filter-search:focus{border-color:#806b43;box-shadow:0 0 0 3px #b5935228}
+.overview-attention-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px;margin-top:18px}
+.overview-activity-list{scroll-margin-top:24px;background:#fff;border:1px solid var(--line);padding:24px 26px;min-width:0}
+.overview-activity-list:focus{outline:none}.overview-activity-list:target{border-color:#b59352;box-shadow:0 0 0 3px #b593521c}
+.overview-activity-list .section-head>strong{font:400 24px Georgia,serif;color:var(--forest)}
+.overview-activity-row{width:100%;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:14px;align-items:center;border:0;border-top:1px solid #ebe8e0;background:transparent;padding:15px 0;text-align:left;cursor:pointer}
+.overview-activity-list .section-head+.overview-activity-row{margin-top:18px}.overview-activity-row:hover{background:#faf7ef}.overview-activity-row:focus-visible{outline:3px solid #806b43;outline-offset:2px}
+.overview-activity-row>span{min-width:0}.overview-activity-row strong,.overview-activity-row small{display:block}.overview-activity-row strong{font-size:var(--text-subhead);overflow-wrap:anywhere}.overview-activity-row small{margin-top:5px;color:var(--muted);font-size:var(--text-meta);line-height:1.4}
+.overview-activity-empty{border-top:1px solid #ebe8e0;margin:18px 0 0;padding:18px 0 0;color:var(--muted);font-size:var(--text-detail);line-height:1.5}
+@media(max-width:1100px){.overview-attention-grid{grid-template-columns:1fr}}

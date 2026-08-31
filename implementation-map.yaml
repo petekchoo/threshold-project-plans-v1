@@ -162,7 +162,7 @@ groups:
         Primary implementation: "`components/projects/project-detail.tsx`; `components/projects/project-schedule.tsx`; `components/projects/project-activity-list.tsx`; `components/activities/activity-panel.tsx`; `/projects/[id]` route"
         Database / persistence: Projects, activities, dependencies
         Coverage: Implemented
-        Verification / known gap: The date-scaled timeline includes the project row and end marker, maps activities to their actual dates, extends for post-project activity finishes, and adapts at one- and six-calendar-month boundaries from week/day to month/week to quarter/month grids. Dependency connectors are intentionally excluded. The activity pane supports Cancel, Escape, and backdrop dismissal without saving.
+        Verification / known gap: The date-scaled timeline occupies the full workspace without a redundant Attention panel, includes the project row and end marker, maps activities to their actual dates, extends for post-project activity finishes, and adapts at one- and six-calendar-month boundaries. The project activity list shares the global filters and opens an activity from the whole row without a redundant Edit affordance. Dependency connectors are intentionally excluded.
       - ID: PRJ-05
         Capability: Project date changes respect activity timing constraints and cannot place project start after active work
         Primary implementation: "`components/projects/project-form.tsx`; `lib/planning/scheduling.ts` (`projectTimingConflict`); earliest-activity validation"
@@ -185,11 +185,11 @@ groups:
         Coverage: Implemented
         Verification / known gap: Manual UI.
       - ID: ACT-02
-        Capability: Filter activities by team member, type, status, priority, due date, and archive state; sort meaningful fields
-        Primary implementation: "`components/activities/activities-list.tsx` filter and sort state"
+        Capability: Filter activities by project, team member, type, status, priority, due date, and archive state; sort meaningful fields
+        Primary implementation: "`components/activities/activity-filters.tsx`; `components/activities/activities-list.tsx`; `components/projects/project-activity-list.tsx`"
         Database / persistence: Activity fields and ownership
         Coverage: Partial
-        Verification / known gap: Filters work. Status and priority currently sort lexically rather than by defined workflow/priority order; due-date options cover overdue and next seven days only.
+        Verification / known gap: Shared filters drive both the global list and the project-scoped activity list; the global list adds Project while project detail fixes that scope implicitly. Status and priority currently sort lexically rather than by defined workflow/priority order; due-date options cover overdue and next seven days only.
       - ID: ACT-03
         Capability: Create and edit required dates, assigned team members, type, status, priority, notes, and project
         Primary implementation: "`components/activities/activity-form.tsx`; `components/shared/editor.tsx`; `components/activities/activity-panel.tsx`; `components/activities/activity-detail.tsx`"

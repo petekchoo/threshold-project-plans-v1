@@ -10,7 +10,6 @@ See `DEVELOPMENT.md` for the new-task startup, GitHub, Supabase, verification, a
 
 ## Next
 
-- Evaluate reformatting or decomposing `components/threshold-app.tsx` so future changes can use precise, reviewable patches without broad mechanical text replacement.
 - Evaluate project-date change behavior, including when significant start/end changes should preserve activity dates, propose schedule shifts, propagate changes through dependencies, or require manual resolution and confirmation.
 - Evaluate reusable project templates that preserve a project's activity structure and relative scheduling, then generate a new project and activity set with updated dates and editable details.
 - Add automated scheduling unit tests (`QA-03`).

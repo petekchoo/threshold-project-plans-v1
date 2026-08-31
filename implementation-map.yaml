@@ -195,7 +195,7 @@ groups:
         Primary implementation: "`components/activities/activity-form.tsx`; `components/shared/editor.tsx`; `components/activities/activity-panel.tsx`; `components/activities/activity-detail.tsx`"
         Database / persistence: Authoritative `save_activity` in `202608300003_project_timing_constraints.sql`; activities and `activity_owners`
         Coverage: Implemented
-        Verification / known gap: Team members are staged in a searchable multi-select modal and shown with explicit Remove actions. Client and database date-order validation; no automated CRUD test.
+        Verification / known gap: Shared editor styling uses 16px field text, 13px labels, 14px instructions/actions, visible focus treatment, and approximately 44px controls for comfortable maintenance. Team members are staged in a searchable multi-select modal. Client and database date-order validation; no automated CRUD test.
       - ID: ACT-04
         Capability: Add multiple labeled external links through a staged modal and manage them as clickable, removable tiles
         Primary implementation: "`lib/data/planning-data.ts`; `components/activities/link-editor.tsx`; `components/activities/activity-form.tsx`; `components/activities/activity-detail.tsx`"
@@ -333,19 +333,19 @@ groups:
         Primary implementation: Feature forms; `components/shell/*`; `components/overview/project-card.tsx`; responsive CSS
         Database / persistence: Same persistence paths on all viewports
         Coverage: Implemented
-        Verification / known gap: Manual responsive inspection; systematic device matrix remains.
+        Verification / known gap: Editor grids stack on small screens while retaining readable 16px controls and touch-sized actions. Manual responsive inspection; systematic device matrix remains.
       - ID: A11Y-01
         Capability: Semantic, keyboard-accessible UI with focus visibility and suitable contrast
         Primary implementation: "Form labels, fieldsets, status roles, dialog attributes; `components/shared/modal-keyboard.ts`; global/extended CSS"
         Database / persistence: None
         Coverage: Partial
-        Verification / known gap: Central keyboard policy makes Enter save and Escape cancel the topmost modal while preserving multiline input and validation/disabled states. Escape also cancels inline project editing; nested picker dismissal leaves the underlying editor open. Status contrast and shared detail typography are strengthened. No automated accessibility audit; modal focus trapping/restoration and comprehensive keyboard testing remain.
+        Verification / known gap: Central keyboard policy makes Enter save and Escape cancel the topmost modal while preserving multiline input. Editors use enlarged labels, instructions, fields, actions, picker content, and visible focus rings; nested picker dismissal leaves the underlying editor open. No automated accessibility audit; modal focus trapping/restoration and comprehensive keyboard testing remain.
       - ID: VIS-01
         Capability: Threshold identity with warm editorial and restrained operational styling
         Primary implementation: "`components/shell/sidebar.tsx`; logo assets; `app/globals.css`; `app/extended.css`"
         Database / persistence: "`public/threshold-logo.png`; `public/threshold-logo-white.png`"
         Coverage: Implemented
-        Verification / known gap: Shared typography tokens increase detail, metadata, and label legibility. Exact brand typography and color confirmation remain open under D-16.
+        Verification / known gap: Shared typography tokens increase detail, metadata, and label legibility; maintenance forms deliberately prioritize comfortable reading over maximum density. Exact brand typography and color confirmation remain open under D-16.
       - ID: VIS-02
         Capability: Gentle responsive transitions, restrained status colors, and no dark mode
         Primary implementation: Global and extended CSS

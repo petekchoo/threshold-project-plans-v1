@@ -6,13 +6,13 @@ See `DEVELOPMENT.md` for the new-task startup, GitHub, Supabase, verification, a
 
 ## Active
 
-- Complete the project-relative timing feature verification and resolve the partial-coverage items recorded under `DEP-07` and `DEP-09`.
+- Resolve the direct-write exception gap recorded under `DEP-09`.
 
 ## Next
 
 - Evaluate project-date change behavior, including when significant start/end changes should preserve activity dates, propose schedule shifts, propagate changes through dependencies, or require manual resolution and confirmation.
 - Evaluate reusable project templates that preserve a project's activity structure and relative scheduling, then generate a new project and activity set with updated dates and editable details.
-- Add automated scheduling unit tests (`QA-03`).
+- Expand scheduling unit tests to cover both dependency types and project-edit scenarios (`QA-03`).
 - Add database integration tests for dependency, timing, archive, and RLS behavior (`QA-04`).
 - Add end-to-end coverage for the core journeys (`QA-05`).
 

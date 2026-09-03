@@ -2,11 +2,14 @@
 
 These instructions govern coding agents working in this repository. Product requirements, contributor workflow, active work, and implementation traceability remain in their dedicated project documents.
 
+## Before beginning any task
+
+Read `DEVELOPMENT.md`, `TASKS.md`, `DESIGN.md`, and `implementation-map.yaml` in full. Use them as the authoritative workflow, work-state, product, and implementation-traceability references.
+
 ## Before changing files
 
-1. Read `DEVELOPMENT.md` and `TASKS.md`.
-2. Consult `DESIGN.md` and `implementation-map.yaml` for the applicable requirement IDs.
-3. Follow the startup, branching, verification, and completion workflow in `DEVELOPMENT.md`.
+1. Identify the applicable requirement IDs in `implementation-map.yaml`.
+2. Follow the startup, branching, verification, and completion workflow in `DEVELOPMENT.md`.
 
 ## Authorization boundaries
 

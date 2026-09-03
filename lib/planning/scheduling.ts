@@ -19,6 +19,15 @@ export function projectTimingConflict(
   offset: number,
 ) {
   const deadline = projectTimingDeadline(project, rule, offset);
+  if (rule === 'post_project_deadline' && due <= project.end_date) {
+    const daysBeforeWindow = dayDifference(due, project.end_date);
+    const position =
+      daysBeforeWindow === 0
+        ? 'on the project end date'
+        : `${daysBeforeWindow} calendar day${daysBeforeWindow === 1 ? '' : 's'} before the project end date`;
+
+    return `“${name}” must finish after ${date(project.end_date)} and by ${date(deadline)}—within ${offset} calendar day${offset === 1 ? '' : 's'} after the project end date. Its current finish date is ${date(due)}, ${position}.`;
+  }
   if (due <= deadline) return '';
 
   const days = dayDifference(deadline, due);

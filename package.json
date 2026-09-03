@@ -10,6 +10,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint . --ignore-pattern dist --ignore-pattern .next",
+    "test": "vitest run",
     "typecheck": "tsc --noEmit --incremental false",
     "map:generate": "node scripts/implementation-map.mjs generate",
     "map:check": "node scripts/implementation-map.mjs validate",
@@ -18,7 +19,7 @@
     "db:push:dry-run": "supabase db push --dry-run",
     "db:push": "supabase db push",
     "db:types": "supabase gen types typescript --linked --schema public > database.types.ts",
-    "verify": "pnpm map:check && pnpm typecheck && pnpm lint"
+    "verify": "pnpm map:check && pnpm typecheck && pnpm lint && pnpm test"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.112.4",
@@ -36,6 +37,7 @@
     "supabase": "^2.116.0",
     "tailwindcss": "4.2.1",
     "typescript": "5.9.3",
+    "vitest": "^4.1.11",
     "yaml": "^2.9.0"
   },
   "type": "module"

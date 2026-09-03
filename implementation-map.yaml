@@ -280,9 +280,9 @@ groups:
       - ID: DEP-09
         Capability: Activities may finish after project end with an explicit exception
         Primary implementation: "`components/activities/activity-form.tsx` (`submit`)"
-        Database / persistence: "`allow_outside_project`"
-        Coverage: Partial
-        Verification / known gap: The UI obtains confirmation for an unauthorized after-project finish, but direct authenticated writes can still set the stored exception flag.
+        Database / persistence: "`allow_outside_project`; authoritative activity functions and restricted table grants in `202609030002_protect_activity_exceptions.sql`"
+        Coverage: Implemented
+        Verification / known gap: The UI obtains confirmation for an unauthorized after-project finish. The database requires a consistent exception flag, denies direct authenticated activity-table writes, and limits the security-definer save/archive functions to authenticated callers. The migration preflight found no inconsistent existing flags; automated database integration coverage remains under QA-04.
       - ID: DEP-10
         Capability: Project start is on or before every active activity start; an earlier activity atomically proposes moving project start
         Primary implementation: "`components/activities/activity-form.tsx`; `components/projects/project-form.tsx`; `lib/planning/scheduling.ts` (`movesProjectStart`)"

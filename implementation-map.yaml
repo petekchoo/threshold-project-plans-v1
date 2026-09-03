@@ -264,13 +264,13 @@ groups:
         Primary implementation: "`components/activities/activity-form.tsx` Project timing controls; `lib/planning/scheduling.ts` (`projectTimingDeadline`, `projectTimingConflict`)"
         Database / persistence: "Activity timing columns; end-boundary normalization and enforcement in `202608310001_project_end_timing_rules.sql`; `validate_activity_project_timing`; updated `save_activity`"
         Coverage: Implemented
-        Verification / known gap: Type check verifies the end-date-only client path. Migration is authored but not applied; no automated boundary tests or authenticated legacy-data audit.
+        Verification / known gap: Unit tests cover the inclusive advance-deadline boundary and calendar arithmetic. The end-boundary migration is applied; database integration coverage remains under QA-04.
       - ID: DEP-07
-        Capability: "Complete within N calendar days after project end; start may occur earlier"
+        Capability: "Complete after project end and within N calendar days; start may occur earlier"
         Primary implementation: "`components/activities/activity-form.tsx` Project timing controls; `lib/planning/scheduling.ts` (`projectTimingDeadline`, `projectTimingConflict`)"
-        Database / persistence: Activity timing columns; validation triggers; authoritative `save_activity`
+        Database / persistence: "Activity timing columns; validation triggers; `202609030001_post_project_finish_window.sql`; authoritative `save_activity`"
         Coverage: Implemented
-        Verification / known gap: Deadline persistence/enforcement and after-project warning suppression are scoped to the finish date. No automated boundary tests.
+        Verification / known gap: Both inclusive finish-window boundaries and after-project warning suppression are scoped to the finish date. Unit tests cover calendar and conflict-message boundaries; the migration is applied and its preflight found no incompatible existing records. Database integration coverage remains under QA-04.
       - ID: DEP-08
         Capability: Neutral, factual scheduling warnings identify dates and quantify differences
         Primary implementation: "`lib/planning/scheduling.ts` (`projectTimingConflict`); dependency adjustment and outside-window copy in `components/activities/activity-form.tsx`"
@@ -372,9 +372,9 @@ groups:
         Next verification need: Existing warnings for image optimization, unused prototype/fallback values, and the PostCSS export remain.
       - ID: QA-03
         Capability: Automated unit tests for scheduling calculations
-        Current implementation: None
-        Coverage: Planned
-        Next verification need: Cover date arithmetic, both dependency types, both project-timing rules, project edits, and neutral conflict messages.
+        Current implementation: "Vitest; `lib/planning/scheduling.test.ts`"
+        Coverage: Partial
+        Next verification need: Project-timing date arithmetic and neutral boundary messages are covered. Add both dependency types and project-edit scenarios.
       - ID: QA-04
         Capability: Database integration tests
         Current implementation: None

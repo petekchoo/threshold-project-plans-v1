@@ -4,6 +4,19 @@
 > Requirement: `PRJ-06`
 > Last updated: 2026-09-04
 
+## Document authority and change hook
+
+This plan is the binding detailed specification for `PRJ-06`. Any change to project-rescheduling behavior must begin here, be reconciled with the durable product rules in `DESIGN.md`, and update the mapped implementation and tests in the same change.
+
+Current executable specification:
+
+- Pure planner: `lib/planning/project-reschedule.ts`
+- Domain contract: `lib/planning/types.ts`
+- PRJ-06 scenarios: `lib/planning/project-reschedule.test.ts`
+- Shared timing boundaries: `lib/planning/scheduling.test.ts`
+
+Future database and interface tests must be added to this list as their delivery slices are implemented.
+
 ## Outcome
 
 Let a user reschedule a project by editing its start and end dates directly. Before saving, show the complete proposed project and activity schedule, identify every blocking constraint, and commit an approved valid schedule atomically.
@@ -173,6 +186,61 @@ Save is enabled only for an authoritative conflict-free preview. Enter confirms 
 | PRJ06-24 | Concurrent edit after preview | Stale fingerprint is rejected and the user must refresh the preview. |
 | PRJ06-25 | Leap day or daylight-saving boundary | Calendar-day delta and resulting ISO dates remain exact. |
 | PRJ06-26 | Responsive and keyboard preview | Full impact remains usable on mobile; topmost-modal Enter/Escape policy is preserved. |
+
+## Automated coverage
+
+Slice 1 currently contains 34 executable PRJ-06 planner tests. Several tests verify multiple related facts from the acceptance matrix.
+
+### Whole-schedule movement
+
+- Move every active activity by the project-end delta without changing duration or spacing.
+- Move a complete schedule earlier using calendar-day arithmetic.
+- Handle a project with no active activities.
+- Expand a project window without stretching the activity formation.
+- Compress a window when the shifted formation still fits.
+- Block compression beyond available lead-in and return the exact containing start.
+- Preserve activity dates when only project start changes.
+- Block a start-only edit that excludes active work and return the exact containing start.
+- Classify unchanged project dates without moving active work.
+- Reject an invalid project window and an invalid activity date order.
+- Keep archived activities fixed and exclude archived completed work from mode and containment calculations.
+
+### Remaining-work movement
+
+- Keep completed dates fixed, shift incomplete dates, and preserve project start.
+- Reject a requested start change while still returning the complete proposal.
+- Validate final project date order against the preserved effective start.
+- Block work shifted before the fixed start without offering a prohibited start adjustment.
+- Block a completed project until it is separately reopened.
+- Return to whole-schedule mode after completed work is separately reopened.
+
+### Dependency validation
+
+- Allow equality at the finish-to-start boundary.
+- Allow equality at the finish-to-finish boundary.
+- Treat a completed prerequisite's retained due date as the finish-to-start boundary.
+- Treat a completed prerequisite's retained due date as the finish-to-finish boundary.
+- Block a completed dependent with an incomplete prerequisite even when dates align.
+- Detect incoming and outgoing cross-project conflicts without moving external work, with structured direction and endpoint facts.
+- Ignore archived relationships and archived endpoints.
+- Block an active relationship whose required endpoint is missing.
+
+### Timing rules and project-date exceptions
+
+- Preserve valid advance and post-project timing rules during a whole shift.
+- Block fixed completed work that violates advance or post-project timing.
+- Validate the exact approved/missing/stale exception truth table.
+- Block a fixed completed exception that becomes stale after project end moves later.
+- Allow inclusive timing boundaries and reject dates immediately outside them.
+- Block malformed timing configurations and offsets.
+
+### Calendar and planner integrity
+
+- Return structured conflicts for invalid calendar dates instead of throwing.
+- Preserve exact calendar-day movement across leap day and daylight-saving boundaries.
+- Leave all planner input unchanged and return deterministic results for identical input.
+
+The shared timing suite adds 12 executable tests covering advance-deadline calculation, post-project-window calculation, inclusive boundaries, leap-day and daylight-saving arithmetic, rejection on either side of the post-project window, and neutral singular/plural conflict wording.
 
 ## Explicit non-goals
 

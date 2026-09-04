@@ -9,8 +9,9 @@ Coding agents must also follow the agent-specific authorization and documentatio
 1. Read `DESIGN.md` for product behavior and decisions.
 2. Read `implementation-map.yaml` for requirement-to-code traceability.
 3. Read `TASKS.md` for active and upcoming work.
-4. Check the current branch and working-tree status before editing.
-5. Fetch `origin` before branching so new work starts from current GitHub `main`.
+4. For every applicable requirement, read the requirement-specific plans linked from `implementation-map.yaml` and inspect the executable tests they identify.
+5. Check the current branch and working-tree status before editing.
+6. Fetch `origin` before branching so new work starts from current GitHub `main`.
 
 Do not discard local changes merely because they are absent from GitHub. Determine whether they are intentional work, generated output, or temporary state first.
 

@@ -6,7 +6,7 @@ See `DEVELOPMENT.md` for the new-task startup, GitHub, Supabase, verification, a
 
 ## Active
 
-- Define project schedule-shifting behavior, including whole-project movement versus window resizing, preview and confirmation, completed and archived activities, cross-project dependencies, existing exceptions, and atomic rollback.
+- Implement the approved `PRJ-06` project-rescheduling plan in `plans/PRJ-06-project-rescheduling.md`, beginning with the pure scheduling planner and unit-test gate.
 
 ## Next
 

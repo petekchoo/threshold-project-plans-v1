@@ -171,10 +171,10 @@ groups:
         Verification / known gap: Client feedback names dates and differences and the database rejects invalid direct writes. Database fallback errors do not yet provide the same full context.
       - ID: PRJ-06
         Capability: Direct project-date edits preview and atomically move the complete or remaining schedule while preserving activity formation and completed history
-        Primary implementation: "Planned in `plans/PRJ-06-project-rescheduling.md`"
+        Primary implementation: "Pure planner in `lib/planning/project-reschedule.ts`; delivery plan in `plans/PRJ-06-project-rescheduling.md`"
         Database / persistence: No atomic project-rescheduling function
-        Coverage: Planned
-        Verification / known gap: Confirmed behavior covers project-end anchoring, shift/expand/compress outcomes, completed and archived activities, and manual handling of cross-project constraints. Implementation and automated unit, transaction, and core-journey coverage remain.
+        Coverage: Partial
+        Verification / known gap: Pure final-state planning and unit coverage implement end anchoring, shift/expand/compress outcomes, fixed completed and archived work, both dependency types in both project directions, project-relative timing, date exceptions, invalid calendar data, and complete structured conflicts. Authoritative database planning, atomic persistence, preview UI, transaction tests, and core-journey coverage remain.
   - title: Activities and activity details
     columns:
       - ID
@@ -378,9 +378,9 @@ groups:
         Next verification need: Existing warnings for image optimization, unused prototype/fallback values, and the PostCSS export remain.
       - ID: QA-03
         Capability: Automated unit tests for scheduling calculations
-        Current implementation: "Vitest; `lib/planning/scheduling.test.ts`"
+        Current implementation: "Vitest; `lib/planning/scheduling.test.ts`; `lib/planning/project-reschedule.test.ts`"
         Coverage: Partial
-        Next verification need: Project-timing date arithmetic and neutral boundary messages are covered. Add both dependency types and project-edit scenarios.
+        Next verification need: Project timing, project rescheduling, both dependency types, completed chronology, cross-project direction, exceptions, archive behavior, and calendar boundaries are covered. Add unit coverage for later scheduling features as they are implemented; transaction coverage remains under QA-04.
       - ID: QA-04
         Capability: Database integration tests
         Current implementation: None

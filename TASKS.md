@@ -6,7 +6,7 @@ See `DEVELOPMENT.md` for the new-task startup, GitHub, Supabase, verification, a
 
 ## Active
 
-- Implement the approved `PRJ-06` project-rescheduling plan in `plans/PRJ-06-project-rescheduling.md`, beginning with the pure scheduling planner and unit-test gate.
+- Continue the approved `PRJ-06` project-rescheduling plan in `plans/PRJ-06-project-rescheduling.md`. Slice 1's pure planner, unit matrix, and Luna/Terra review gate are complete; begin Slice 2 with the authoritative database preview and atomic transaction design.
 
 ## Next
 

@@ -33,7 +33,7 @@ Use when at least one active activity is completed.
 - Preserve completed activity dates.
 - Shift each active incomplete activity by the end delta.
 - Leave archived activities unchanged.
-- A completed prerequisite satisfies its dependency regardless of its retained planned dates. This semantic applies everywhere, including ordinary activity editing and dependency propagation, and updates the partial `DEP-02`/`DEP-03` behavior as part of this work.
+- Completion status does not waive dependency chronology. Without an actual completion timestamp, a completed prerequisite's retained due date remains its completion boundary everywhere: a finish-to-start dependent cannot begin before it, and a finish-to-finish dependent cannot finish before it.
 - A completed dependent with an incomplete prerequisite is inconsistent and blocks the reschedule.
 - If a fixed completed activity becomes invalid under `DEP-06`, `DEP-07`, `DEP-09`, or the project-start envelope, block and identify the conflict. Do not move completed dates, clear an exception, or alter a timing rule silently.
 
@@ -61,7 +61,7 @@ The planner must:
 4. Classify moved, preserved-completed, and unchanged-archived activities.
 5. Calculate expansion, compression, available lead-in, and the earliest containing project start.
 6. Validate project date order, activity date order, `DEP-06`, `DEP-07`, `DEP-09`, and `DEP-10` against the proposed final state.
-7. Validate internal and cross-project finish-to-start and finish-to-finish relationships in both directions, treating completed prerequisites as satisfied everywhere.
+7. Validate internal and cross-project finish-to-start and finish-to-finish relationships in both directions, including the retained due-date boundaries of completed prerequisites.
 8. Return all conflicts as structured records with stable codes and neutral user-facing facts.
 
 The client planner supports responsive preview and fast feedback. It is not the authority for persistence.
@@ -155,7 +155,7 @@ Save is enabled only for an authoritative conflict-free preview. Enter confirms 
 | PRJ06-06 | Only project start changes | Activities do not move; later start is allowed only when it contains every active activity. |
 | PRJ06-07 | Invalid or unchanged dates | Invalid order is rejected; unchanged dates use ordinary project save without a reschedule preview. |
 | PRJ06-08 | Completed work exists | Project start and completed dates remain fixed; incomplete activities move by the end delta. |
-| PRJ06-09 | Completed prerequisite | Relationship is satisfied everywhere; an incomplete dependent can move without an artificial planned-date conflict. |
+| PRJ06-09 | Completed prerequisite | Its retained due date remains the completion boundary; moving an incomplete dependent before that finish-to-start or finish-to-finish boundary blocks the preview. |
 | PRJ06-10 | Completed dependent with incomplete prerequisite | Preview identifies inconsistent state and blocks. |
 | PRJ06-11 | Internal FTS and FTF relationships | Common movement preserves each relationship and existing scheduling space. |
 | PRJ06-12 | Incoming cross-project conflict | External work remains fixed; preview lists the conflict and blocks. |

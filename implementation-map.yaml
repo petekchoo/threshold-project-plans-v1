@@ -169,6 +169,12 @@ groups:
         Database / persistence: "`validate_project_activity_timing` trigger, authoritative version in `202608300004_project_start_envelope.sql`"
         Coverage: Partial
         Verification / known gap: Client feedback names dates and differences and the database rejects invalid direct writes. Database fallback errors do not yet provide the same full context.
+      - ID: PRJ-06
+        Capability: Direct project-date edits preview and atomically move the complete or remaining schedule while preserving activity formation and completed history
+        Primary implementation: "Planned in `plans/PRJ-06-project-rescheduling.md`"
+        Database / persistence: No atomic project-rescheduling function
+        Coverage: Planned
+        Verification / known gap: Confirmed behavior covers project-end anchoring, shift/expand/compress outcomes, completed and archived activities, and manual handling of cross-project constraints. Implementation and automated unit, transaction, and core-journey coverage remain.
   - title: Activities and activity details
     columns:
       - ID
@@ -236,17 +242,17 @@ groups:
         Coverage: Partial
         Verification / known gap: Project-filtered Activity Name search and staged single-selection Save/Cancel are implemented in a modal. Selected prerequisites have explicit constraint and Remove controls. Dependents are not shown on activity detail.
       - ID: DEP-02
-        Capability: "Can't-start-until-completed and can't-finish-until-completed prerequisite constraints"
+        Capability: "Can't-start-until-completed and can't-finish-until-completed prerequisite constraints; completed prerequisites satisfy their relationships"
         Primary implementation: "`components/activities/activity-form.tsx` (`submit`, constraint selector)"
         Database / persistence: "`dependency_type`; `activity_dependencies`"
         Coverage: Partial
-        Verification / known gap: Direct dependent-activity adjustments exist. Database writes do not enforce FTS/FTF date validity, and prerequisite edits do not inspect downstream activities.
+        Verification / known gap: Direct dependent-activity adjustments exist. Completed-prerequisite satisfaction is confirmed and planned with PRJ-06. Database writes do not enforce FTS/FTF date validity, and prerequisite edits do not inspect downstream activities.
       - ID: DEP-03
         Capability: Preview and confirm dependency-driven date changes while preserving valid scheduling space
         Primary implementation: "`components/activities/activity-form.tsx` (`submit`, neutral confirmation copy)"
         Database / persistence: Authoritative `save_activity` performs atomic activity/owner/link/dependency save
         Coverage: Partial
-        Verification / known gap: Handles direct changes to the edited dependent. Multi-level propagation, downstream impact previews, reverse prerequisite proposals, and the specified update/remove resolution are not implemented.
+        Verification / known gap: Handles direct changes to the edited dependent. PRJ-06 will apply completed-prerequisite satisfaction consistently and block completed-dependent/incomplete-prerequisite inconsistencies. Multi-level propagation, downstream impact previews, reverse prerequisite proposals, and the specified update/remove resolution are not implemented.
       - ID: DEP-04
         Capability: Prevent circular dependencies and explain the relationship path
         Primary implementation: Dependency candidate exclusion of self; database `prevent_dependency_cycle` trigger

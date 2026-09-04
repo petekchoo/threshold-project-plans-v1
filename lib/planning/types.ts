@@ -62,12 +62,94 @@ export type Activity = {
   project_timing_rule?: ProjectTimingRule | null;
   project_timing_boundary?: ProjectBoundary | null;
   project_timing_offset_days?: number | null;
+  allow_outside_project?: boolean;
   archived_at?: string | null;
   projects?: { id: string; name: string; start_date: string; end_date: string };
   activity_types?: TypeRow;
   activity_owners?: { team_members: Member }[];
   activity_links?: ActivityLink[];
   activity_dependencies?: Dependency[];
+};
+
+export type ProjectRescheduleMode = 'move_entire_schedule' | 'reschedule_remaining_work';
+export type ProjectWindowChange = 'unchanged' | 'shift' | 'expand' | 'compress';
+export type ProjectRescheduleActivityDisposition =
+  | 'moved'
+  | 'unchanged_active'
+  | 'preserved_completed'
+  | 'unchanged_archived';
+
+export type ProjectRescheduleConflictCode =
+  | 'DATE_INVALID'
+  | 'PROJECT_COMPLETED'
+  | 'PROJECT_DATE_ORDER'
+  | 'PROJECT_START_CHANGE_WITH_COMPLETED_WORK'
+  | 'ACTIVITY_DATE_ORDER'
+  | 'ACTIVITY_BEFORE_PROJECT_START'
+  | 'ADVANCE_DEADLINE_VIOLATION'
+  | 'POST_PROJECT_WINDOW_VIOLATION'
+  | 'OUTSIDE_PROJECT_UNAPPROVED'
+  | 'OUTSIDE_PROJECT_EXCEPTION_STALE'
+  | 'TIMING_RULE_INVALID'
+  | 'DEPENDENCY_ENDPOINT_MISSING'
+  | 'COMPLETED_DEPENDENT_INCOMPLETE_PREREQUISITE'
+  | 'FINISH_TO_START_VIOLATION'
+  | 'FINISH_TO_FINISH_VIOLATION';
+
+export type ProjectRescheduleConflict = {
+  code: ProjectRescheduleConflictCode;
+  message: string;
+  activity_id?: string;
+  prerequisite_activity_id?: string;
+  dependent_activity_id?: string;
+  dependency_id?: string;
+  project_id?: string;
+  dependency_scope?: 'internal' | 'incoming' | 'outgoing';
+  dependent_activity_name?: string;
+  dependent_project_id?: string;
+  prerequisite_activity_name?: string;
+  prerequisite_project_id?: string;
+  dates?: Record<string, string>;
+  difference_days?: number;
+};
+
+export type ProjectRescheduleActivityChange = {
+  activity_id: string;
+  project_id: string;
+  name: string;
+  disposition: ProjectRescheduleActivityDisposition;
+  original_start_date: string;
+  original_due_date: string;
+  proposed_start_date: string;
+  proposed_due_date: string;
+};
+
+export type ProjectRescheduleActivity = Activity & { allow_outside_project: boolean };
+export type ProjectRescheduleDependency = Dependency & { id: string; activity_id: string };
+
+export type ProjectRescheduleInput = {
+  project: Project;
+  new_start_date: string;
+  new_end_date: string;
+  activities: ProjectRescheduleActivity[];
+  dependencies: ProjectRescheduleDependency[];
+};
+
+export type ProjectReschedulePlan = {
+  mode: ProjectRescheduleMode;
+  end_delta_days: number;
+  window_change: ProjectWindowChange;
+  original_project_start_date: string;
+  original_project_end_date: string;
+  requested_project_start_date: string;
+  requested_project_end_date: string;
+  proposed_project_start_date: string;
+  proposed_project_end_date: string;
+  available_lead_in_days: number | null;
+  earliest_containing_start_date: string | null;
+  activity_changes: ProjectRescheduleActivityChange[];
+  conflicts: ProjectRescheduleConflict[];
+  can_confirm: boolean;
 };
 
 export type AppData = {

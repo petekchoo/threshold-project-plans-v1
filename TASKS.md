@@ -12,7 +12,7 @@ See `DEVELOPMENT.md` for the new-task startup, GitHub, Supabase, verification, a
 
 - Deliver project schedule shifting so a user can move a project to new calendar dates and preview an atomic shift of its active activities. Preserve activity durations, relative spacing, dependency relationships, and project-relative timing rules; cover the resulting client calculations and database transaction path with automated tests.
 - Design and deliver reusable project templates for common or repeating work such as private dinners and menu launches. Define which project fields, activity details, relative date offsets, dependencies, project-relative timing rules, and assignments belong in a template; support template maintenance and atomic creation of an editable dated project with its complete activity graph. Reuse the project schedule-shifting model for date materialization and add unit, database, and core-journey coverage.
-- Expand scheduling unit tests to cover both dependency types and project-edit scenarios (`QA-03`).
+- Extend scheduling unit coverage as later project-rescheduling slices and dependency behaviors are implemented (`QA-03`).
 - Add database integration tests for dependency, timing, archive, and RLS behavior (`QA-04`).
 - Add end-to-end coverage for the core journeys (`QA-05`).
 

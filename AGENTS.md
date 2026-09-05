@@ -9,7 +9,9 @@ Read `DEVELOPMENT.md`, `TASKS.md`, `DESIGN.md`, and `implementation-map.yaml` in
 ## Before changing files
 
 1. Identify the applicable requirement IDs in `implementation-map.yaml`.
-2. Follow the startup, branching, verification, and completion workflow in `DEVELOPMENT.md`.
+2. Read every requirement-specific plan linked from those map entries. Plans in `plans/` contain binding detailed rules and acceptance conditions for their named requirements.
+3. Inspect the executable tests identified by each applicable plan before changing implemented behavior.
+4. Follow the startup, branching, verification, and completion workflow in `DEVELOPMENT.md`.
 
 ## Authorization boundaries
 
@@ -21,6 +23,7 @@ Read `DEVELOPMENT.md`, `TASKS.md`, `DESIGN.md`, and `implementation-map.yaml` in
 
 - Put product behavior and confirmed UX decisions in `DESIGN.md`.
 - Put requirement traceability and verification coverage in `implementation-map.yaml`.
+- Put elaborate requirement contracts, edge cases, acceptance matrices, and validation gates in a linked file under `plans/`; follow `plans/README.md`.
 - Put active and upcoming work in `TASKS.md`.
 - Put contributor workflow in `DEVELOPMENT.md`.
 - Keep agent-specific operating rules in this file.

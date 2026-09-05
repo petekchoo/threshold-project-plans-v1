@@ -1,8 +1,8 @@
 # PRJ-06 Project Rescheduling Implementation Plan
 
-> Status: Implementation in progress — Slices 1–3 complete; Slice 4 active
+> Status: Implemented — Slices 1–3 and release gate complete
 > Requirement: `PRJ-06`
-> Last updated: 2026-09-04
+> Last updated: 2026-09-05
 
 ## Document authority and change hook
 
@@ -154,7 +154,7 @@ Save is enabled only for an authoritative conflict-free preview. Enter confirms 
 
 **Agent gate C:** Run code-level requirement audits, then end-to-end browser scenarios for preview completeness, confirm/cancel, conflict recovery, mobile layout, and keyboard behavior. Live browser testing requires current-task authorization under `AGENTS.md`.
 
-### Slice 4 — Release and handoff
+### Release gate and handoff
 
 - Run `pnpm verify`, database tests, `pnpm build`, schema lint, and migration dry run.
 - Update `DESIGN.md`, `implementation-map.yaml`, and `TASKS.md` with actual coverage and known gaps.
@@ -200,6 +200,8 @@ Slice 2 adds authoritative database planning and atomic persistence in migration
 Slice 2.1 is implemented in migrations `202609040007`–`202609050002`. Transactional deployment verification covers one-hop discovery, deterministic ordering, archived-edge exclusion, activity moves, bounded-timeout isolation, global-trigger removal, and cleanup. The local explicit-barrier harness passes `PRJ06-CON-01`–`PRJ06-CON-13`, including the authenticated archive/deferred-validation path corrected by `202609050002`.
 
 Slice 3 connects changed project dates to the authoritative preview and commit RPCs, preserves ordinary metadata-only saves, lists every returned activity change and conflict, offers the authoritative containing start, and keeps cancel scoped to the topmost preview. Commit recovery refreshes stale previews, presents bounded-lock contention as retryable, and retries an expanded lock set at most twice. Two unit tests cover neutral movement and window-change presentation. Authorized live testing passed desktop and 390×844 mobile layout, topmost Escape cancellation with preserved form state, Enter confirmation, atomic forward/reverse movement, disabled conflict confirmation, containing-start recovery, and stale-preview refresh; every test fixture was restored.
+
+The release gate completed through GitHub PR #24 at merge commit `4c38fe3`. Repository verification and Vercel passed on the final PR head, the authorized migration and generated types were already synchronized through Slice 2.1, and local and remote `main` were reconciled after merge. Broader automated end-to-end journeys remain tracked under `QA-05`, not as unfinished PRJ-06 behavior.
 
 ### Whole-schedule movement
 

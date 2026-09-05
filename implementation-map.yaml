@@ -208,10 +208,10 @@ groups:
         Verification / known gap: The date-scaled timeline occupies the full workspace without a redundant Attention panel, includes the project row and end marker, maps activities to their actual dates, extends for post-project activity finishes, and adapts at one- and six-calendar-month boundaries. The project activity list shares the global filters and opens an activity from the whole row without a redundant Edit affordance. Dependency connectors are intentionally excluded.
       - ID: PRJ-05
         Capability: Project date changes respect activity timing constraints and cannot place project start after active work
-        Primary implementation: "`components/projects/project-form.tsx`; `lib/planning/scheduling.ts` (`projectTimingConflict`); earliest-activity validation"
-        Database / persistence: "`validate_project_activity_timing` trigger, authoritative version in `202608300004_project_start_envelope.sql`"
-        Coverage: Partial
-        Verification / known gap: Client feedback names dates and differences and the database rejects invalid direct writes. Database fallback errors do not yet provide the same full context.
+        Primary implementation: "`components/projects/project-form.tsx`; `components/projects/reschedule-preview-dialog.tsx`; authoritative project-reschedule preview and commit flow"
+        Database / persistence: "`preview_project_reschedule`; `reschedule_project`; `validate_project_activity_timing` trigger, authoritative version in `202608300004_project_start_envelope.sql`"
+        Coverage: Implemented
+        Verification / known gap: Changed project dates use the authoritative preview, which names affected dates and timing conflicts and offers the earliest containing start when required. The atomic commit and database trigger reject invalid or stale writes; metadata-only saves remain on the ordinary project-save path.
       - ID: PRJ-06
         plans:
           - plans/PRJ-06-project-rescheduling.md
@@ -222,8 +222,8 @@ groups:
         Capability: Direct project-date edits preview and atomically move the complete or remaining schedule while preserving activity formation and completed history
         Primary implementation: "Binding detail in `plans/PRJ-06-project-rescheduling.md`; Slice 2.1 concurrency contract in `plans/PRJ-06-project-scoped-locking.md`; pure planner in `lib/planning/project-reschedule.ts`; authoritative preview and commit RPCs; `components/projects/project-form.tsx`; `components/projects/reschedule-preview-dialog.tsx`"
         Database / persistence: "`preview_project_reschedule`, `reschedule_project`, schedule fingerprinting, deferred final validation, and protected write boundary in `202609040001`–`202609040004`; deterministic one-hop project locks, bounded waits, and secure deferred archive validation in `202609040007`–`202609050002`; transactional verification in `202609040002`, `202609040005`, `202609040006`, and `202609040008`"
-        Coverage: Partial
-        Verification / known gap: The linked plan maps 34 executable PRJ-06 planner tests, 12 shared timing tests, 2 preview-copy tests, and 19 pgTAP assertions. Slice 2 live database verification covers authoritative planning, atomic persistence and rollback, schedule rules, permissions, and stale fingerprints. The local explicit-barrier harness passes `PRJ06-CON-01`–`PRJ06-CON-13` for scoped discovery, serialization, stale and busy errors, archive races, rollback, and cleanup. Authorized Slice 3 live testing passes desktop and mobile layout, keyboard confirm/cancel, atomic movement and restoration, blocking-conflict recovery, and stale-preview refresh. Automated core-journey coverage remains for Slice 4.
+        Coverage: Implemented
+        Verification / known gap: The linked plan maps 34 executable PRJ-06 planner tests, 12 shared timing tests, 2 preview-copy tests, and 19 pgTAP assertions. Slice 2 live database verification covers authoritative planning, atomic persistence and rollback, schedule rules, permissions, and stale fingerprints. The local explicit-barrier harness passes `PRJ06-CON-01`–`PRJ06-CON-13` for scoped discovery, serialization, stale and busy errors, archive races, rollback, and cleanup. Authorized Slice 3 live testing passes desktop and mobile layout, keyboard confirm/cancel, atomic movement and restoration, blocking-conflict recovery, and stale-preview refresh. Pull request 24 completed the release gate with repository and Vercel checks passing; broader automated end-to-end journeys remain tracked under `QA-05`.
   - title: Activities and activity details
     scope: product-behavior
     design_refs:
@@ -310,7 +310,7 @@ groups:
         Primary implementation: "`components/activities/activity-form.tsx` (`submit`, neutral confirmation copy)"
         Database / persistence: Authoritative `save_activity` performs atomic activity/owner/link/dependency save
         Coverage: Partial
-        Verification / known gap: Handles direct changes to the edited dependent. PRJ-06 will preserve completed-prerequisite chronology and block completed-dependent/incomplete-prerequisite inconsistencies. Multi-level propagation, downstream impact previews, reverse prerequisite proposals, and the specified update/remove resolution are not implemented.
+        Verification / known gap: Handles direct changes to the edited dependent. PRJ-06 preserves completed-prerequisite chronology and blocks completed-dependent/incomplete-prerequisite inconsistencies during project rescheduling. Multi-level propagation, downstream impact previews, reverse prerequisite proposals, and the specified update/remove resolution are not implemented.
       - ID: DEP-04
         Capability: Prevent circular dependencies and explain the relationship path
         Primary implementation: Dependency candidate exclusion of self; database `prevent_dependency_cycle` trigger
@@ -465,5 +465,5 @@ groups:
       - ID: QA-06
         Capability: Build and deployment target
         Current implementation: "`package.json`; `next.config.ts`; `.github/workflows/verify.yml`; Tailwind/PostCSS configuration; Supabase CLI configuration and migrations"
-        Coverage: Partial
-        Next verification need: Pull requests and main are verified in CI. Vercel remains the specified target, but deployment verification is not documented.
+        Coverage: Implemented
+        Next verification need: Pull requests and main are verified in CI. Vercel deployment checks are required before merge and were confirmed on the final heads of PRJ-06 pull requests 22 and 24.

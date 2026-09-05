@@ -76,3 +76,5 @@ Supabase authentication and project linking are machine-local. Verify them with 
 3. Keep commits focused and review the final diff.
 4. Push completed work and confirm GitHub checks.
 5. Complete the post-merge branch cleanup above and leave local `main`, `origin/main`, and migration history synchronized.
+
+Treat `TASKS.md` as the durable operational handoff as well as the work list. Refresh its active entry after every material release-state transition: linked deployment, completion of final verification, pull-request creation, check or review outcome, merge, and post-merge cleanup. Before ending or restarting a Codex session, compare the active entry with the current branch, linked migration state when applicable, and GitHub pull-request/check state; record links or identifiers needed to resume without relying on chat history.

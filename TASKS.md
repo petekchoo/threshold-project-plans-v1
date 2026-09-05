@@ -6,7 +6,7 @@ See `DEVELOPMENT.md` for the new-task startup, GitHub, Supabase, verification, a
 
 ## Active
 
-- Deliver PRJ-06 Slice 3 from `feature/prj06-reschedule-preview`: connect project date edits to the authoritative preview and confirmation flow, including complete conflict recovery and accessible responsive behavior. Routed startup and requirement review are complete; inspect the mapped executable tests before changing behavior.
+- Complete the PRJ-06 Slice 3 validation gate on `feature/prj06-reschedule-preview`: changed project dates now use the authoritative preview and atomic commit flow; the dialog lists activity changes, fixed work, timing rules, exceptions, containing-start recovery, and all returned conflicts. Stale previews refresh, busy schedules remain retryable, and lock-set expansion retries at most twice. `pnpm verify` passes with 48 tests and the production build passes. Live responsive, confirm/cancel, conflict-recovery, and keyboard verification requires explicit current-task browser authorization before release.
 
 ## Recently completed
 

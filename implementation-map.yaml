@@ -22,6 +22,7 @@ verification_catalog:
     test_files:
       - lib/planning/scheduling.test.ts
       - lib/planning/project-reschedule.test.ts
+      - components/projects/reschedule-preview-dialog.test.ts
   - id: prj06-database
     kind: database
     command: pnpm db:test
@@ -219,10 +220,10 @@ groups:
           - unit-vitest
           - prj06-database
         Capability: Direct project-date edits preview and atomically move the complete or remaining schedule while preserving activity formation and completed history
-        Primary implementation: "Binding detail in `plans/PRJ-06-project-rescheduling.md`; Slice 2.1 concurrency contract in `plans/PRJ-06-project-scoped-locking.md`; pure planner in `lib/planning/project-reschedule.ts`; authoritative preview and commit RPCs"
+        Primary implementation: "Binding detail in `plans/PRJ-06-project-rescheduling.md`; Slice 2.1 concurrency contract in `plans/PRJ-06-project-scoped-locking.md`; pure planner in `lib/planning/project-reschedule.ts`; authoritative preview and commit RPCs; `components/projects/project-form.tsx`; `components/projects/reschedule-preview-dialog.tsx`"
         Database / persistence: "`preview_project_reschedule`, `reschedule_project`, schedule fingerprinting, deferred final validation, and protected write boundary in `202609040001`–`202609040004`; deterministic one-hop project locks, bounded waits, and secure deferred archive validation in `202609040007`–`202609050002`; transactional verification in `202609040002`, `202609040005`, `202609040006`, and `202609040008`"
         Coverage: Partial
-        Verification / known gap: The linked plan maps 34 executable PRJ-06 planner tests plus 12 shared timing tests and 19 pgTAP assertions. Slice 2 live database verification covers authoritative planning, atomic persistence and rollback, schedule rules, permissions, and stale fingerprints. The local explicit-barrier harness passes `PRJ06-CON-01`–`PRJ06-CON-13` for scoped discovery, serialization, stale and busy errors, archive races, rollback, and cleanup. Preview UI and core-journey coverage remain for Slices 3–4.
+        Verification / known gap: The linked plan maps 34 executable PRJ-06 planner tests, 12 shared timing tests, 2 preview-copy tests, and 19 pgTAP assertions. Slice 2 live database verification covers authoritative planning, atomic persistence and rollback, schedule rules, permissions, and stale fingerprints. The local explicit-barrier harness passes `PRJ06-CON-01`–`PRJ06-CON-13` for scoped discovery, serialization, stale and busy errors, archive races, rollback, and cleanup. The Slice 3 interface uses authoritative preview and commit RPCs with stale, busy, and lock-set recovery; live responsive and keyboard verification and core-journey automation remain.
   - title: Activities and activity details
     scope: product-behavior
     design_refs:

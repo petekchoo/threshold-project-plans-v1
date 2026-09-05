@@ -7,6 +7,7 @@ See `DEVELOPMENT.md` for the new-task startup, GitHub, Supabase, verification, a
 ## Active
 
 - Complete PRJ-06 Slice 2.1 under `plans/PRJ-06-project-scoped-locking.md`: replace the global schedule mutex with deterministic one-hop project locks, pass the `PRJ06-CON-*` multi-session matrix, and preserve the preview/fingerprint contract before beginning Slice 3.
+- Restart handoff: the delegated implementation pass stalled overnight and was interrupted after the usage guardrail detected no file progress. Uncommitted migrations `202609040007_project_scoped_schedule_locking.sql` and `202609040008_verify_project_scoped_schedule_locking.sql` are incomplete, unreviewed drafts and have not been applied to Supabase. Begin by inspecting whether they are salvageable; do not dry-run or apply them first. Reconcile them with the efficiency review: eliminate redundant graph/fingerprint passes, consolidate incident-edge discovery, use active-row filters so existing partial indexes apply, centralize acquisition/recheck logic, and prefer a bounded blocking advisory lock over polling if verified compatible. Audit every authoritative project/activity/archive/dependency write path together, then run the complete `PRJ06-CON-*` matrix before any merge.
 
 ## Next
 

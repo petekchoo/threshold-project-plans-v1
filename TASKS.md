@@ -24,6 +24,10 @@ Synchronization note: local `main` intentionally contains one post-merge documen
 - Add database integration tests for dependency, timing, archive, and RLS behavior (`QA-04`).
 - Extend QA-05 beyond the responsive smoke slice with disposable-fixture authentication, overview, CRUD, dependency, timeline, and administration journeys, then make it a required CI job.
 
+## Distant future
+
+- Consider a de novo native mobile client built with Expo and React Native after the mobile and desktop web experiences are robust. Keep the existing Next.js application unchanged as the web client; share the Supabase backend, authentication, row-level security, generated data types, and suitable pure scheduling logic while designing native navigation and screens independently. Begin only with a small read-only iPhone prototype covering sign-in, overview, projects, project detail, activity sequence, and activity detail, then evaluate the native experience before authorizing editing, notifications, TestFlight, or App Store release work.
+
 ## Working conventions
 
 - Start from a requirement ID in `implementation-map.yaml`.

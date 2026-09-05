@@ -6,7 +6,7 @@ See `DEVELOPMENT.md` for the new-task startup, GitHub, Supabase, verification, a
 
 ## Active
 
-- No implementation slice is active. Begin PRJ-06 Slice 3 from current `main` after completing its routed startup and requirement review.
+- Complete the PRJ-06 Slice 3 release gate on `feature/prj06-reschedule-preview`: changed project dates use the authoritative preview and atomic commit flow; the dialog lists activity changes, fixed work, timing rules, exceptions, containing-start recovery, and all returned conflicts. Stale previews refresh, busy schedules remain retryable, and lock-set expansion retries at most twice. `pnpm verify` passes with 48 tests and the production build passes. Authorized live testing passes desktop and 390×844 mobile layout, topmost Escape cancellation with preserved form state, Enter confirmation, atomic forward/reverse movement, disabled conflict confirmation, containing-start recovery, and stale-preview refresh; all test data was restored. GitHub PR #24 is open from head `3d1e6bf`; push this handoff update, require its repository and Vercel checks, then review and merge.
 
 ## Recently completed
 
@@ -15,7 +15,6 @@ See `DEVELOPMENT.md` for the new-task startup, GitHub, Supabase, verification, a
 
 ## Next
 
-- Deliver Slice 3 of project schedule shifting: connect project date edits to the authoritative preview and confirmation flow, including complete conflict recovery and accessible responsive behavior.
 - Selectively incorporate Instinct's external feedback before beginning project templates. Inventory each recommendation, compare it with Threshold's confirmed product rules and current implementation, record an explicit adopt/adapt/defer/reject decision with rationale, and implement only the approved changes with appropriate requirement mapping and verification.
 - Design and deliver reusable project templates for common or repeating work such as private dinners and menu launches. Define which project fields, activity details, relative date offsets, dependencies, project-relative timing rules, and assignments belong in a template; support template maintenance and atomic creation of an editable dated project with its complete activity graph. Reuse the project schedule-shifting model for date materialization and add unit, database, and core-journey coverage.
 - Extend scheduling unit coverage as later project-rescheduling slices and dependency behaviors are implemented (`QA-03`).

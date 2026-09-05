@@ -152,6 +152,8 @@ export type ProjectReschedulePlan = {
   can_confirm: boolean;
 };
 
+export type AuthoritativeProjectReschedulePlan = ProjectReschedulePlan & { schedule_fingerprint: string };
+
 export type AppData = {
   projects: Project[];
   activities: Activity[];

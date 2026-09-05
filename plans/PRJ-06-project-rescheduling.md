@@ -1,6 +1,6 @@
 # PRJ-06 Project Rescheduling Implementation Plan
 
-> Status: Implementation in progress — Slices 1–2.1 complete; Slice 3 active
+> Status: Implementation in progress — Slices 1–3 complete; Slice 4 active
 > Requirement: `PRJ-06`
 > Last updated: 2026-09-04
 
@@ -199,7 +199,7 @@ Slice 2 adds authoritative database planning and atomic persistence in migration
 
 Slice 2.1 is implemented in migrations `202609040007`–`202609050002`. Transactional deployment verification covers one-hop discovery, deterministic ordering, archived-edge exclusion, activity moves, bounded-timeout isolation, global-trigger removal, and cleanup. The local explicit-barrier harness passes `PRJ06-CON-01`–`PRJ06-CON-13`, including the authenticated archive/deferred-validation path corrected by `202609050002`.
 
-Slice 3 connects changed project dates to the authoritative preview and commit RPCs, preserves ordinary metadata-only saves, lists every returned activity change and conflict, offers the authoritative containing start, and keeps cancel scoped to the topmost preview. Commit recovery refreshes stale previews, presents bounded-lock contention as retryable, and retries an expanded lock set at most twice. Two unit tests cover neutral movement and window-change presentation; live responsive and keyboard verification remains required before release.
+Slice 3 connects changed project dates to the authoritative preview and commit RPCs, preserves ordinary metadata-only saves, lists every returned activity change and conflict, offers the authoritative containing start, and keeps cancel scoped to the topmost preview. Commit recovery refreshes stale previews, presents bounded-lock contention as retryable, and retries an expanded lock set at most twice. Two unit tests cover neutral movement and window-change presentation. Authorized live testing passed desktop and 390×844 mobile layout, topmost Escape cancellation with preserved form state, Enter confirmation, atomic forward/reverse movement, disabled conflict confirmation, containing-start recovery, and stale-preview refresh; every test fixture was restored.
 
 ### Whole-schedule movement
 

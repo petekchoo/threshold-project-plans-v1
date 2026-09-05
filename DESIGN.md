@@ -205,7 +205,7 @@ Exact colors, fonts, imagery, and component styling require further visual inspe
 
 ## Technical Direction
 
-The confirmed stack is React, TypeScript, Tailwind CSS, GitHub, Vercel free tier, and Supabase for authentication and shared persistence. Vitest unit testing and GitHub Actions verification are adopted; database integration coverage is partial, and end-to-end testing and deployment verification remain open. Technical choices should favor rapid prototyping without closing off a maintainable production path.
+The confirmed stack is React, TypeScript, Tailwind CSS, GitHub, Vercel free tier, and Supabase for authentication and shared persistence. Vitest unit testing and GitHub Actions verification are adopted; database integration coverage is partial. Playwright provides an initial authenticated, read-only responsive smoke suite, while isolated data-changing end-to-end journeys and required CI execution remain open. Technical choices should favor rapid prototyping without closing off a maintainable production path.
 
 ### Dashboard and timeline behavior
 
@@ -284,6 +284,7 @@ This map connects the functional specification to its current implementation. Re
 | --- | --- | --- | --- |
 | unit-vitest | unit | `pnpm test` | `lib/planning/scheduling.test.ts`; `lib/planning/project-reschedule.test.ts`; `lib/planning/overview-timeline.test.ts`; `components/projects/reschedule-preview-dialog.test.ts` |
 | prj06-database | database | `pnpm db:test` | `supabase/tests/prj06_project_rescheduling.sql` |
+| qa05-browser-smoke | end-to-end | `pnpm test:e2e` | `e2e/auth.setup.ts`; `e2e/mobile-ux.spec.ts`; `e2e/desktop-ux.spec.ts` |
 
 ### Authentication, shell, and shared data
 
@@ -369,7 +370,7 @@ This map connects the functional specification to its current implementation. Re
 | QA-02 | Static code quality | `eslint.config.mjs`; `postcss.config.mjs`; `package.json` scripts | Implemented | Existing warnings for image optimization, unused prototype/fallback values, and the PostCSS export remain. | Design: [#confirmed-project-constraints](#confirmed-project-constraints), [#technical-direction](#technical-direction) |
 | QA-03 | Automated unit tests for scheduling calculations | Vitest; `lib/planning/scheduling.test.ts`; `lib/planning/project-reschedule.test.ts` | Partial | Project timing, project rescheduling, both dependency types, completed chronology, cross-project direction, exceptions, archive behavior, and calendar boundaries are covered. Add unit coverage for later scheduling features as they are implemented; transaction coverage remains under QA-04. | Design: [#confirmed-project-constraints](#confirmed-project-constraints), [#technical-direction](#technical-direction); Verification: `pnpm test` |
 | QA-04 | Database integration tests | PRJ-06 pgTAP suite in `supabase/tests/prj06_project_rescheduling.sql`; explicit-barrier concurrency harness in `scripts/test-prj06-concurrency.sh`; transactional live verification migrations `202609040002`, `202609040005`, `202609040006`, and `202609040008` | Partial | PRJ-06 covers atomic success/rollback, timing rules, exceptions, archive behavior, permissions, stale fingerprints, and the complete scoped-lock concurrency matrix. Extend reusable database coverage to activity saves, cycle rejection, and broader RLS behavior. | Design: [#confirmed-project-constraints](#confirmed-project-constraints), [#technical-direction](#technical-direction); Verification: `pnpm db:test` |
-| QA-05 | End-to-end core-journey tests | None | Planned | Cover authentication, overview, filters, project/activity CRUD, dependencies, administration, and responsive navigation. | Design: [#confirmed-project-constraints](#confirmed-project-constraints), [#technical-direction](#technical-direction) |
+| QA-05 | End-to-end core-journey tests | Playwright smoke suite in `e2e/*`; authenticated read-only setup; mobile Chromium at 390 × 844; desktop Chromium at 1440 × 900 | Partial | Slice 1 covers responsive navigation, project-editor team/action containment, accessible project validation, activity list/filter responsiveness, desktop layout preservation, and project schedule/CTA regressions. Add isolated overview, activity-form, timeline, CRUD, dependency, and administration journeys, then require the suite in CI once disposable fixtures or a dedicated CI account are available. | Design: [#confirmed-project-constraints](#confirmed-project-constraints), [#technical-direction](#technical-direction); Plans: `plans/QA-05-end-to-end.md`; Verification: `pnpm test:e2e` |
 | QA-06 | Build and deployment target | `package.json`; `next.config.ts`; `.github/workflows/verify.yml`; Tailwind/PostCSS configuration; Supabase CLI configuration and migrations | Implemented | Pull requests and main are verified in CI. Vercel deployment checks are required before merge and were confirmed on the final heads of PRJ-06 pull requests 22 and 24. | Design: [#confirmed-project-constraints](#confirmed-project-constraints), [#technical-direction](#technical-direction) |
 <!-- implementation-map:end -->
 ## Decisions Log

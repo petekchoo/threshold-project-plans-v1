@@ -29,6 +29,14 @@ verification_catalog:
     command: pnpm db:test
     test_files:
       - supabase/tests/prj06_project_rescheduling.sql
+  - id: qa05-browser-smoke
+    kind: end-to-end
+    runner: playwright
+    command: pnpm test:e2e
+    test_files:
+      - e2e/auth.setup.ts
+      - e2e/mobile-ux.spec.ts
+      - e2e/desktop-ux.spec.ts
 preamble: |-
   This map connects the functional specification to its current implementation. Requirement IDs are stable references for discussion, implementation, review, and testing. File paths and named symbols are preferred over line numbers because symbols remain useful as files change.
 
@@ -461,10 +469,14 @@ groups:
         Coverage: Partial
         Next verification need: PRJ-06 covers atomic success/rollback, timing rules, exceptions, archive behavior, permissions, stale fingerprints, and the complete scoped-lock concurrency matrix. Extend reusable database coverage to activity saves, cycle rejection, and broader RLS behavior.
       - ID: QA-05
+        verification:
+          - qa05-browser-smoke
+        plans:
+          - plans/QA-05-end-to-end.md
         Capability: End-to-end core-journey tests
-        Current implementation: None
-        Coverage: Planned
-        Next verification need: Cover authentication, overview, filters, project/activity CRUD, dependencies, administration, and responsive navigation.
+        Current implementation: "Playwright smoke suite in `e2e/*`; authenticated read-only setup; mobile Chromium at 390 × 844; desktop Chromium at 1440 × 900"
+        Coverage: Partial
+        Next verification need: Slice 1 covers responsive navigation, project-editor team/action containment, accessible project validation, activity list/filter responsiveness, desktop layout preservation, and project schedule/CTA regressions. Add isolated overview, activity-form, timeline, CRUD, dependency, and administration journeys, then require the suite in CI once disposable fixtures or a dedicated CI account are available.
       - ID: QA-06
         Capability: Build and deployment target
         Current implementation: "`package.json`; `next.config.ts`; `.github/workflows/verify.yml`; Tailwind/PostCSS configuration; Supabase CLI configuration and migrations"

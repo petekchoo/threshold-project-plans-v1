@@ -34,17 +34,17 @@ Start the application with `pnpm dev`. When using the bundled Codex Node.js runt
 
 Before reporting the server as ready, request `http://localhost:3000` and confirm that it returns an HTTP 200 response. If `pnpm` is available but startup or compilation reports `node: not found`, load or activate the workspace's Node.js runtime, ensure it is inherited through `PATH`, and retry. Keep runtime paths and other machine-specific configuration out of the repository.
 
-## GitHub CLI
+## GitHub pull requests and checks
 
-GitHub CLI is the standard interface for pull requests and GitHub checks.
+In Codex, use the connected GitHub integration for repository, pull-request, review, and check operations when those tools are available. The integration provides the authenticated GitHub connection directly and does not require a local `gh` executable. Outside that environment, or when the integration is unavailable, use GitHub CLI as the local fallback.
 
-- Verify authentication with `gh auth status`.
-- Verify the repository with `gh repo view`.
+- With the connected integration, verify access by reading the repository or searching its pull requests before performing a write.
+- With GitHub CLI, verify authentication with `gh auth status` and the repository with `gh repo view`.
 - Create focused commits on a feature branch based on current `origin/main`.
 - Push with `git push -u origin <branch>`.
-- Open a pull request with `gh pr create` and inspect it with `gh pr view`.
+- Open and inspect the pull request through the connected integration, or with `gh pr create` and `gh pr view` when using the CLI fallback.
 - Require successful repository verification and Vercel checks before merging.
-- Merge through `gh pr merge --delete-branch`; do not force-push or rewrite shared `main`.
+- Merge through the connected integration or `gh pr merge --delete-branch`; do not force-push or rewrite shared `main`.
 
 ### Branch cleanup after merge
 
@@ -59,7 +59,7 @@ After GitHub confirms a pull request merged successfully:
 
 Never automatically delete a diverged branch, a branch containing commits absent from `main`, a named archive/backup branch, or a branch owned by a separate deployment remote. Inspect and preserve those branches until their unique work and purpose are resolved.
 
-GitHub authentication is machine-local and should remain in the operating system credential store. Never commit tokens or CLI credential files. If `gh` is unavailable or unauthenticated on a new machine, install it from the official GitHub CLI release and run `gh auth login`.
+GitHub authentication is environment-local: Codex integration credentials are managed by the application, while CLI credentials should remain in the operating system credential store. Never commit tokens or CLI credential files. Install GitHub CLI and run `gh auth login` only when the connected integration is unavailable and CLI access is needed.
 
 ## Supabase CLI
 

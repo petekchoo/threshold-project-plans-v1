@@ -11,6 +11,7 @@ See `DEVELOPMENT.md` for the new-task startup, GitHub, Supabase, verification, a
 ## Next
 
 - Deliver project schedule shifting so a user can move a project to new calendar dates and preview an atomic shift of its active activities. Preserve activity durations, relative spacing, dependency relationships, and project-relative timing rules; cover the resulting client calculations and database transaction path with automated tests.
+- Selectively incorporate Instinct's external feedback before beginning project templates. Inventory each recommendation, compare it with Threshold's confirmed product rules and current implementation, record an explicit adopt/adapt/defer/reject decision with rationale, and implement only the approved changes with appropriate requirement mapping and verification.
 - Design and deliver reusable project templates for common or repeating work such as private dinners and menu launches. Define which project fields, activity details, relative date offsets, dependencies, project-relative timing rules, and assignments belong in a template; support template maintenance and atomic creation of an editable dated project with its complete activity graph. Reuse the project schedule-shifting model for date materialization and add unit, database, and core-journey coverage.
 - Extend scheduling unit coverage as later project-rescheduling slices and dependency behaviors are implemented (`QA-03`).
 - Add database integration tests for dependency, timing, archive, and RLS behavior (`QA-04`).

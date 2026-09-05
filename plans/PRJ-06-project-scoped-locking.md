@@ -1,6 +1,6 @@
 # PRJ-06 Slice 2.1 — Project-Scoped Schedule Locking
 
-> Status: Approved for implementation
+> Status: Implemented; multi-session verification pending
 > Requirement: `PRJ-06`
 
 ## Authority and purpose
@@ -76,3 +76,7 @@ No function may acquire a project or schedule row lock before it knows the compl
 - Audit every authoritative RPC and table-write path for protocol participation.
 - Verify cumulative grants still prevent authenticated direct writes to schedule graph tables; operational administration SQL must use the same locking protocol or a maintenance window.
 - Require schema lint, migration dry run, regenerated types, `pnpm verify`, and production build before merge.
+
+## Implementation status
+
+Migrations `202609040007`–`202609050001` replace the global mutex with deterministic one-hop advisory locks, centralized acquisition and rediscovery, active-row locking, bounded transaction-local lock waits, and protected authoritative project/activity/archive write paths. Migration `202609040008` verifies scope discovery, ordering, archived-edge exclusion, activity-move coverage, timeout isolation, trigger removal, and fixture cleanup transactionally. The migrations are applied and linked schema lint is clean. The explicit-barrier multi-session matrix remains required before merge; the current workstation cannot run the local database suite because Docker or Podman is unavailable.

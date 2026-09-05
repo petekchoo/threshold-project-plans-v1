@@ -390,6 +390,39 @@ export type Database = {
         Args: { p_plan: Json }
         Returns: Json
       }
+      discover_activity_mutation_scope: {
+        Args: {
+          p_activity_id: string
+          p_dependencies?: Json
+          p_new_project_id: string
+        }
+        Returns: string[]
+      }
+      discover_project_schedule_scope: {
+        Args: { p_project_ids: string[] }
+        Returns: string[]
+      }
+      lock_activity_mutation_scope: {
+        Args: {
+          p_activity_id: string
+          p_dependencies?: Json
+          p_new_project_id: string
+          p_timeout_ms?: number
+        }
+        Returns: string[]
+      }
+      lock_project_schedule_rows: {
+        Args: { p_project_ids: string[] }
+        Returns: undefined
+      }
+      lock_project_schedule_scope: {
+        Args: { p_project_ids: string[]; p_timeout_ms?: number }
+        Returns: string[]
+      }
+      lock_project_schedule_set: {
+        Args: { p_project_ids: string[]; p_timeout_ms?: number }
+        Returns: string[]
+      }
       preview_project_reschedule: {
         Args: { p_new_end: string; p_new_start: string; p_project_id: string }
         Returns: Json
@@ -397,6 +430,10 @@ export type Database = {
       project_schedule_fingerprint: {
         Args: { p_project_id: string }
         Returns: string
+      }
+      project_schedule_lock_key: {
+        Args: { p_project_id: string }
+        Returns: number
       }
       reschedule_project: {
         Args: {

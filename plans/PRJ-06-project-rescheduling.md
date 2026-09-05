@@ -195,6 +195,8 @@ Slice 1 currently contains 34 executable PRJ-06 planner tests. Several tests ver
 
 Slice 2 adds authoritative database planning and atomic persistence in migrations `202609040001`–`202609040004`, a 19-assertion pgTAP suite, and transactional live verification migrations `202609040002`, `202609040005`, and `202609040006`. The live matrix passed success, rejection, rollback, authentication/write protection, timing and exception preservation, archive immutability, incoming/outgoing cross-project behavior, and stale fingerprints. A controlled two-session linked-Supabase test also proved that a queued reschedule waits behind the schedule-graph lock and rejects its stale fingerprint after the competing edit commits. All fixed fixtures were removed and verified absent.
 
+Slice 2.1 is deployed in migrations `202609040007`–`202609050001`. Transactional deployment verification covers one-hop discovery, deterministic ordering, archived-edge exclusion, activity moves, bounded-timeout isolation, global-trigger removal, and cleanup. The complete `PRJ06-CON-*` explicit-barrier multi-session matrix remains the final Slice 2.1 merge gate.
+
 ### Whole-schedule movement
 
 - Move every active activity by the project-end delta without changing duration or spacing.

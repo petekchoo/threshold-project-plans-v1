@@ -6,20 +6,20 @@ See `DEVELOPMENT.md` for the new-task startup, GitHub, Supabase, verification, a
 
 ## Active
 
-- Complete the PRJ-06 Slice 3 release gate on `feature/prj06-reschedule-preview`: changed project dates use the authoritative preview and atomic commit flow; the dialog lists activity changes, fixed work, timing rules, exceptions, containing-start recovery, and all returned conflicts. Stale previews refresh, busy schedules remain retryable, and lock-set expansion retries at most twice. `pnpm verify` passes with 48 tests and the production build passes. Authorized live testing passes desktop and 390×844 mobile layout, topmost Escape cancellation with preserved form state, Enter confirmation, atomic forward/reverse movement, disabled conflict confirmation, containing-start recovery, and stale-preview refresh; all test data was restored. GitHub PR #24 is open from head `3d1e6bf`; push this handoff update, require its repository and Vercel checks, then review and merge.
+- Complete the Instinct/mobile UX review release gate through GitHub PR #25. The approved implementation is complete: responsive navigation/filters/schedules, accessible validation and activity disclosures, corrected mobile project-team and Save controls, unified activity CTAs/empty states, stronger table/card legibility and contrast, and the Today treatment. `pnpm verify` passes with 51 tests, the production build passes, authorized browser checks pass at 390×844 and 1440×900 with no console errors, and the seven-test QA-05 Playwright mobile/desktop smoke run passes. PR #25 is pending final repository and Vercel checks before merge. Rejected or deferred items remain out of scope: top-drawer navigation, a mandatory 768px breakpoint, renaming All Events, a blanket timeline legend, wholesale copy/restyling, and unnecessary archive restyling.
 
 ## Recently completed
 
+- PRJ-06 Slice 3 and its release gate merged through GitHub PR #24 at merge commit `4c38fe3`. Repository and Vercel checks passed on the final PR head. `pnpm verify` passed with 48 tests and the production build passed; authorized live testing covered desktop and 390×844 mobile layout, keyboard cancellation/confirmation, atomic movement, conflict recovery, and stale-preview refresh with all test data restored. Local `main` was synchronized and the merged feature branch was removed locally and remotely.
 - PRJ-06 Slice 2.1 merged through GitHub PR #22 at merge commit `ae5b130`. Vercel passed on the final PR head, and local `main` was fast-forwarded to `origin/main`; the merged feature branch was removed locally and remotely.
 - Slice 2.1 verification handoff: migration `202609050002` is applied to the linked Supabase project; linked lint, generated types, `pnpm verify`, and production build pass. The complete migration history replays from empty local state; all 19 pgTAP assertions and the explicit-barrier `PRJ06-CON-01`–`PRJ06-CON-13` matrix pass. The matrix found the authenticated archive commit defect corrected by `202609050002`; rerun the matrix after any concurrency-path change. Docker Desktop folder sharing must remain enabled for this repository.
 
 ## Next
 
-- Selectively incorporate Instinct's external feedback before beginning project templates. Inventory each recommendation, compare it with Threshold's confirmed product rules and current implementation, record an explicit adopt/adapt/defer/reject decision with rationale, and implement only the approved changes with appropriate requirement mapping and verification.
 - Design and deliver reusable project templates for common or repeating work such as private dinners and menu launches. Define which project fields, activity details, relative date offsets, dependencies, project-relative timing rules, and assignments belong in a template; support template maintenance and atomic creation of an editable dated project with its complete activity graph. Reuse the project schedule-shifting model for date materialization and add unit, database, and core-journey coverage.
 - Extend scheduling unit coverage as later project-rescheduling slices and dependency behaviors are implemented (`QA-03`).
 - Add database integration tests for dependency, timing, archive, and RLS behavior (`QA-04`).
-- Add end-to-end coverage for the core journeys (`QA-05`).
+- Extend QA-05 beyond the responsive smoke slice with disposable-fixture authentication, overview, CRUD, dependency, timeline, and administration journeys, then make it a required CI job.
 
 ## Working conventions
 

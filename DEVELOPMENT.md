@@ -28,6 +28,8 @@ Before editing, record the applicable classification in the task reasoning or ha
 
 A changed test is not, by itself, authority for changed product behavior. Tests must trace to the same design and requirement contract as the implementation.
 
+In implementation plans, reserve **slice** for a bounded increment that delivers product behavior or an independently meaningful technical capability. Label verification, documentation, pull-request, deployment, synchronization, and cleanup work as a **release gate** or **handoff checklist**, not as another slice.
+
 ## Local development server
 
 Start the application with `pnpm dev`. When using the bundled Codex Node.js runtime, ensure its `bin` directory is present in `PATH` before starting the command. Do not invoke Next.js directly with an absolute Node path: Turbopack launches child Node.js processes that must also resolve `node` through `PATH`.

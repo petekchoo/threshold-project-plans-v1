@@ -11,6 +11,10 @@
     "start": "next start",
     "lint": "eslint . --ignore-pattern dist --ignore-pattern .next",
     "test": "vitest run",
+    "test:e2e": "playwright test",
+    "test:e2e:mobile": "playwright test --project=mobile-chromium",
+    "test:e2e:desktop": "playwright test --project=desktop-chromium",
+    "test:e2e:list": "playwright test --list",
     "typecheck": "tsc --noEmit --incremental false",
     "map:generate": "node scripts/implementation-map.mjs generate",
     "map:check": "node scripts/implementation-map.mjs validate",
@@ -32,6 +36,7 @@
     "react-dom": "19.2.6"
   },
   "devDependencies": {
+    "@playwright/test": "^1.62.1",
     "@tailwindcss/postcss": "4.2.1",
     "@types/node": "22.19.19",
     "@types/react": "19.2.14",

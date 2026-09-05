@@ -88,7 +88,7 @@ async function validate(map, markdown) {
     const packageScript = /^pnpm ([a-zA-Z0-9:_-]+)$/.exec(entry.command)?.[1];
     if (!packageScript) errors.push(`${entry.id ?? "<missing>"} command must reference one pnpm script`);
     for (const path of entry.test_files ?? []) {
-      if (path.startsWith("/") || path.split("/").includes("..") || !(/\.test\.tsx?$/.test(path) || /^supabase\/tests\/.+\.sql$/.test(path))) {
+      if (path.startsWith("/") || path.split("/").includes("..") || !(/\.test\.tsx?$/.test(path) || /^e2e\/.+\.(?:spec|setup)\.ts$/.test(path) || /^supabase\/tests\/.+\.sql$/.test(path))) {
         errors.push(`${entry.id} has invalid test path: ${path}`);
       }
       catalogedTests.add(path);
@@ -141,6 +141,15 @@ async function validate(map, markdown) {
     const qa03 = map.groups.flatMap((group) => group.requirements).find((requirement) => requirement.ID === "QA-03");
     if (!qa03?.verification?.includes("unit-vitest") || qa03.Coverage === "Planned" || /\bNone\b/.test(qa03["Current implementation"] ?? "")) {
       errors.push("QA-03 must reference unit-vitest and describe existing coverage when Vitest is configured");
+    }
+  }
+  const browserEntry = verificationById.get("qa05-browser-smoke");
+  if (packageJson.scripts?.["test:e2e"]?.includes("playwright")) {
+    if (!browserEntry || browserEntry.runner !== "playwright") errors.push("package.json uses Playwright but qa05-browser-smoke is not registered with runner: playwright");
+    if (!packageJson.devDependencies?.["@playwright/test"] && !packageJson.dependencies?.["@playwright/test"]) errors.push("the Playwright test script has no @playwright/test dependency");
+    const qa05 = map.groups.flatMap((group) => group.requirements).find((requirement) => requirement.ID === "QA-05");
+    if (!qa05?.verification?.includes("qa05-browser-smoke") || qa05.Coverage === "Planned" || /\bNone\b/.test(qa05["Current implementation"] ?? "")) {
+      errors.push("QA-05 must reference qa05-browser-smoke and describe existing coverage when Playwright is configured");
     }
   }
   const discoveredTests = await filesMatching("", /\.test\.tsx?$/);

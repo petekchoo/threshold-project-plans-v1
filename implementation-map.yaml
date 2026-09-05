@@ -22,12 +22,21 @@ verification_catalog:
     test_files:
       - lib/planning/scheduling.test.ts
       - lib/planning/project-reschedule.test.ts
+      - lib/planning/overview-timeline.test.ts
       - components/projects/reschedule-preview-dialog.test.ts
   - id: prj06-database
     kind: database
     command: pnpm db:test
     test_files:
       - supabase/tests/prj06_project_rescheduling.sql
+  - id: qa05-browser-smoke
+    kind: end-to-end
+    runner: playwright
+    command: pnpm test:e2e
+    test_files:
+      - e2e/auth.setup.ts
+      - e2e/mobile-ux.spec.ts
+      - e2e/desktop-ux.spec.ts
 preamble: |-
   This map connects the functional specification to its current implementation. Requirement IDs are stable references for discussion, implementation, review, and testing. File paths and named symbols are preferred over line numbers because symbols remain useful as files change.
 
@@ -111,7 +120,7 @@ groups:
         Primary implementation: "`components/shell/mobile-nav.tsx`; `app/extended.css`"
         Database / persistence: Supabase sign-out
         Coverage: Implemented
-        Verification / known gap: Manual responsive UI; breakpoint-specific keyboard testing remains.
+        Verification / known gap: Route-aware current state, safe-area layout, and accessible overflow dismissal/focus behavior are implemented. Manual mobile and desktop regression testing remains required.
       - ID: SHELL-01
         Capability: Product metadata, document shell, and application identity
         Primary implementation: "`app/layout.tsx`; `RootLayout`; public favicon and logo assets"
@@ -132,11 +141,13 @@ groups:
       - Verification / known gap
     requirements:
       - ID: OVR-01
+        verification:
+          - unit-vitest
         Capability: Cross-project overview timeline with project bars
         Primary implementation: "`components/overview/overview.tsx`; `lib/planning/overview-timeline.ts`; `/` route"
         Database / persistence: Project dates and statuses
         Coverage: Implemented
-        Verification / known gap: Integer calendar-day positioning clips inclusive project ranges to the selected half-open window and fits every subdivision into the pane. Outward triangular ends indicate continuation before or after the visible window. No automated date-boundary tests.
+        Verification / known gap: Integer calendar-day positioning clips inclusive project ranges to the selected half-open window and fits every subdivision into the pane. Outward triangular ends indicate continuation before or after the visible window. Unit coverage verifies Today-marker positioning at interior and boundary dates.
       - ID: OVR-02
         Capability: Week, Month, Quarter, Half-year, Year, and All Events ranges; Month default
         Primary implementation: "`components/overview/overview.tsx` range state and range tabs; `lib/planning/overview-timeline.ts`"
@@ -187,13 +198,13 @@ groups:
         Primary implementation: "`components/projects/projects-list.tsx`; `/projects` route; shared search in `components/threshold-app.tsx`"
         Database / persistence: Projects, types, owners, activities
         Coverage: Partial
-        Verification / known gap: Core columns and selector sorting exist. Labels shorten “Activity Progress” and “Overdue Activities,” and status sorting is lexical rather than workflow ordered.
+        Verification / known gap: Core columns and selector sorting exist. Primary table content uses 14px text and tabular numerals, and project briefs have an expandable desktop disclosure. Labels shorten “Activity Progress” and “Overdue Activities,” and status sorting is lexical rather than workflow ordered.
       - ID: PRJ-02
         Capability: Create and edit project name, description, type, status, dates, and assigned team members
         Primary implementation: "`components/projects/project-form.tsx`; `components/shared/editor.tsx`; `components/projects/project-detail.tsx`"
         Database / persistence: "`save_project`; `projects`; `project_owners`"
         Coverage: Implemented
-        Verification / known gap: Team members are staged in a searchable multi-select modal and shown with explicit Remove actions. Escape cancels inline project editing, and displayed descriptions preserve authored line breaks. Client and database date-order validation; no automated CRUD test.
+        Verification / known gap: Team members are staged in a searchable multi-select modal and shown with explicit Remove actions on desktop and mobile. Required markers, inline errors, linked summaries, ARIA associations, and first-invalid focus supplement client and database validation; no automated CRUD test.
       - ID: PRJ-03
         Capability: Manually selected project status remains distinct from calculated activity progress
         Primary implementation: "`components/shared/status-pill.tsx`; `lib/planning/progress.ts`; `components/projects/projects-list.tsx`; `components/projects/project-detail.tsx`"
@@ -208,10 +219,10 @@ groups:
         Verification / known gap: The date-scaled timeline occupies the full workspace without a redundant Attention panel, includes the project row and end marker, maps activities to their actual dates, extends for post-project activity finishes, and adapts at one- and six-calendar-month boundaries. The project activity list shares the global filters and opens an activity from the whole row without a redundant Edit affordance. Dependency connectors are intentionally excluded.
       - ID: PRJ-05
         Capability: Project date changes respect activity timing constraints and cannot place project start after active work
-        Primary implementation: "`components/projects/project-form.tsx`; `lib/planning/scheduling.ts` (`projectTimingConflict`); earliest-activity validation"
-        Database / persistence: "`validate_project_activity_timing` trigger, authoritative version in `202608300004_project_start_envelope.sql`"
-        Coverage: Partial
-        Verification / known gap: Client feedback names dates and differences and the database rejects invalid direct writes. Database fallback errors do not yet provide the same full context.
+        Primary implementation: "`components/projects/project-form.tsx`; `components/projects/reschedule-preview-dialog.tsx`; authoritative project-reschedule preview and commit flow"
+        Database / persistence: "`preview_project_reschedule`; `reschedule_project`; `validate_project_activity_timing` trigger, authoritative version in `202608300004_project_start_envelope.sql`"
+        Coverage: Implemented
+        Verification / known gap: Changed project dates use the authoritative preview, which names affected dates and timing conflicts and offers the earliest containing start when required. The atomic commit and database trigger reject invalid or stale writes; metadata-only saves remain on the ordinary project-save path.
       - ID: PRJ-06
         plans:
           - plans/PRJ-06-project-rescheduling.md
@@ -222,8 +233,8 @@ groups:
         Capability: Direct project-date edits preview and atomically move the complete or remaining schedule while preserving activity formation and completed history
         Primary implementation: "Binding detail in `plans/PRJ-06-project-rescheduling.md`; Slice 2.1 concurrency contract in `plans/PRJ-06-project-scoped-locking.md`; pure planner in `lib/planning/project-reschedule.ts`; authoritative preview and commit RPCs; `components/projects/project-form.tsx`; `components/projects/reschedule-preview-dialog.tsx`"
         Database / persistence: "`preview_project_reschedule`, `reschedule_project`, schedule fingerprinting, deferred final validation, and protected write boundary in `202609040001`–`202609040004`; deterministic one-hop project locks, bounded waits, and secure deferred archive validation in `202609040007`–`202609050002`; transactional verification in `202609040002`, `202609040005`, `202609040006`, and `202609040008`"
-        Coverage: Partial
-        Verification / known gap: The linked plan maps 34 executable PRJ-06 planner tests, 12 shared timing tests, 2 preview-copy tests, and 19 pgTAP assertions. Slice 2 live database verification covers authoritative planning, atomic persistence and rollback, schedule rules, permissions, and stale fingerprints. The local explicit-barrier harness passes `PRJ06-CON-01`–`PRJ06-CON-13` for scoped discovery, serialization, stale and busy errors, archive races, rollback, and cleanup. Authorized Slice 3 live testing passes desktop and mobile layout, keyboard confirm/cancel, atomic movement and restoration, blocking-conflict recovery, and stale-preview refresh. Automated core-journey coverage remains for Slice 4.
+        Coverage: Implemented
+        Verification / known gap: The linked plan maps 34 executable PRJ-06 planner tests, 12 shared timing tests, 2 preview-copy tests, and 19 pgTAP assertions. Slice 2 live database verification covers authoritative planning, atomic persistence and rollback, schedule rules, permissions, and stale fingerprints. The local explicit-barrier harness passes `PRJ06-CON-01`–`PRJ06-CON-13` for scoped discovery, serialization, stale and busy errors, archive races, rollback, and cleanup. Authorized Slice 3 live testing passes desktop and mobile layout, keyboard confirm/cancel, atomic movement and restoration, blocking-conflict recovery, and stale-preview refresh. Pull request 24 completed the release gate with repository and Vercel checks passing; broader automated end-to-end journeys remain tracked under `QA-05`.
   - title: Activities and activity details
     scope: product-behavior
     design_refs:
@@ -243,19 +254,19 @@ groups:
         Primary implementation: "`components/activities/activities-list.tsx`; `/activities` route"
         Database / persistence: Activities, projects, types, owners
         Coverage: Implemented
-        Verification / known gap: Manual UI.
+        Verification / known gap: Desktop table content uses 14px text and tabular numerals; mobile cards expose type, assignment, status, priority, dates, and overdue state. Manual responsive UI.
       - ID: ACT-02
         Capability: Filter activities by project, team member, type, status, priority, due date, and archive state; sort meaningful fields
         Primary implementation: "`components/activities/activity-filters.tsx`; `components/activities/activities-list.tsx`; `components/projects/project-activity-list.tsx`"
         Database / persistence: Activity fields and ownership
         Coverage: Partial
-        Verification / known gap: Shared text search and filters drive both the global list and the project-scoped activity list; the global list adds Project while project detail fixes that scope implicitly. Status and priority currently sort lexically rather than by defined workflow/priority order; due-date options cover overdue and next seven days only.
+        Verification / known gap: Shared text search and filters drive both lists; mobile keeps search visible and discloses secondary filters with an active count and Clear filters. True-empty and filtered-empty states are distinct. Status and priority currently sort lexically rather than by defined workflow/priority order; due-date options cover overdue and next seven days only.
       - ID: ACT-03
         Capability: Create and edit required dates, assigned team members, type, status, priority, notes, and project
         Primary implementation: "`components/activities/activity-form.tsx`; `components/shared/editor.tsx`; `components/activities/activity-panel.tsx`; `components/activities/activity-detail.tsx`; overview and project-detail launch points"
         Database / persistence: Authoritative `save_activity` in `202608300003_project_timing_constraints.sql`; activities and `activity_owners`
         Coverage: Implemented
-        Verification / known gap: Shared editor styling uses 16px field text, regular-weight 13px labels, 14px instructions/actions, visible focus treatment, and approximately 44px controls for comfortable maintenance. Team members are staged in a searchable multi-select modal. Client and database date-order validation; no automated CRUD test.
+        Verification / known gap: Shared editors use progressive disclosure, 16px controls, 44px actions, required markers, inline errors, linked summaries, ARIA associations, and first-invalid focus. Populated or invalid sections open automatically. No automated CRUD test.
       - ID: ACT-04
         Capability: Add multiple labeled external links through a staged modal and manage them as clickable, removable tiles
         Primary implementation: "`lib/data/planning-data.ts`; `components/activities/link-editor.tsx`; `components/activities/activity-form.tsx`; `components/activities/activity-detail.tsx`"
@@ -310,7 +321,7 @@ groups:
         Primary implementation: "`components/activities/activity-form.tsx` (`submit`, neutral confirmation copy)"
         Database / persistence: Authoritative `save_activity` performs atomic activity/owner/link/dependency save
         Coverage: Partial
-        Verification / known gap: Handles direct changes to the edited dependent. PRJ-06 will preserve completed-prerequisite chronology and block completed-dependent/incomplete-prerequisite inconsistencies. Multi-level propagation, downstream impact previews, reverse prerequisite proposals, and the specified update/remove resolution are not implemented.
+        Verification / known gap: Handles direct changes to the edited dependent. PRJ-06 preserves completed-prerequisite chronology and blocks completed-dependent/incomplete-prerequisite inconsistencies during project rescheduling. Multi-level propagation, downstream impact previews, reverse prerequisite proposals, and the specified update/remove resolution are not implemented.
       - ID: DEP-04
         Capability: Prevent circular dependencies and explain the relationship path
         Primary implementation: Dependency candidate exclusion of self; database `prevent_dependency_cycle` trigger
@@ -402,13 +413,13 @@ groups:
         Primary implementation: Feature forms; `components/shell/*`; `components/overview/project-card.tsx`; responsive CSS
         Database / persistence: Same persistence paths on all viewports
         Coverage: Implemented
-        Verification / known gap: Editor grids stack on small screens while retaining readable 16px controls and touch-sized actions. Manual responsive inspection; systematic device matrix remains.
+        Verification / known gap: Editor grids stack on small screens while retaining readable 16px controls and touch-sized actions; team-member and Save controls remain visible and contained. Release review covers 390×844 and representative desktop widths; a broader device matrix remains.
       - ID: A11Y-01
         Capability: Semantic, keyboard-accessible UI with focus visibility and suitable contrast
         Primary implementation: "Form labels, fieldsets, status roles, dialog attributes; `components/shared/modal-keyboard.ts`; global/extended CSS"
         Database / persistence: None
         Coverage: Partial
-        Verification / known gap: Central keyboard policy makes Enter save and Escape cancel the topmost modal while preserving multiline input. Editors use enlarged labels, instructions, fields, actions, picker content, and visible focus rings; nested picker dismissal leaves the underlying editor open. No automated accessibility audit; modal focus trapping/restoration and comprehensive keyboard testing remain.
+        Verification / known gap: Central keyboard policy preserves topmost-modal behavior. Forms expose required state and associated inline/summary errors with first-invalid focus; responsive navigation exposes current state and overflow focus restoration. No automated accessibility audit; comprehensive focus trapping and keyboard testing remain.
       - ID: VIS-01
         Capability: Threshold identity with warm editorial and restrained operational styling
         Primary implementation: "`components/shell/sidebar.tsx`; logo assets; `app/globals.css`; `app/extended.css`"
@@ -458,12 +469,16 @@ groups:
         Coverage: Partial
         Next verification need: PRJ-06 covers atomic success/rollback, timing rules, exceptions, archive behavior, permissions, stale fingerprints, and the complete scoped-lock concurrency matrix. Extend reusable database coverage to activity saves, cycle rejection, and broader RLS behavior.
       - ID: QA-05
+        verification:
+          - qa05-browser-smoke
+        plans:
+          - plans/QA-05-end-to-end.md
         Capability: End-to-end core-journey tests
-        Current implementation: None
-        Coverage: Planned
-        Next verification need: Cover authentication, overview, filters, project/activity CRUD, dependencies, administration, and responsive navigation.
+        Current implementation: "Playwright smoke suite in `e2e/*`; authenticated read-only setup; mobile Chromium at 390 × 844; desktop Chromium at 1440 × 900"
+        Coverage: Partial
+        Next verification need: Slice 1 covers responsive navigation, project-editor team/action containment, accessible project validation, activity list/filter responsiveness, desktop layout preservation, and project schedule/CTA regressions. Add isolated overview, activity-form, timeline, CRUD, dependency, and administration journeys, then require the suite in CI once disposable fixtures or a dedicated CI account are available.
       - ID: QA-06
         Capability: Build and deployment target
         Current implementation: "`package.json`; `next.config.ts`; `.github/workflows/verify.yml`; Tailwind/PostCSS configuration; Supabase CLI configuration and migrations"
-        Coverage: Partial
-        Next verification need: Pull requests and main are verified in CI. Vercel remains the specified target, but deployment verification is not documented.
+        Coverage: Implemented
+        Next verification need: Pull requests and main are verified in CI. Vercel deployment checks are required before merge and were confirmed on the final heads of PRJ-06 pull requests 22 and 24.

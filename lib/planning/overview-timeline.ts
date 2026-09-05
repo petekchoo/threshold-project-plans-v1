@@ -100,7 +100,10 @@ export function overviewTimeline(range: OverviewRange, today: string, projects: 
     const nextDate = labelDates[index + 1] || domainEnd;
     return { date, label: label(date, labelUnit), left: dayDifference(domainStart, date) / span * 100, width: dayDifference(date, nextDate) / span * 100 };
   });
-  return { domainStart, domainEnd, marks, gridMarks, gridUnit, labelUnit };
+  const todayPosition = today >= domainStart && today < domainEnd
+    ? dayDifference(domainStart, today) / span * 100
+    : null;
+  return { domainStart, domainEnd, marks, gridMarks, gridUnit, labelUnit, todayPosition };
 }
 
 export function overviewBarPosition(start: string, inclusiveEnd: string, domainStart: string, domainEnd: string) {

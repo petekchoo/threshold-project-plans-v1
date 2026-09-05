@@ -23,3 +23,9 @@ Before changing behavior covered by a requirement-specific plan:
 5. Regenerate the readable implementation map in `DESIGN.md` with `pnpm map:generate`.
 
 Do not copy every detailed scenario into `DESIGN.md`. Keep a concise statement of the durable rule there and maintain the complete scenario matrix in its linked requirement plan.
+
+## Authority and conflicts
+
+Plans elaborate `DESIGN.md`; they do not override confirmed product behavior. Each mapped group declares its governing `DESIGN.md` sections, requirements with dedicated plans list them in structured `plans` fields, and executable suites are registered once in the verification catalog and referenced by ID. Validation checks these references and generates their readable traceability into `DESIGN.md`.
+
+Classify changes using `DEVELOPMENT.md`. If a plan, test, or proposed fix conflicts with confirmed design, follow the user-notification gate in `AGENTS.md` before changing the plan or implementation.

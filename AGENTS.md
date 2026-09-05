@@ -4,14 +4,27 @@ These instructions govern coding agents working in this repository. Product requ
 
 ## Before beginning any task
 
-Read `DEVELOPMENT.md`, `TASKS.md`, `DESIGN.md`, and `implementation-map.yaml` in full. Use them as the authoritative workflow, work-state, product, and implementation-traceability references.
+1. Read `DEVELOPMENT.md` and `TASKS.md` in full. They are the authoritative workflow and current-work handoff.
+2. Use `implementation-map.yaml` as an index: locate the requirement IDs applicable to the task and read those entries, including their implementation, persistence, coverage, verification, and linked-plan references. Read the map preamble when changing traceability conventions or when no existing requirement clearly applies.
+3. Read the portions of `DESIGN.md` governing the affected product behavior and any cross-cutting constraints the change touches. Read the full document only for broad product/design work or when the affected scope cannot be determined reliably.
+
+Do not rely on prior chat context in place of these durable sources. This routed startup is intended to preserve requirement and handoff coverage without repeatedly loading unrelated product areas or the generated readable copy of the implementation map in `DESIGN.md`.
 
 ## Before changing files
 
 1. Identify the applicable requirement IDs in `implementation-map.yaml`.
 2. Read every requirement-specific plan linked from those map entries. Plans in `plans/` contain binding detailed rules and acceptance conditions for their named requirements.
 3. Inspect the executable tests identified by each applicable plan before changing implemented behavior.
-4. Follow the startup, branching, verification, and completion workflow in `DEVELOPMENT.md`.
+4. Classify the change as `conforms`, `clarifies`, `changes-design`, or `no-product-impact` using `DEVELOPMENT.md`.
+5. Follow the startup, branching, verification, and completion workflow in `DEVELOPMENT.md`.
+
+For documentation-only workflow changes that do not alter product behavior, state that no product requirement applies and inspect the documentation sources being changed. Do not invent a product requirement ID for contributor-process work.
+
+## Design conflict gate
+
+The authority order is user-confirmed intent, `DESIGN.md`, requirement-specific plans, `implementation-map.yaml`, then code and executable tests. Lower-level sources may implement or clarify higher-level intent but must not silently override it.
+
+If a requested fix, plan, test, existing behavior, or implementation approach conflicts with confirmed behavior in `DESIGN.md`, stop before changing product behavior. Tell the user which sources conflict, explain the practical consequences and available resolutions, and obtain direction. Ordinary defects that plainly fail to conform to unambiguous design do not require another approval; fix them as `conforms` changes.
 
 ## Authorization boundaries
 

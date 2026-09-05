@@ -382,6 +382,67 @@ export type Database = {
     Functions: {
       archive_activity: { Args: { p_activity_id: string }; Returns: undefined }
       archive_project: { Args: { p_project_id: string }; Returns: undefined }
+      calculate_project_reschedule: {
+        Args: { p_new_end: string; p_new_start: string; p_project_id: string }
+        Returns: Json
+      }
+      complete_project_reschedule_plan: {
+        Args: { p_plan: Json }
+        Returns: Json
+      }
+      discover_activity_mutation_scope: {
+        Args: {
+          p_activity_id: string
+          p_dependencies?: Json
+          p_new_project_id: string
+        }
+        Returns: string[]
+      }
+      discover_project_schedule_scope: {
+        Args: { p_project_ids: string[] }
+        Returns: string[]
+      }
+      lock_activity_mutation_scope: {
+        Args: {
+          p_activity_id: string
+          p_dependencies?: Json
+          p_new_project_id: string
+          p_timeout_ms?: number
+        }
+        Returns: string[]
+      }
+      lock_project_schedule_rows: {
+        Args: { p_project_ids: string[] }
+        Returns: undefined
+      }
+      lock_project_schedule_scope: {
+        Args: { p_project_ids: string[]; p_timeout_ms?: number }
+        Returns: string[]
+      }
+      lock_project_schedule_set: {
+        Args: { p_project_ids: string[]; p_timeout_ms?: number }
+        Returns: string[]
+      }
+      preview_project_reschedule: {
+        Args: { p_new_end: string; p_new_start: string; p_project_id: string }
+        Returns: Json
+      }
+      project_schedule_fingerprint: {
+        Args: { p_project_id: string }
+        Returns: string
+      }
+      project_schedule_lock_key: {
+        Args: { p_project_id: string }
+        Returns: number
+      }
+      reschedule_project: {
+        Args: {
+          p_expected_schedule_fingerprint?: string
+          p_owner_ids?: string[]
+          p_project: Json
+        }
+        Returns: Json
+      }
       save_activity: {
         Args: {
           p_activity: Json
@@ -394,6 +455,10 @@ export type Database = {
       save_project: {
         Args: { p_owner_ids?: string[]; p_project: Json }
         Returns: string
+      }
+      validate_project_schedule: {
+        Args: { p_project_id: string }
+        Returns: undefined
       }
     }
     Enums: {
@@ -416,12 +481,12 @@ export type Tables<
   DefaultSchemaTableNameOrOptions extends
     | keyof (DefaultSchema["Tables"] & DefaultSchema["Views"])
     | { schema: keyof DatabaseWithoutInternals },
-  TableName extends DefaultSchemaTableNameOrOptions extends {
+  TableName extends (DefaultSchemaTableNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
         DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"])
-    : never = never,
+    : never) = never,
 > = DefaultSchemaTableNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
@@ -445,11 +510,11 @@ export type TablesInsert<
   DefaultSchemaTableNameOrOptions extends
     | keyof DefaultSchema["Tables"]
     | { schema: keyof DatabaseWithoutInternals },
-  TableName extends DefaultSchemaTableNameOrOptions extends {
+  TableName extends (DefaultSchemaTableNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
-    : never = never,
+    : never) = never,
 > = DefaultSchemaTableNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
@@ -470,11 +535,11 @@ export type TablesUpdate<
   DefaultSchemaTableNameOrOptions extends
     | keyof DefaultSchema["Tables"]
     | { schema: keyof DatabaseWithoutInternals },
-  TableName extends DefaultSchemaTableNameOrOptions extends {
+  TableName extends (DefaultSchemaTableNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
-    : never = never,
+    : never) = never,
 > = DefaultSchemaTableNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
@@ -495,11 +560,11 @@ export type Enums<
   DefaultSchemaEnumNameOrOptions extends
     | keyof DefaultSchema["Enums"]
     | { schema: keyof DatabaseWithoutInternals },
-  EnumName extends DefaultSchemaEnumNameOrOptions extends {
+  EnumName extends (DefaultSchemaEnumNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"]
-    : never = never,
+    : never) = never,
 > = DefaultSchemaEnumNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
@@ -512,11 +577,11 @@ export type CompositeTypes<
   PublicCompositeTypeNameOrOptions extends
     | keyof DefaultSchema["CompositeTypes"]
     | { schema: keyof DatabaseWithoutInternals },
-  CompositeTypeName extends PublicCompositeTypeNameOrOptions extends {
+  CompositeTypeName extends (PublicCompositeTypeNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"]
-    : never = never,
+    : never) = never,
 > = PublicCompositeTypeNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }

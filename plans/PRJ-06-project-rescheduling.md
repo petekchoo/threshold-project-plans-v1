@@ -1,12 +1,14 @@
 # PRJ-06 Project Rescheduling Implementation Plan
 
-> Status: Implementation in progress — Slice 1 complete
+> Status: Implementation in progress — Slices 1–2 complete; Slice 2.1 active
 > Requirement: `PRJ-06`
 > Last updated: 2026-09-04
 
 ## Document authority and change hook
 
 This plan is the binding detailed specification for `PRJ-06`. Any change to project-rescheduling behavior must begin here, be reconciled with the durable product rules in `DESIGN.md`, and update the mapped implementation and tests in the same change.
+
+Authoritative write concurrency is governed by `plans/PRJ-06-project-scoped-locking.md`. Changes to project, activity, dependency, preview, or commit writes must also review that Slice 2.1 contract and its `PRJ06-CON-*` matrix.
 
 Current executable specification:
 
@@ -190,6 +192,10 @@ Save is enabled only for an authoritative conflict-free preview. Enter confirms 
 ## Automated coverage
 
 Slice 1 currently contains 34 executable PRJ-06 planner tests. Several tests verify multiple related facts from the acceptance matrix.
+
+Slice 2 adds authoritative database planning and atomic persistence in migrations `202609040001`–`202609040004`, a 19-assertion pgTAP suite, and transactional live verification migrations `202609040002`, `202609040005`, and `202609040006`. The live matrix passed success, rejection, rollback, authentication/write protection, timing and exception preservation, archive immutability, incoming/outgoing cross-project behavior, and stale fingerprints. A controlled two-session linked-Supabase test also proved that a queued reschedule waits behind the schedule-graph lock and rejects its stale fingerprint after the competing edit commits. All fixed fixtures were removed and verified absent.
+
+Slice 2.1 is implemented in migrations `202609040007`–`202609050002`. Transactional deployment verification covers one-hop discovery, deterministic ordering, archived-edge exclusion, activity moves, bounded-timeout isolation, global-trigger removal, and cleanup. The local explicit-barrier harness passes `PRJ06-CON-01`–`PRJ06-CON-13`, including the authenticated archive/deferred-validation path corrected by `202609050002`.
 
 ### Whole-schedule movement
 

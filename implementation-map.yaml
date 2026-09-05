@@ -1,6 +1,32 @@
-version: 1
+version: 2
 source: DESIGN.md functional specification
 generated_section: DESIGN.md#implementation-map
+governance:
+  authority_order:
+    - User-confirmed intent
+    - DESIGN.md
+    - Requirement-specific plans
+    - implementation-map.yaml
+    - Code and executable tests
+  change_classifications:
+    - conforms
+    - clarifies
+    - changes-design
+    - no-product-impact
+  conflict_policy: A lower-level source must not silently override a higher-level source. Stop, explain the conflict and consequences, and obtain user direction before changing confirmed product behavior.
+verification_catalog:
+  - id: unit-vitest
+    kind: unit
+    runner: vitest
+    command: pnpm test
+    test_files:
+      - lib/planning/scheduling.test.ts
+      - lib/planning/project-reschedule.test.ts
+  - id: prj06-database
+    kind: database
+    command: pnpm db:test
+    test_files:
+      - supabase/tests/prj06_project_rescheduling.sql
 preamble: |-
   This map connects the functional specification to its current implementation. Requirement IDs are stable references for discussion, implementation, review, and testing. File paths and named symbols are preferred over line numbers because symbols remain useful as files change.
 
@@ -13,6 +39,7 @@ preamble: |-
   - When code moves, update symbol references without changing the requirement ID.
   - Cross-check in both directions during feature review: every confirmed requirement must be mapped, and every material product behavior in code must have a requirement ID.
   - Database migrations are cumulative and applied in filename order. Later migrations that replace functions are the authoritative implementation of those functions.
+  - Classify each change as **conforms**, **clarifies**, **changes-design**, or **no-product-impact**. A change that conflicts with confirmed design requires user direction before implementation; lower-level plans, tests, and code do not silently override `DESIGN.md`.
 
   ### Path and verification key
 
@@ -24,11 +51,16 @@ preamble: |-
   - `lib/supabase.ts`: Browser Supabase client configuration.
   - `supabase/migrations/*`: Persistent schema, row-level access, database functions, and triggers.
   - `app/globals.css` and `app/extended.css`: Responsive layout, visual system, and component presentation.
-  - **Manual UI** means the behavior has been inspected in the running local application. There is currently no automated test suite.
+  - **Manual UI** means the behavior has been inspected in the running local application. Automated coverage exists for selected scheduling and database behavior, but not for every manually verified surface.
   - `implementation-map.yaml` is the editable traceability source. The readable map in `DESIGN.md` is generated and verified in CI.
   - Supabase migrations, including RLS policies, are versioned in `supabase/migrations/*` and applied through the CLI workflow documented in `supabase/README.md`.
 groups:
   - title: Authentication, shell, and shared data
+    scope: product-behavior
+    design_refs:
+      - DESIGN.md#confirmed-project-constraints
+      - DESIGN.md#experience-design
+      - DESIGN.md#data-and-integrations
     columns:
       - ID
       - Capability
@@ -86,6 +118,10 @@ groups:
         Coverage: Implemented
         Verification / known gap: Metadata names Threshold Projects; the shell omits the redundant global search, connection indicator, and context-switching create action. Social-image treatment is not defined.
   - title: Overview and portfolio planning
+    scope: product-behavior
+    design_refs:
+      - DESIGN.md#experience-design
+      - DESIGN.md#dashboard-and-timeline-behavior
     columns:
       - ID
       - Capability
@@ -131,6 +167,12 @@ groups:
         Coverage: Implemented
         Verification / known gap: Manual responsive UI.
   - title: Projects
+    scope: product-behavior
+    design_refs:
+      - DESIGN.md#experience-design
+      - DESIGN.md#data-and-integrations
+      - DESIGN.md#timeline-hierarchy
+      - DESIGN.md#list-and-card-views
     columns:
       - ID
       - Capability
@@ -170,12 +212,23 @@ groups:
         Coverage: Partial
         Verification / known gap: Client feedback names dates and differences and the database rejects invalid direct writes. Database fallback errors do not yet provide the same full context.
       - ID: PRJ-06
+        plans:
+          - plans/PRJ-06-project-rescheduling.md
+          - plans/PRJ-06-project-scoped-locking.md
+        verification:
+          - unit-vitest
+          - prj06-database
         Capability: Direct project-date edits preview and atomically move the complete or remaining schedule while preserving activity formation and completed history
-        Primary implementation: "Binding detail and acceptance matrix in `plans/PRJ-06-project-rescheduling.md`; pure planner in `lib/planning/project-reschedule.ts`"
-        Database / persistence: No atomic project-rescheduling function
+        Primary implementation: "Binding detail in `plans/PRJ-06-project-rescheduling.md`; Slice 2.1 concurrency contract in `plans/PRJ-06-project-scoped-locking.md`; pure planner in `lib/planning/project-reschedule.ts`; authoritative preview and commit RPCs"
+        Database / persistence: "`preview_project_reschedule`, `reschedule_project`, schedule fingerprinting, deferred final validation, and protected write boundary in `202609040001`–`202609040004`; deterministic one-hop project locks, bounded waits, and secure deferred archive validation in `202609040007`–`202609050002`; transactional verification in `202609040002`, `202609040005`, `202609040006`, and `202609040008`"
         Coverage: Partial
-        Verification / known gap: The linked plan maps 34 executable PRJ-06 planner tests plus 12 shared timing tests across end anchoring, shift/expand/compress outcomes, fixed completed and archived work, both dependency types in both project directions, project-relative timing, date exceptions, invalid calendar data, and complete structured conflicts. Authoritative database planning, atomic persistence, preview UI, transaction tests, and core-journey coverage remain.
+        Verification / known gap: The linked plan maps 34 executable PRJ-06 planner tests plus 12 shared timing tests and 19 pgTAP assertions. Slice 2 live database verification covers authoritative planning, atomic persistence and rollback, schedule rules, permissions, and stale fingerprints. The local explicit-barrier harness passes `PRJ06-CON-01`–`PRJ06-CON-13` for scoped discovery, serialization, stale and busy errors, archive races, rollback, and cleanup. Preview UI and core-journey coverage remain for Slices 3–4.
   - title: Activities and activity details
+    scope: product-behavior
+    design_refs:
+      - DESIGN.md#experience-design
+      - DESIGN.md#data-and-integrations
+      - DESIGN.md#list-and-card-views
     columns:
       - ID
       - Capability
@@ -227,6 +280,10 @@ groups:
         Coverage: Implemented
         Verification / known gap: Manual UI verifies multi-select staging and explicit removal; persistence has no automated CRUD test.
   - title: Scheduling and dependencies
+    scope: product-behavior
+    design_refs:
+      - DESIGN.md#data-and-integrations
+      - DESIGN.md#timeline-hierarchy
     columns:
       - ID
       - Capability
@@ -296,6 +353,11 @@ groups:
         Coverage: Implemented
         Verification / known gap: Client and database enforcement are implemented; automated boundary and transaction tests remain under `QA-03` and `QA-04`.
   - title: Administration, archives, responsive design, and presentation
+    scope: product-presentation
+    design_refs:
+      - DESIGN.md#experience-design
+      - DESIGN.md#visual-direction
+      - DESIGN.md#data-and-integrations
     columns:
       - ID
       - Capability
@@ -359,6 +421,10 @@ groups:
         Coverage: Implemented
         Verification / known gap: Responsive project summaries allocate content-sized columns and a wrapping Next Due region; status pills use stronger semantic colors. Visual review only.
   - title: Verification and delivery coverage
+    scope: quality-assurance
+    design_refs:
+      - DESIGN.md#confirmed-project-constraints
+      - DESIGN.md#technical-direction
     columns:
       - ID
       - Capability
@@ -377,15 +443,19 @@ groups:
         Coverage: Implemented
         Next verification need: Existing warnings for image optimization, unused prototype/fallback values, and the PostCSS export remain.
       - ID: QA-03
+        verification:
+          - unit-vitest
         Capability: Automated unit tests for scheduling calculations
         Current implementation: "Vitest; `lib/planning/scheduling.test.ts`; `lib/planning/project-reschedule.test.ts`"
         Coverage: Partial
         Next verification need: Project timing, project rescheduling, both dependency types, completed chronology, cross-project direction, exceptions, archive behavior, and calendar boundaries are covered. Add unit coverage for later scheduling features as they are implemented; transaction coverage remains under QA-04.
       - ID: QA-04
+        verification:
+          - prj06-database
         Capability: Database integration tests
-        Current implementation: None
-        Coverage: Planned
-        Next verification need: Cover atomic saves, cycle rejection, timing triggers, archive behavior, and RLS.
+        Current implementation: "PRJ-06 pgTAP suite in `supabase/tests/prj06_project_rescheduling.sql`; explicit-barrier concurrency harness in `scripts/test-prj06-concurrency.sh`; transactional live verification migrations `202609040002`, `202609040005`, `202609040006`, and `202609040008`"
+        Coverage: Partial
+        Next verification need: PRJ-06 covers atomic success/rollback, timing rules, exceptions, archive behavior, permissions, stale fingerprints, and the complete scoped-lock concurrency matrix. Extend reusable database coverage to activity saves, cycle rejection, and broader RLS behavior.
       - ID: QA-05
         Capability: End-to-end core-journey tests
         Current implementation: None

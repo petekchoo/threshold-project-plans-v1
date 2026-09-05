@@ -1,6 +1,6 @@
 # PRJ-06 Slice 2.1 — Project-Scoped Schedule Locking
 
-> Status: Implemented; multi-session verification pending
+> Status: Implemented and locally verified
 > Requirement: `PRJ-06`
 
 ## Authority and purpose
@@ -79,4 +79,6 @@ No function may acquire a project or schedule row lock before it knows the compl
 
 ## Implementation status
 
-Migrations `202609040007`–`202609050001` replace the global mutex with deterministic one-hop advisory locks, centralized acquisition and rediscovery, active-row locking, bounded transaction-local lock waits, and protected authoritative project/activity/archive write paths. Migration `202609040008` verifies scope discovery, ordering, archived-edge exclusion, activity-move coverage, timeout isolation, trigger removal, and fixture cleanup transactionally. The migrations are applied, linked schema lint is clean, the full migration history replays locally from empty state, and all 19 PRJ-06 pgTAP assertions pass. The explicit-barrier multi-session matrix remains required before merge.
+Migrations `202609040007`–`202609050001` replace the global mutex with deterministic one-hop advisory locks, centralized acquisition and rediscovery, active-row locking, bounded transaction-local lock waits, and protected authoritative project/activity/archive write paths. Migration `202609040008` verifies scope discovery, ordering, archived-edge exclusion, activity-move coverage, timeout isolation, trigger removal, and fixture cleanup transactionally. Migration `202609050002` makes deferred final validation retain private-validator access when an authenticated archive commits after its security-definer RPC returns.
+
+The full migration history replays locally from empty state, all 19 PRJ-06 pgTAP assertions pass, and `scripts/test-prj06-concurrency.sh` passes `PRJ06-CON-01`–`PRJ06-CON-13` with independent sessions and observed transaction/lock barriers. The matrix covers unrelated overlap, same/connected serialization, reverse endpoints, lock-set expansion, stale fingerprints, bounded busy errors, activity moves, archived and restored relationships, archive races, peer rollback, and fixture cleanup.

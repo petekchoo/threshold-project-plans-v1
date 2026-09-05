@@ -15,7 +15,7 @@ Authentication and the linked project are machine-local. Do not commit tokens, p
 1. Run `docker version` and confirm both the Client and Server sections are present. Docker Desktop must be running and allowed to share this repository's folder.
 2. Start the disposable local stack with `pnpm db:start`. The first run downloads the Supabase images and can take several minutes.
 3. Create or update one focused migration, including any related RLS policy changes.
-4. Replay migrations locally as appropriate and run `pnpm db:test`. Use explicit multi-session barriers for concurrency contracts; do not substitute timing assumptions.
+4. Replay migrations locally as appropriate and run `pnpm db:test`. For PRJ-06 locking changes, also run `pnpm db:test:concurrency`; its independent sessions synchronize through observed database transaction and lock states rather than timing assumptions.
 5. Run `pnpm db:lint` and `pnpm db:push:dry-run`.
 6. Review the SQL and migration list.
 7. Apply with `pnpm db:push` only when the migration is explicitly authorized.

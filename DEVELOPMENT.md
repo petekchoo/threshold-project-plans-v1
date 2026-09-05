@@ -65,7 +65,7 @@ GitHub authentication is machine-local and should remain in the operating system
 
 Use the project-local CLI through the package scripts in `package.json`. The canonical migration, schema-check, type-generation, and credential-safety workflow is documented in `supabase/README.md`.
 
-Before local database work, run `docker version` and require both Client and Server output. Start the disposable local stack with `pnpm db:start`; this excludes the optional Studio UI while retaining the services needed by the application and `pnpm db:test`. If Docker is absent, stopped, awaiting macOS file-sharing permission, or cannot reach its engine, resolve that prerequisite before treating database-test failures as repository defects.
+Before local database work, run `docker version` and require both Client and Server output. Start the disposable local stack with `pnpm db:start`; this excludes the optional Studio UI while retaining the services needed by the application, `pnpm db:test`, and `pnpm db:test:concurrency`. If Docker is absent, stopped, awaiting macOS file-sharing permission, or cannot reach its engine, resolve that prerequisite before treating database-test failures as repository defects.
 
 Supabase authentication and project linking are machine-local. Verify them with `pnpm db:status` before database work. Apply migrations only after reviewing `pnpm db:push:dry-run` and receiving explicit authorization for the database write.
 

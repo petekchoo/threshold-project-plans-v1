@@ -6,8 +6,8 @@ See `DEVELOPMENT.md` for the new-task startup, GitHub, Supabase, verification, a
 
 ## Active
 
-- Complete PRJ-06 Slice 2.1 under `plans/PRJ-06-project-scoped-locking.md`: replace the global schedule mutex with deterministic one-hop project locks, pass the `PRJ06-CON-*` multi-session matrix, and preserve the preview/fingerprint contract before beginning Slice 3.
-- Slice 2.1 implementation handoff: migrations `202609040007`, `202609040008`, and lint-only follow-up `202609050001` are applied to the linked project. Scoped discovery, deterministic ordering, archive exclusion, activity moves, timeout isolation, global-trigger removal, and cleanup passed transactional deployment verification; linked schema lint, `pnpm verify` (46 tests), type generation, and production build pass. Docker Desktop is now installed; the complete migration history replays from an empty local database and all 19 PRJ-06 pgTAP assertions pass. The explicit-barrier `PRJ06-CON-*` multi-session matrix remains before merge. Do not treat deployment verification or single-session pgTAP as a substitute for that matrix.
+- Complete the PRJ-06 Slice 2.1 release gate under `plans/PRJ-06-project-scoped-locking.md`: locally verified migration `202609050002` fixes deferred archive validation and awaits authorized linked deployment, final lint/type/build checks, PR review, and merge before Slice 3.
+- Slice 2.1 verification handoff: the complete migration history replays from empty local state; all 19 pgTAP assertions and the explicit-barrier `PRJ06-CON-01`–`PRJ06-CON-13` matrix pass. The matrix found the authenticated archive commit defect corrected by `202609050002`; rerun the matrix after any concurrency-path change. Docker Desktop folder sharing must remain enabled for this repository.
 
 ## Next
 

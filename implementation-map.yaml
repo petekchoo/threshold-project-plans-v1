@@ -220,9 +220,9 @@ groups:
           - prj06-database
         Capability: Direct project-date edits preview and atomically move the complete or remaining schedule while preserving activity formation and completed history
         Primary implementation: "Binding detail in `plans/PRJ-06-project-rescheduling.md`; Slice 2.1 concurrency contract in `plans/PRJ-06-project-scoped-locking.md`; pure planner in `lib/planning/project-reschedule.ts`; authoritative preview and commit RPCs"
-        Database / persistence: "`preview_project_reschedule`, `reschedule_project`, schedule fingerprinting, deferred final validation, and protected write boundary in `202609040001`–`202609040004`; deterministic one-hop project locks and bounded waits in `202609040007`–`202609050001`; transactional verification in `202609040002`, `202609040005`, `202609040006`, and `202609040008`"
+        Database / persistence: "`preview_project_reschedule`, `reschedule_project`, schedule fingerprinting, deferred final validation, and protected write boundary in `202609040001`–`202609040004`; deterministic one-hop project locks, bounded waits, and secure deferred archive validation in `202609040007`–`202609050002`; transactional verification in `202609040002`, `202609040005`, `202609040006`, and `202609040008`"
         Coverage: Partial
-        Verification / known gap: The linked plan maps 34 executable PRJ-06 planner tests plus 12 shared timing tests. Slice 2 live database verification covers authoritative planning, atomic persistence and rollback, schedule rules, permissions, stale fingerprints, and prior global-lock serialization. Slice 2.1 deployment verification covers scoped discovery, ordering, archive exclusion, activity moves, timeout isolation, and cleanup; the explicit-barrier `PRJ06-CON-*` multi-session matrix remains required before preview UI and core-journey coverage in Slices 3–4.
+        Verification / known gap: The linked plan maps 34 executable PRJ-06 planner tests plus 12 shared timing tests and 19 pgTAP assertions. Slice 2 live database verification covers authoritative planning, atomic persistence and rollback, schedule rules, permissions, and stale fingerprints. The local explicit-barrier harness passes `PRJ06-CON-01`–`PRJ06-CON-13` for scoped discovery, serialization, stale and busy errors, archive races, rollback, and cleanup. Preview UI and core-journey coverage remain for Slices 3–4.
   - title: Activities and activity details
     scope: product-behavior
     design_refs:
@@ -453,9 +453,9 @@ groups:
         verification:
           - prj06-database
         Capability: Database integration tests
-        Current implementation: "PRJ-06 pgTAP suite in `supabase/tests/prj06_project_rescheduling.sql`; transactional live verification migrations `202609040002`, `202609040005`, `202609040006`, and scoped-lock verification in `202609040008`"
+        Current implementation: "PRJ-06 pgTAP suite in `supabase/tests/prj06_project_rescheduling.sql`; explicit-barrier concurrency harness in `scripts/test-prj06-concurrency.sh`; transactional live verification migrations `202609040002`, `202609040005`, `202609040006`, and `202609040008`"
         Coverage: Partial
-        Next verification need: PRJ-06 covers atomic success/rollback, timing rules, exceptions, archive behavior, permissions, stale fingerprints, and scoped-lock discovery. Complete the `PRJ06-CON-*` explicit-barrier multi-session matrix, then extend reusable database coverage to activity saves, cycle rejection, and broader RLS behavior.
+        Next verification need: PRJ-06 covers atomic success/rollback, timing rules, exceptions, archive behavior, permissions, stale fingerprints, and the complete scoped-lock concurrency matrix. Extend reusable database coverage to activity saves, cycle rejection, and broader RLS behavior.
       - ID: QA-05
         Capability: End-to-end core-journey tests
         Current implementation: None

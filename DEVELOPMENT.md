@@ -6,14 +6,27 @@ Coding agents must also follow the agent-specific authorization and documentatio
 
 ## Starting a task
 
-1. Read `DESIGN.md` for product behavior and decisions.
-2. Read `implementation-map.yaml` for requirement-to-code traceability.
-3. Read `TASKS.md` for active and upcoming work.
-4. For every applicable requirement, read the requirement-specific plans linked from `implementation-map.yaml` and inspect the executable tests they identify.
+1. Read `TASKS.md` in full for the active handoff and upcoming work.
+2. Locate every applicable requirement in `implementation-map.yaml`; read those complete entries and their linked requirement-specific plans.
+3. Read the relevant product rules and decisions in `DESIGN.md`, expanding to the full document only for broad or uncertain scope.
+4. Inspect the executable tests identified by each applicable plan before changing implemented behavior.
 5. Check the current branch and working-tree status before editing.
 6. Fetch `origin` before branching so new work starts from current GitHub `main`.
 
+`AGENTS.md` defines the always-read sources and routing details. The generated implementation-map section in `DESIGN.md` is for readable reference and does not need to be reread after the authoritative YAML entries unless the task is checking generation or documentation consistency.
+
 Do not discard local changes merely because they are absent from GitHub. Determine whether they are intentional work, generated output, or temporary state first.
+
+## Classifying behavior changes
+
+Before editing, record the applicable classification in the task reasoning or handoff:
+
+- `conforms`: restores or implements behavior already stated unambiguously in `DESIGN.md`.
+- `clarifies`: resolves ambiguity without changing confirmed intent; update the applicable plan and clarify `DESIGN.md` when the durable rule becomes more precise.
+- `changes-design`: changes confirmed product behavior; obtain user direction through the conflict gate in `AGENTS.md`, then update `DESIGN.md`, affected plans, the implementation map, and tests together.
+- `no-product-impact`: internal refactoring, tooling, or contributor-process work with no observable product-behavior change.
+
+A changed test is not, by itself, authority for changed product behavior. Tests must trace to the same design and requirement contract as the implementation.
 
 ## Local development server
 

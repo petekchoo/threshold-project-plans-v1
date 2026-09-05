@@ -6,7 +6,7 @@ See `DEVELOPMENT.md` for the new-task startup, GitHub, Supabase, verification, a
 
 ## Active
 
-- Continue the approved `PRJ-06` project-rescheduling plan in `plans/PRJ-06-project-rescheduling.md`. Slices 1–2 are complete: the pure planner, authoritative preview/commit RPCs, atomic rollback, permissions, live branch matrix, and two-session stale-write test passed. Begin Slice 3 with the preview and confirmation interface.
+- Complete PRJ-06 Slice 2.1 under `plans/PRJ-06-project-scoped-locking.md`: replace the global schedule mutex with deterministic one-hop project locks, pass the `PRJ06-CON-*` multi-session matrix, and preserve the preview/fingerprint contract before beginning Slice 3.
 
 ## Next
 

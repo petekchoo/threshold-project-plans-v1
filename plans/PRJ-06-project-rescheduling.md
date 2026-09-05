@@ -1,12 +1,14 @@
 # PRJ-06 Project Rescheduling Implementation Plan
 
-> Status: Implementation in progress — Slice 1 complete
+> Status: Implementation in progress — Slices 1–2 complete; Slice 2.1 active
 > Requirement: `PRJ-06`
 > Last updated: 2026-09-04
 
 ## Document authority and change hook
 
 This plan is the binding detailed specification for `PRJ-06`. Any change to project-rescheduling behavior must begin here, be reconciled with the durable product rules in `DESIGN.md`, and update the mapped implementation and tests in the same change.
+
+Authoritative write concurrency is governed by `plans/PRJ-06-project-scoped-locking.md`. Changes to project, activity, dependency, preview, or commit writes must also review that Slice 2.1 contract and its `PRJ06-CON-*` matrix.
 
 Current executable specification:
 

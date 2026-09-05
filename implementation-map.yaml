@@ -171,10 +171,10 @@ groups:
         Verification / known gap: Client feedback names dates and differences and the database rejects invalid direct writes. Database fallback errors do not yet provide the same full context.
       - ID: PRJ-06
         Capability: Direct project-date edits preview and atomically move the complete or remaining schedule while preserving activity formation and completed history
-        Primary implementation: "Binding detail and acceptance matrix in `plans/PRJ-06-project-rescheduling.md`; pure planner in `lib/planning/project-reschedule.ts`; authoritative preview and commit RPCs"
+        Primary implementation: "Binding detail in `plans/PRJ-06-project-rescheduling.md`; Slice 2.1 concurrency contract in `plans/PRJ-06-project-scoped-locking.md`; pure planner in `lib/planning/project-reschedule.ts`; authoritative preview and commit RPCs"
         Database / persistence: "`preview_project_reschedule`, `reschedule_project`, schedule fingerprinting, deferred final validation, graph write mutex, and protected write boundary in `202609040001`–`202609040004`; transactional verification in `202609040002`, `202609040005`, and `202609040006`"
         Coverage: Partial
-        Verification / known gap: The linked plan maps 34 executable PRJ-06 planner tests plus 12 shared timing tests. Live database verification covers authoritative planning, successful atomic persistence, rollback, timing and exception preservation, completed and archived work, internal and cross-project dependencies, authentication/direct-write protection, stale fingerprints, and two-session lock serialization. Preview UI and core-journey coverage remain for Slices 3–4.
+        Verification / known gap: The linked plan maps 34 executable PRJ-06 planner tests plus 12 shared timing tests. Slice 2 live database verification covers authoritative planning, atomic persistence and rollback, schedule rules, permissions, stale fingerprints, and global-lock serialization. Slice 2.1 replaces that global mutex with the scoped concurrency contract and `PRJ06-CON-*` matrix before preview UI and core-journey coverage in Slices 3–4.
   - title: Activities and activity details
     columns:
       - ID

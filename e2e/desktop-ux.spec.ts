@@ -17,6 +17,16 @@ test('retains the desktop sidebar, tables, and expanded filters', async ({ page 
   await expect(page.locator('.activity-filter-toggle')).toBeHidden();
 });
 
+test('retains desktop project filters and portfolio range controls', async ({ page }) => {
+  await expect(page.getByLabel('Sort projects')).toBeVisible();
+  await expect(page.getByLabel('Show archived')).toBeVisible();
+  await page.locator('.sidebar').getByRole('link', { name: /Overview/ }).click();
+  const ranges = page.locator('.range-tabs');
+  await expect(ranges).toBeVisible();
+  await ranges.getByRole('button', { name: 'Quarter' }).click();
+  await expect(ranges.getByRole('button', { name: 'Quarter' })).toHaveAttribute('aria-pressed', 'true');
+});
+
 test('keeps the desktop project editor contained without changing data', async ({ page }) => {
   await page.getByRole('button', { name: /New project/ }).click();
   const dialog = page.getByRole('dialog', { name: 'Project' });

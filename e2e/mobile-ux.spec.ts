@@ -72,3 +72,36 @@ test('uses mobile activity cards and supports filter disclosure and reset', asyn
   await expect(toggle).toHaveText('Filters');
   await expect(page.getByLabel('Filter by status')).toHaveValue('all');
 });
+
+test('contains project filters and keeps desktop-only timeline ranges off mobile', async ({ page }) => {
+  const filters = page.locator('.project-filters');
+  await expect(filters).toBeVisible();
+  await expect(page.getByLabel('Sort projects')).toBeVisible();
+  await expect(page.getByLabel('Show archived')).toBeVisible();
+
+  for (const control of [page.getByLabel('Search projects'), page.getByLabel('Sort projects'), page.getByLabel('Show archived')]) {
+    const box = await control.boundingBox();
+    expect(box).not.toBeNull();
+    expect(box!.x).toBeGreaterThanOrEqual(0);
+    expect(box!.x + box!.width).toBeLessThanOrEqual(390);
+  }
+  expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(390);
+
+  await page.getByRole('navigation', { name: 'Primary navigation' }).getByRole('link', { name: 'Overview' }).click();
+  await expect(page.getByRole('heading', { name: 'Active projects' })).toBeVisible();
+  await expect(page.locator('.range-tabs')).toBeHidden();
+  await expect(page.getByLabel('Draft')).toBeVisible();
+  await expect(page.getByLabel('Completed')).toBeVisible();
+  await expect(page.locator('.project-cards')).toBeVisible();
+});
+
+test('keeps project schedule month labels distinct on narrow screens', async ({ page }) => {
+  const project = page.locator('.mobile-list a[href^="/projects/"]').first();
+  await expect(project, 'The E2E account must contain at least one active project').toHaveCount(1);
+  await project.click();
+  const schedule = page.locator('.project-schedule-scroll');
+  if (!await schedule.count()) return;
+  await expect(schedule).toBeVisible();
+  const boxes = await page.locator('.schedule-header-track span').evaluateAll((labels) => labels.map((label) => label.getBoundingClientRect()).map(({ x, width }) => ({ x, width })));
+  for (let index = 1; index < boxes.length; index += 1) expect(boxes[index - 1].x + boxes[index - 1].width).toBeLessThanOrEqual(boxes[index].x + 1);
+});

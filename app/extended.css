@@ -41,7 +41,7 @@ select,textarea{font:inherit}a{color:inherit;text-decoration:none}.live-dot{font
 .schedule-header-label,.schedule-header-track{height:44px;border-bottom:1px solid #ebe8e0}
 .schedule-header-label{display:flex;align-items:center;padding:0 8px;color:#777;font-size:var(--text-label);font-weight:700;text-transform:uppercase;letter-spacing:.1em}
 .schedule-header-track,.schedule-track{position:relative}
-.schedule-header-track span{position:absolute;z-index:2;top:14px;transform:translateX(6px);font-size:var(--text-label);font-weight:700;color:#626a65;white-space:nowrap}
+.schedule-header-track span{position:absolute;z-index:2;top:14px;padding-left:6px;overflow:hidden;text-overflow:ellipsis;font-size:var(--text-label);font-weight:700;color:#626a65;white-space:nowrap}
 .schedule-row{display:contents}
 .schedule-row-label{min-height:58px;border:0;border-bottom:1px solid #ebe8e0;background:transparent;text-align:left;padding:10px 8px;color:inherit}
 .schedule-row-label strong,.schedule-row-label small{display:block}.schedule-row-label strong{font-size:var(--text-detail)}.schedule-row-label small{font-size:var(--text-meta);color:#747b77;margin-top:5px}
@@ -164,6 +164,17 @@ button.schedule-row-label{cursor:pointer}button.schedule-row-label:hover{backgro
   .activity-filter-controls select{width:100%;min-width:0;min-height:44px;font-size:14px}
   .activity-filter-controls .filter-check{min-height:44px}
   .activity-filter-count{grid-column:1/-1;margin:0!important;font-size:13px!important}
+  .project-filters{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:10px;align-items:stretch;margin-top:0}
+  .project-filters>.filter-search{grid-column:1/-1;width:100%;min-width:0;min-height:44px;font-size:16px}
+  .project-filters .project-sort{display:grid;grid-template-columns:auto minmax(0,1fr);align-items:center;gap:8px;min-width:0;min-height:44px;font-size:13px}
+  .project-filters .project-sort select{width:100%;min-width:0;min-height:44px;font-size:14px}
+  .project-filters .project-archive-filter{min-width:0;min-height:44px;padding:0 10px;border:1px solid var(--line);background:#fff;border-radius:3px;font-size:14px}
+  .project-filters .project-archive-filter input,.timeline-visibility input{width:20px;height:20px;accent-color:var(--forest)}
+  .project-filter-count{grid-column:1/-1;margin:0!important;text-align:right;font-size:13px!important}
+  .portfolio-card>.range-tabs{display:none}
+  .timeline-visibility{width:100%;justify-content:flex-start}
+  .timeline-visibility label{min-height:44px;padding:0 10px;border:1px solid var(--line);background:#fff;border-radius:3px;font-size:13px}
+  .timeline-visibility a{margin-left:auto;align-self:center;font-size:13px}
   .mobile-schedule-hint{display:block}
 }
 

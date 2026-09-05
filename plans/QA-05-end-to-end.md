@@ -20,10 +20,11 @@ The first persistent smoke suite covers the regressions most likely to escape co
 | Surface | Mobile, 390 × 844 | Desktop, 1440 × 900 |
 | --- | --- | --- |
 | Navigation | Route-aware bottom navigation; hidden sidebar; accessible More dialog, focus, Escape, and focus return | Sidebar remains visible; mobile navigation remains hidden |
-| Lists and filters | Activity cards replace the table; filters disclose, count, and clear | Tables and expanded filters remain visible |
+| Lists and filters | Activity cards replace the table; filters disclose, count, and clear; project search, sort, archive, and count remain contained | Tables and expanded filters remain visible |
 | Project editor | Add team member remains available; Save and Cancel stay inside the viewport and dialog | Add team member and actions remain available and contained |
 | Validation | Error summary, linked inline error, invalid state, and focus on the first invalid field | Covered through the same shared editor implementation |
-| Project detail | Covered by the narrow editor regression | Existing schedule remains visible, and only one Add activity action is exposed |
+| Overview | Project tiles remain visible; desktop-only timeline ranges remain hidden while Draft and Completed controls remain usable | Timeline range controls remain visible and functional |
+| Project detail | Schedule labels remain distinct at narrow date-domain boundaries | Existing schedule remains visible, and only one Add activity action is exposed |
 
 ## Execution policy
 

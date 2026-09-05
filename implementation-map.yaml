@@ -21,6 +21,7 @@ verification_catalog:
     command: pnpm test
     test_files:
       - lib/planning/scheduling.test.ts
+      - lib/planning/project-schedule.test.ts
       - lib/planning/project-reschedule.test.ts
       - lib/planning/overview-timeline.test.ts
       - components/projects/reschedule-preview-dialog.test.ts
@@ -153,7 +154,7 @@ groups:
         Primary implementation: "`components/overview/overview.tsx` range state and range tabs; `lib/planning/overview-timeline.ts`"
         Database / persistence: None
         Coverage: Implemented
-        Verification / known gap: Month is the default. Forward windows all begin today and end after 7 days or 1, 3, 6, or 12 calendar months; All Events uses the quarter-normalized full visible-project span. Quarter uses monthly labels with weekly subdivision lines; other views use day, week, month, or quarter divisions as specified.
+        Verification / known gap: Month is the default on the desktop Gantt. Forward windows all begin today and end after 7 days or 1, 3, 6, or 12 calendar months; All Events uses the quarter-normalized full visible-project span. Quarter uses monthly labels with weekly subdivision lines; other views use day, week, month, or quarter divisions as specified. Mobile uses project tiles instead of the Gantt, so its non-operative desktop range selector is hidden.
       - ID: OVR-03
         Capability: Draft and completed project visibility controls
         Primary implementation: "`components/overview/overview.tsx` visibility state"
@@ -198,7 +199,7 @@ groups:
         Primary implementation: "`components/projects/projects-list.tsx`; `/projects` route; shared search in `components/threshold-app.tsx`"
         Database / persistence: Projects, types, owners, activities
         Coverage: Partial
-        Verification / known gap: Core columns and selector sorting exist. Primary table content uses 14px text and tabular numerals, and project briefs have an expandable desktop disclosure. Labels shorten “Activity Progress” and “Overdue Activities,” and status sorting is lexical rather than workflow ordered.
+        Verification / known gap: Core columns and selector sorting exist. Primary table content uses 14px text and tabular numerals, and project briefs have an expandable desktop disclosure. Mobile search, sort, archive visibility, and result count are contained in a responsive control grid. Labels shorten “Activity Progress” and “Overdue Activities,” and status sorting is lexical rather than workflow ordered.
       - ID: PRJ-02
         Capability: Create and edit project name, description, type, status, dates, and assigned team members
         Primary implementation: "`components/projects/project-form.tsx`; `components/shared/editor.tsx`; `components/projects/project-detail.tsx`"
@@ -213,10 +214,10 @@ groups:
         Verification / known gap: Archived activities are excluded because active data is passed to `progress`. Shared fixed-content status pills use centered, high-contrast labels at project and activity level.
       - ID: PRJ-04
         Capability: Project detail summary, timeline before activity list, and quick activity editing
-        Primary implementation: "`components/projects/project-detail.tsx`; `components/projects/project-schedule.tsx`; `components/projects/project-activity-list.tsx`; `components/activities/activity-panel.tsx`; `/projects/[id]` route"
+        Primary implementation: "`components/projects/project-detail.tsx`; `components/projects/project-schedule.tsx`; `lib/planning/project-schedule.ts`; `components/projects/project-activity-list.tsx`; `components/activities/activity-panel.tsx`; `/projects/[id]` route"
         Database / persistence: Projects, activities, dependencies
         Coverage: Implemented
-        Verification / known gap: The date-scaled timeline occupies the full workspace without a redundant Attention panel, includes the project row and end marker, maps activities to their actual dates, extends for post-project activity finishes, and adapts at one- and six-calendar-month boundaries. The project activity list shares the global filters and opens an activity from the whole row without a redundant Edit affordance. Dependency connectors are intentionally excluded.
+        Verification / known gap: The date-scaled timeline occupies the full workspace without a redundant Attention panel, includes the project row and end marker, maps activities to their actual dates, extends for post-project activity finishes, and adapts at one- and six-calendar-month boundaries. Scale marks before the visible date domain are excluded and narrow partial-period labels are suppressed, preventing compressed or overlapping first-month labels. The project activity list shares the global filters and opens an activity from the whole row without a redundant Edit affordance. Dependency connectors are intentionally excluded.
       - ID: PRJ-05
         Capability: Project date changes respect activity timing constraints and cannot place project start after active work
         Primary implementation: "`components/projects/project-form.tsx`; `components/projects/reschedule-preview-dialog.tsx`; authoritative project-reschedule preview and commit flow"
@@ -458,9 +459,9 @@ groups:
         verification:
           - unit-vitest
         Capability: Automated unit tests for scheduling calculations
-        Current implementation: "Vitest; `lib/planning/scheduling.test.ts`; `lib/planning/project-reschedule.test.ts`"
+        Current implementation: "Vitest; `lib/planning/scheduling.test.ts`; `lib/planning/project-schedule.test.ts`; `lib/planning/project-reschedule.test.ts`"
         Coverage: Partial
-        Next verification need: Project timing, project rescheduling, both dependency types, completed chronology, cross-project direction, exceptions, archive behavior, and calendar boundaries are covered. Add unit coverage for later scheduling features as they are implemented; transaction coverage remains under QA-04.
+        Next verification need: Project timing, project rescheduling, project-schedule scale boundaries, both dependency types, completed chronology, cross-project direction, exceptions, archive behavior, and calendar boundaries are covered. Add unit coverage for later scheduling features as they are implemented; transaction coverage remains under QA-04.
       - ID: QA-04
         verification:
           - prj06-database
@@ -476,7 +477,7 @@ groups:
         Capability: End-to-end core-journey tests
         Current implementation: "Playwright smoke suite in `e2e/*`; authenticated read-only setup; mobile Chromium at 390 × 844; desktop Chromium at 1440 × 900"
         Coverage: Partial
-        Next verification need: Slice 1 covers responsive navigation, project-editor team/action containment, accessible project validation, activity list/filter responsiveness, desktop layout preservation, and project schedule/CTA regressions. Add isolated overview, activity-form, timeline, CRUD, dependency, and administration journeys, then require the suite in CI once disposable fixtures or a dedicated CI account are available.
+        Next verification need: Slice 1 covers responsive navigation, project-editor team/action containment, accessible project validation, activity and project filter responsiveness, mobile portfolio controls, desktop layout preservation, and project schedule/CTA regressions. Add isolated activity-form, CRUD, dependency, and administration journeys, then require the suite in CI once disposable fixtures or a dedicated CI account are available.
       - ID: QA-06
         Capability: Build and deployment target
         Current implementation: "`package.json`; `next.config.ts`; `.github/workflows/verify.yml`; Tailwind/PostCSS configuration; Supabase CLI configuration and migrations"

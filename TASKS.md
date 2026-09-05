@@ -6,7 +6,7 @@ See `DEVELOPMENT.md` for the new-task startup, GitHub, Supabase, verification, a
 
 ## Active
 
-- Complete the PRJ-06 Slice 2.1 release gate under `plans/PRJ-06-project-scoped-locking.md`: migration `202609050002` is applied to the linked Supabase project; linked lint, generated types, local verification, and build checks pass. GitHub PR #22 is open and mergeable; confirm the current head's Vercel check, then review and merge before Slice 3.
+- Complete the PRJ-06 Slice 2.1 release gate under `plans/PRJ-06-project-scoped-locking.md`: migration `202609050002` is applied to the linked Supabase project; linked lint, generated types, local verification, and build checks pass. GitHub PR #22 is open and mergeable; Vercel passed on head `ec0e3d5`, the final diff is clean, and `pnpm verify` passes with 52 mapped requirements and 46 tests. Push this handoff-only update, require its Vercel check, then merge before Slice 3.
 - Slice 2.1 verification handoff: the complete migration history replays from empty local state; all 19 pgTAP assertions and the explicit-barrier `PRJ06-CON-01`–`PRJ06-CON-13` matrix pass. The matrix found the authenticated archive commit defect corrected by `202609050002`; rerun the matrix after any concurrency-path change. Docker Desktop folder sharing must remain enabled for this repository.
 
 ## Next

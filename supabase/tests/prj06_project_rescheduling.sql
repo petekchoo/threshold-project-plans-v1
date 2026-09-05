@@ -188,8 +188,8 @@ set local role anon;
 select throws_ok(
   $$select public.preview_project_reschedule(
     '20000000-0000-0000-0000-000000000001', '2026-04-06', '2026-04-15')$$,
-  'P0001', 'Authentication is required.',
-  'anonymous preview is denied'
+  '42501', null,
+  'anonymous preview is denied at the function permission boundary'
 );
 
 reset role;

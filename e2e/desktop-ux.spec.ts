@@ -11,7 +11,7 @@ test('retains the desktop sidebar, tables, and expanded filters', async ({ page 
   await expect(page.locator('.table-card')).toBeVisible();
   await expect(page.locator('.mobile-list')).toBeHidden();
 
-  await page.getByRole('link', { name: 'Activities', exact: true }).click();
+  await page.locator('.sidebar').getByRole('link', { name: /Activities/ }).click();
   await expect(page.locator('.table-card')).toBeVisible();
   await expect(page.getByLabel('Filter by status')).toBeVisible();
   await expect(page.locator('.activity-filter-toggle')).toBeHidden();

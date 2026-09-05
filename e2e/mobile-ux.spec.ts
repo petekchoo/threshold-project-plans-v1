@@ -63,7 +63,7 @@ test('uses mobile activity cards and supports filter disclosure and reset', asyn
   await expect(page.locator('.table-card')).toBeHidden();
   await expect(page.locator('.mobile-list')).toBeVisible();
 
-  const toggle = page.getByRole('button', { name: 'Filters', exact: true });
+  const toggle = page.locator('.activity-filter-toggle');
   await toggle.click();
   await expect(toggle).toHaveAttribute('aria-expanded', 'true');
   await page.getByLabel('Filter by status').selectOption('completed');

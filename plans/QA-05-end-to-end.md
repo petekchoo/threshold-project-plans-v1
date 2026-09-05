@@ -9,6 +9,7 @@ QA-05 protects complete user journeys that cross routing, responsive layout, aut
 - Chromium is the baseline browser for the first slice.
 - Mobile assertions run at 390 × 844 and desktop assertions run at 1440 × 900.
 - Tests authenticate with a dedicated non-production account supplied through `THRESHOLD_E2E_EMAIL` and `THRESHOLD_E2E_PASSWORD`.
+- Local runs load those values directly from the ignored `.env.local` file when present; shell sourcing is not required.
 - The baseline account must have at least one active project. Credentials, generated browser state, screenshots, traces, and reports are never committed.
 - Slice 1 is read-only: editors are opened and cancelled, and tests must not save, archive, or otherwise change application data.
 

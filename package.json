@@ -15,6 +15,7 @@
     "map:generate": "node scripts/implementation-map.mjs generate",
     "map:check": "node scripts/implementation-map.mjs validate",
     "db:status": "supabase migration list",
+    "db:test": "supabase test db",
     "db:lint": "supabase db lint --linked --level warning",
     "db:push:dry-run": "supabase db push --dry-run",
     "db:push": "supabase db push",

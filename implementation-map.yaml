@@ -171,10 +171,10 @@ groups:
         Verification / known gap: Client feedback names dates and differences and the database rejects invalid direct writes. Database fallback errors do not yet provide the same full context.
       - ID: PRJ-06
         Capability: Direct project-date edits preview and atomically move the complete or remaining schedule while preserving activity formation and completed history
-        Primary implementation: "Binding detail and acceptance matrix in `plans/PRJ-06-project-rescheduling.md`; pure planner in `lib/planning/project-reschedule.ts`"
-        Database / persistence: No atomic project-rescheduling function
+        Primary implementation: "Binding detail and acceptance matrix in `plans/PRJ-06-project-rescheduling.md`; pure planner in `lib/planning/project-reschedule.ts`; authoritative preview and commit RPCs"
+        Database / persistence: "`preview_project_reschedule`, `reschedule_project`, schedule fingerprinting, deferred final validation, graph write mutex, and protected write boundary in `202609040001`–`202609040004`; transactional verification in `202609040002`, `202609040005`, and `202609040006`"
         Coverage: Partial
-        Verification / known gap: The linked plan maps 34 executable PRJ-06 planner tests plus 12 shared timing tests across end anchoring, shift/expand/compress outcomes, fixed completed and archived work, both dependency types in both project directions, project-relative timing, date exceptions, invalid calendar data, and complete structured conflicts. Authoritative database planning, atomic persistence, preview UI, transaction tests, and core-journey coverage remain.
+        Verification / known gap: The linked plan maps 34 executable PRJ-06 planner tests plus 12 shared timing tests. Live database verification covers authoritative planning, successful atomic persistence, rollback, timing and exception preservation, completed and archived work, internal and cross-project dependencies, authentication/direct-write protection, stale fingerprints, and two-session lock serialization. Preview UI and core-journey coverage remain for Slices 3–4.
   - title: Activities and activity details
     columns:
       - ID
@@ -383,9 +383,9 @@ groups:
         Next verification need: Project timing, project rescheduling, both dependency types, completed chronology, cross-project direction, exceptions, archive behavior, and calendar boundaries are covered. Add unit coverage for later scheduling features as they are implemented; transaction coverage remains under QA-04.
       - ID: QA-04
         Capability: Database integration tests
-        Current implementation: None
-        Coverage: Planned
-        Next verification need: Cover atomic saves, cycle rejection, timing triggers, archive behavior, and RLS.
+        Current implementation: "PRJ-06 pgTAP suite in `supabase/tests/prj06_project_rescheduling.sql`; transactional live verification migrations `202609040002`, `202609040005`, and `202609040006`"
+        Coverage: Partial
+        Next verification need: PRJ-06 covers atomic success/rollback, timing rules, exceptions, archive behavior, permissions, stale fingerprints, and concurrency. Extend reusable database coverage to activity saves, cycle rejection, and broader RLS behavior.
       - ID: QA-05
         Capability: End-to-end core-journey tests
         Current implementation: None

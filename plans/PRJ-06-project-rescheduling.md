@@ -191,6 +191,8 @@ Save is enabled only for an authoritative conflict-free preview. Enter confirms 
 
 Slice 1 currently contains 34 executable PRJ-06 planner tests. Several tests verify multiple related facts from the acceptance matrix.
 
+Slice 2 adds authoritative database planning and atomic persistence in migrations `202609040001`–`202609040004`, a 19-assertion pgTAP suite, and transactional live verification migrations `202609040002`, `202609040005`, and `202609040006`. The live matrix passed success, rejection, rollback, authentication/write protection, timing and exception preservation, archive immutability, incoming/outgoing cross-project behavior, and stale fingerprints. A controlled two-session linked-Supabase test also proved that a queued reschedule waits behind the schedule-graph lock and rejects its stale fingerprint after the competing edit commits. All fixed fixtures were removed and verified absent.
+
 ### Whole-schedule movement
 
 - Move every active activity by the project-end delta without changing duration or spacing.

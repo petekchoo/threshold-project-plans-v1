@@ -25,6 +25,7 @@ test('keeps project team and form actions visible and contained', async ({ page 
   await page.getByRole('button', { name: /New project/ }).click();
   const dialog = page.getByRole('dialog', { name: 'Project' });
   await expect(dialog).toBeVisible();
+  await expect(dialog.getByRole('button', { name: 'Close editor' })).toBeVisible();
   await expect(dialog.getByText('Project team members')).toBeVisible();
   await expect(dialog.getByRole('button', { name: 'Add team member' })).toBeVisible();
 
@@ -66,6 +67,11 @@ test('uses mobile activity cards and supports filter disclosure and reset', asyn
   const toggle = page.locator('.activity-filter-toggle');
   await toggle.click();
   await expect(toggle).toHaveAttribute('aria-expanded', 'true');
+  const archived = page.getByLabel('Archived', { exact: true });
+  await expect(archived).toBeVisible();
+  const archivedBox = await archived.boundingBox();
+  expect(archivedBox?.width).toBe(20);
+  expect(archivedBox?.height).toBe(20);
   await page.getByLabel('Filter by status').selectOption('completed');
   await expect(toggle).toHaveText(/Filters \(1\)/);
   await page.getByRole('button', { name: 'Clear filters' }).click();
@@ -78,6 +84,9 @@ test('contains project filters and keeps desktop-only timeline ranges off mobile
   await expect(filters).toBeVisible();
   await expect(page.getByLabel('Sort projects')).toBeVisible();
   await expect(page.getByLabel('Show archived')).toBeVisible();
+  const archiveBox = await page.getByLabel('Show archived').boundingBox();
+  expect(archiveBox?.width).toBe(20);
+  expect(archiveBox?.height).toBe(20);
 
   for (const control of [page.getByLabel('Search projects'), page.getByLabel('Sort projects'), page.getByLabel('Show archived')]) {
     const box = await control.boundingBox();
@@ -93,6 +102,26 @@ test('contains project filters and keeps desktop-only timeline ranges off mobile
   await expect(page.getByLabel('Draft')).toBeVisible();
   await expect(page.getByLabel('Completed')).toBeVisible();
   await expect(page.locator('.project-cards')).toBeVisible();
+});
+
+test('contains detail summaries and administration rows on narrow screens', async ({ page }) => {
+  await page.getByRole('navigation', { name: 'Primary navigation' }).getByRole('link', { name: 'Activities' }).click();
+  const activity = page.locator('.mobile-list a[href^="/activities/"]').first();
+  await expect(activity, 'The E2E account must contain at least one activity').toHaveCount(1);
+  await activity.click();
+  for (const value of await page.locator('.activity-summary>div').all()) {
+    const cell = await value.boundingBox();
+    const content = await value.locator('strong,.status-pill').first().boundingBox();
+    if (cell && content) expect(content.x + content.width).toBeLessThanOrEqual(cell.x + cell.width + 1);
+  }
+
+  await page.goto('/administration');
+  await expect(page.getByRole('heading', { name: 'Administration' })).toBeVisible();
+  expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(390);
+  for (const row of await page.locator('.admin-row').all()) {
+    const box = await row.boundingBox();
+    if (box) expect(box.x + box.width).toBeLessThanOrEqual(390);
+  }
 });
 
 test('keeps project schedule month labels distinct on narrow screens', async ({ page }) => {

@@ -151,6 +151,41 @@ button.schedule-row-label{cursor:pointer}button.schedule-row-label:hover{backgro
 .project-description summary{cursor:pointer;color:#604e2f;font-weight:700}
 .project-description p{max-width:320px;margin:8px 0 0;white-space:normal;line-height:1.45}
 
+/* Phase 2 visual primitives: preserve the established palette and hierarchy while
+   giving recurring controls one predictable treatment. */
+body,button,input,select,textarea{font-family:var(--font-ui)}
+.ui-icon{display:block;flex:0 0 auto}
+.page-heading h1,.section-head h2,.admin-card h2,.activity-detail article h2,.modal h1,.activity-panel h1,.card-title h3{font-family:var(--font-display)}
+.eyebrow{font-size:var(--text-eyebrow)}
+.page-heading h1{font-size:var(--text-page)}
+.section-head h2{font-size:var(--text-section)}
+.create-btn,.secondary-btn,.danger-btn,.quiet-btn{align-items:center;justify-content:center;gap:7px;min-height:40px;padding:9px 14px;border-radius:4px;font-size:var(--text-control);font-weight:700;line-height:1.2;cursor:pointer}
+.create-btn{border:1px solid var(--forest);background:var(--forest);color:#fff}
+.secondary-btn{border:1px solid var(--line);background:#fff}
+.danger-btn{border:1px solid #d9b9b1;background:#fff;color:#934838}
+.quiet-btn{border:0;background:transparent;color:#79643d}
+.create-btn:disabled,.secondary-btn:disabled,.danger-btn:disabled,.quiet-btn:disabled{opacity:.55;cursor:not-allowed}
+.create-btn:focus-visible,.secondary-btn:focus-visible,.danger-btn:focus-visible,.quiet-btn:focus-visible,.filter-search:focus-visible,.filters select:focus-visible,.edit-form input:focus-visible,.edit-form select:focus-visible,.edit-form textarea:focus-visible,.inline-edit input:focus-visible{outline:3px solid #b5935240;outline-offset:2px;border-color:#806b43}
+.filter-search,.filters select,.edit-form input:not([type=checkbox]):not([type=radio]),.edit-form select,.edit-form textarea,.inline-edit input{border:1px solid var(--line);background:#fff;border-radius:3px;color:var(--ink);outline:0}
+.filters select{font-size:var(--text-control)}
+.filter-check,.timeline-visibility label{display:inline-flex!important;align-items:center;gap:9px;min-height:40px;font-size:var(--text-meta);cursor:pointer}
+.filter-check input[type=checkbox],.timeline-visibility input[type=checkbox]{appearance:none;width:20px!important;height:20px!important;flex:0 0 20px;border:1.5px solid #7a817d;border-radius:3px;background:#fff;display:grid;place-content:center}
+.filter-check input[type=checkbox]::before,.timeline-visibility input[type=checkbox]::before{content:'';width:10px;height:6px;border:solid #fff;border-width:0 0 2px 2px;transform:rotate(-45deg) scale(0);transform-origin:center}
+.filter-check input[type=checkbox]:checked,.timeline-visibility input[type=checkbox]:checked{border-color:var(--forest);background:var(--forest)}
+.filter-check input[type=checkbox]:checked::before,.timeline-visibility input[type=checkbox]:checked::before{transform:rotate(-45deg) scale(1)}
+.filter-check input[type=checkbox]:focus-visible,.timeline-visibility input[type=checkbox]:focus-visible{outline:3px solid #b5935240;outline-offset:2px}
+.section-head>a,.project-activity-list .section-head button,.row-actions button{font-size:var(--text-meta)}
+.project-activity-row,.activity-card p,.project-card-signals,.next,.admin-row strong{font-size:var(--text-meta)}
+.admin-row small{font-size:var(--text-label)}
+.card-title>div,.admin-row>div,.relationship-link strong{min-width:0}
+.card-title h3,.admin-row strong,.admin-row small,.relationship-link strong{overflow-wrap:anywhere}
+.admin-row{gap:12px}.admin-row>div{flex:1}
+.inline-edit{grid-template-columns:minmax(0,1fr) auto auto}.inline-edit input{width:100%;min-width:0}
+.relationship-link{grid-template-columns:minmax(0,1fr) auto}
+.modal-close{width:40px;height:40px;padding:0;display:grid;place-items:center;cursor:pointer}
+
+@media(forced-colors:active){.filter-check input[type=checkbox],.timeline-visibility input[type=checkbox]{appearance:auto}}
+
 @media(max-width:900px){
   .mobile-more-backdrop{position:fixed;inset:0;z-index:39;display:block;background:#10251e66}
   .mobile-more{z-index:40}
@@ -184,4 +219,8 @@ button.schedule-row-label{cursor:pointer}button.schedule-row-label:hover{backgro
   .structured-form>.form-actions button{flex:1;min-width:0}
   .activity-filter-controls{grid-template-columns:1fr}
   .form-disclosure>summary{padding:14px 16px}
+}
+
+@media(max-width:700px){
+  .project-summary strong,.activity-summary strong{white-space:normal;overflow:visible;text-overflow:clip;overflow-wrap:anywhere;line-height:1.35}
 }

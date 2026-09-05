@@ -8,7 +8,7 @@ Synchronization note: local `main` intentionally contains one post-merge documen
 
 ## Active
 
-- Complete the phased mobile UX follow-up. Phase 1 contains project-list controls, removes desktop-only portfolio range controls from the mobile tile view, and corrects compressed project-schedule labels. For Phase 3, use commit `9cd0e87` as the exact clean-production reference where the fixed bottom navigation was observed working on iPhone Chrome after the server issue was resolved; compare later changes against that point before changing navigation mechanics. LAN development hydration required an explicit `allowedDevOrigins` configuration. Preserve Safari, Edge, and desktop behavior and carry the local post-PR #25 handoff commit through this feature branch rather than pushing it directly to `origin/main`.
+- Complete the phased mobile UX follow-up. Phase 1 contains project-list controls, removes desktop-only portfolio range controls from the mobile tile view, and corrects compressed project-schedule labels. Phase 2 establishes shared typography, button, control, checkbox, focus, and action-icon treatments and contains narrow-pane summary, card-title, administration, editor, and relationship content. For Phase 3, use commit `9cd0e87` as the exact clean-production reference where the fixed bottom navigation was observed working on iPhone Chrome after the server issue was resolved; compare later changes against that point before changing navigation mechanics. LAN development hydration required an explicit `allowedDevOrigins` configuration. Preserve Safari, Edge, and desktop behavior and carry the local post-PR #25 handoff commit through this feature branch rather than pushing it directly to `origin/main`.
 
 ## Recently completed
 

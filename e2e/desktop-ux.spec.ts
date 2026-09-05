@@ -20,6 +20,9 @@ test('retains the desktop sidebar, tables, and expanded filters', async ({ page 
 test('retains desktop project filters and portfolio range controls', async ({ page }) => {
   await expect(page.getByLabel('Sort projects')).toBeVisible();
   await expect(page.getByLabel('Show archived')).toBeVisible();
+  const checkbox = await page.getByLabel('Show archived').boundingBox();
+  expect(checkbox?.width).toBe(20);
+  expect(checkbox?.height).toBe(20);
   await page.locator('.sidebar').getByRole('link', { name: /Overview/ }).click();
   const ranges = page.locator('.range-tabs');
   await expect(ranges).toBeVisible();

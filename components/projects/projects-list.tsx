@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { useState } from 'react';
 import { AvatarList } from '../shared/avatar-list';
 import { Heading } from '../shared/page-heading';
+import { Icon } from '../shared/icon';
 import { Pill } from '../shared/status-pill';
 import { date, isoDate } from '../../lib/planning/dates';
 import type { AppData, Project } from '../../lib/planning/types';
@@ -22,7 +23,7 @@ export function Projects({ data, query, onNew }: { data: AppData; query: string;
   const projects = source.filter((project) => project.name.toLowerCase().includes(search.toLowerCase())).sort((a, b) => String(a[sort]).localeCompare(String(b[sort])));
 
   return <>
-    <Heading eyebrow="Planning portfolio" title="Projects" copy="Search, sort, and open every operating window." action={<button className="secondary-btn" onClick={onNew}>＋ New project</button>}/>
+    <Heading eyebrow="Planning portfolio" title="Projects" copy="Search, sort, and open every operating window." action={<button className="secondary-btn" onClick={onNew}><Icon name="plus"/>New project</button>}/>
     <div className="filters project-filters">
       <input className="filter-search" type="search" aria-label="Search projects" placeholder="Search projects" value={search} onChange={(event) => setSearch(event.target.value)}/>
       <label className="project-sort">Sort<select aria-label="Sort projects" value={sort} onChange={(event) => setSort(event.target.value as typeof sort)}><option value="start_date">Start date</option><option value="end_date">End date</option><option value="status">Status</option><option value="name">Name</option></select></label>

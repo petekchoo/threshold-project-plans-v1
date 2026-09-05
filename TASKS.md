@@ -8,7 +8,7 @@ Synchronization note: local `main` intentionally contains one post-merge documen
 
 ## Active
 
-- Begin a fresh UI review and improvement round. Confirm the new feedback and intended scope before changing product behavior; evaluate each item against `DESIGN.md`, the applicable requirement entries, and the responsive desktop/mobile patterns established by PR #25. Preserve desktop behavior while testing affected mobile and desktop surfaces with the QA-05 browser smoke suite.
+- Evaluate the reported iPhone Chrome bottom-navigation scroll behavior against a clean local production build before changing the fixed-bottom implementation. LAN development hydration required an explicit `allowedDevOrigins` configuration; development-only viewport diagnostics and JavaScript positioning experiments were removed to restore the simple baseline. Preserve Safari, Edge, and desktop behavior and carry the local post-PR #25 handoff commit through this feature branch rather than pushing it directly to `origin/main`.
 
 ## Recently completed
 

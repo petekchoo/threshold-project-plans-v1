@@ -38,8 +38,10 @@ Before reporting the server as ready, request `http://localhost:3000` and confir
 
 In Codex, use the connected GitHub integration for repository, pull-request, review, and check operations when those tools are available. The integration provides the authenticated GitHub connection directly and does not require a local `gh` executable. Outside that environment, or when the integration is unavailable, use GitHub CLI as the local fallback.
 
-- With the connected integration, verify access by reading the repository or searching its pull requests before performing a write.
-- With GitHub CLI, verify authentication with `gh auth status` and the repository with `gh repo view`.
+Before any GitHub operation in Codex, search both the initially available tools and the deferred tool catalog for the connected GitHub integration. Do not infer that the integration is unavailable merely because its tools are absent from the initial visible tool list. Use the connected integration whenever it supports the required operation. If connector discovery, authentication, or the required operation fails, stop and report the precise failure to the user. Because GitHub CLI is not installed by default, ask whether the user wants it installed and configured as a fallback. Do not install GitHub CLI or use browser interaction for GitHub operations without explicit user authorization.
+
+- With the connected integration, verify access by reading the repository or pull request before performing a write.
+- Only after the user authorizes installing or using the GitHub CLI fallback, verify authentication with `gh auth status` and the repository with `gh repo view`.
 - Create focused commits on a feature branch based on current `origin/main`.
 - Push with `git push -u origin <branch>`.
 - Open and inspect the pull request through the connected integration, or with `gh pr create` and `gh pr view` when using the CLI fallback.

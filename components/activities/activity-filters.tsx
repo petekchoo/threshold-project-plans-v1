@@ -29,11 +29,50 @@ export function useActivityFilters(data: AppData, initialQuery = '', fixedProjec
     (owner === 'all' || (owner === 'unassigned' ? !activity.activity_owners?.length : activity.activity_owners?.some((item) => item.team_members.id === owner))) &&
     (due === 'all' || (due === 'overdue' ? activity.status !== 'completed' && activity.due_date < today : due === 'week' ? activity.status !== 'completed' && activity.due_date >= today && activity.due_date <= weekEnd : true)),
   ).sort((a, b) => String(a[sort]).localeCompare(String(b[sort])));
+  const activeFilterCount = [
+    query.trim() !== '',
+    status !== 'all',
+    priority !== 'all',
+    owner !== 'all',
+    type !== 'all',
+    !fixedProjectId && project !== 'all',
+    due !== 'all',
+    showArchived,
+  ].filter(Boolean).length;
+  const hasActiveFilters = activeFilterCount > 0;
+  const clearFilters = () => {
+    setQuery('');
+    setStatus('all');
+    setPriority('all');
+    setOwner('all');
+    setType('all');
+    setProject('all');
+    setDue('all');
+    setShowArchived(false);
+  };
 
-  return { rows, query, setQuery, status, setStatus, priority, setPriority, owner, setOwner, type, setType, project, setProject, due, setDue, sort, setSort, showArchived, setShowArchived, today };
+  return { rows, query, setQuery, status, setStatus, priority, setPriority, owner, setOwner, type, setType, project, setProject, due, setDue, sort, setSort, showArchived, setShowArchived, today, activeFilterCount, hasActiveFilters, clearFilters };
 }
 
 export function ActivityFilterBar({ data, filters, includeProject = false }: { data: AppData; filters: ReturnType<typeof useActivityFilters>; includeProject?: boolean }) {
+  const [filtersOpen, setFiltersOpen] = useState(false);
   const projects = filters.showArchived ? [...data.projects, ...(data.archivedProjects || [])] : data.projects;
-  return <div className="filters activity-filters"><input className="filter-search" type="search" aria-label="Search activities" placeholder="Search activities" value={filters.query} onChange={event=>filters.setQuery(event.target.value)}/><select aria-label="Filter by status" value={filters.status} onChange={event=>filters.setStatus(event.target.value)}><option value="all">All statuses</option><option value="not_started">Not started</option><option value="in_progress">In progress</option><option value="blocked">Blocked</option><option value="completed">Completed</option></select><select aria-label="Filter by priority" value={filters.priority} onChange={event=>filters.setPriority(event.target.value)}><option value="all">All priorities</option><option value="urgent">Urgent</option><option value="high">High</option><option value="normal">Normal</option><option value="low">Low</option></select>{includeProject&&<select aria-label="Filter by project" value={filters.project} onChange={event=>filters.setProject(event.target.value)}><option value="all">All projects</option>{projects.map(project=><option value={project.id} key={project.id}>{project.name}{project.archived_at?' (Archived)':''}</option>)}</select>}<select aria-label="Filter by team member" value={filters.owner} onChange={event=>filters.setOwner(event.target.value)}><option value="all">All team members</option><option value="unassigned">Unassigned</option>{data.members.map(member=><option value={member.id} key={member.id}>{member.full_name}</option>)}</select><select aria-label="Filter by activity type" value={filters.type} onChange={event=>filters.setType(event.target.value)}><option value="all">All types</option>{data.activityTypes.map(row=><option value={row.id} key={row.id}>{row.name}</option>)}</select><select aria-label="Filter by due date" value={filters.due} onChange={event=>filters.setDue(event.target.value)}><option value="all">Any due date</option><option value="overdue">Overdue</option><option value="week">Due in 7 days</option></select><select aria-label="Sort activities" value={filters.sort} onChange={event=>filters.setSort(event.target.value as ActivitySort)}><option value="due_date">Sort: Due</option><option value="start_date">Sort: Start</option><option value="name">Sort: Name</option><option value="status">Sort: Status</option><option value="priority">Sort: Priority</option></select><label className="filter-check"><input type="checkbox" checked={filters.showArchived} onChange={event=>filters.setShowArchived(event.target.checked)}/> Archived</label><span>{filters.rows.length} activities</span></div>;
+  return <div className={`filters activity-filters ${filtersOpen ? 'filters-open' : 'filters-collapsed'}`}>
+    <input className="filter-search" type="search" aria-label="Search activities" placeholder="Search activities" value={filters.query} onChange={event => filters.setQuery(event.target.value)}/>
+    <button className="activity-filter-toggle" type="button" aria-expanded={filtersOpen} aria-controls="activity-filter-controls" onClick={() => setFiltersOpen(value => !value)}>
+      Filters{filters.activeFilterCount ? ` (${filters.activeFilterCount})` : ''}
+    </button>
+    <div className="activity-filter-controls" id="activity-filter-controls">
+      <select aria-label="Filter by status" value={filters.status} onChange={event => filters.setStatus(event.target.value)}><option value="all">All statuses</option><option value="not_started">Not started</option><option value="in_progress">In progress</option><option value="blocked">Blocked</option><option value="completed">Completed</option></select>
+      <select aria-label="Filter by priority" value={filters.priority} onChange={event => filters.setPriority(event.target.value)}><option value="all">All priorities</option><option value="urgent">Urgent</option><option value="high">High</option><option value="normal">Normal</option><option value="low">Low</option></select>
+      {includeProject && <select aria-label="Filter by project" value={filters.project} onChange={event => filters.setProject(event.target.value)}><option value="all">All projects</option>{projects.map(project => <option value={project.id} key={project.id}>{project.name}{project.archived_at ? ' (Archived)' : ''}</option>)}</select>}
+      <select aria-label="Filter by team member" value={filters.owner} onChange={event => filters.setOwner(event.target.value)}><option value="all">All team members</option><option value="unassigned">Unassigned</option>{data.members.map(member => <option value={member.id} key={member.id}>{member.full_name}</option>)}</select>
+      <select aria-label="Filter by activity type" value={filters.type} onChange={event => filters.setType(event.target.value)}><option value="all">All types</option>{data.activityTypes.map(row => <option value={row.id} key={row.id}>{row.name}</option>)}</select>
+      <select aria-label="Filter by due date" value={filters.due} onChange={event => filters.setDue(event.target.value)}><option value="all">Any due date</option><option value="overdue">Overdue</option><option value="week">Due in 7 days</option></select>
+      <select aria-label="Sort activities" value={filters.sort} onChange={event => filters.setSort(event.target.value as ActivitySort)}><option value="due_date">Sort: Due</option><option value="start_date">Sort: Start</option><option value="name">Sort: Name</option><option value="status">Sort: Status</option><option value="priority">Sort: Priority</option></select>
+      <label className="filter-check"><input type="checkbox" checked={filters.showArchived} onChange={event => filters.setShowArchived(event.target.checked)}/> Archived</label>
+      {filters.hasActiveFilters && <button className="activity-filter-clear" type="button" onClick={filters.clearFilters}>Clear filters</button>}
+    </div>
+    <span className="activity-filter-count" aria-live="polite">{filters.rows.length} activities</span>
+  </div>;
 }

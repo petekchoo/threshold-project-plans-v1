@@ -22,6 +22,7 @@ verification_catalog:
     test_files:
       - lib/planning/scheduling.test.ts
       - lib/planning/project-reschedule.test.ts
+      - lib/planning/overview-timeline.test.ts
       - components/projects/reschedule-preview-dialog.test.ts
   - id: prj06-database
     kind: database
@@ -111,7 +112,7 @@ groups:
         Primary implementation: "`components/shell/mobile-nav.tsx`; `app/extended.css`"
         Database / persistence: Supabase sign-out
         Coverage: Implemented
-        Verification / known gap: Manual responsive UI; breakpoint-specific keyboard testing remains.
+        Verification / known gap: Route-aware current state, safe-area layout, and accessible overflow dismissal/focus behavior are implemented. Manual mobile and desktop regression testing remains required.
       - ID: SHELL-01
         Capability: Product metadata, document shell, and application identity
         Primary implementation: "`app/layout.tsx`; `RootLayout`; public favicon and logo assets"
@@ -132,11 +133,13 @@ groups:
       - Verification / known gap
     requirements:
       - ID: OVR-01
+        verification:
+          - unit-vitest
         Capability: Cross-project overview timeline with project bars
         Primary implementation: "`components/overview/overview.tsx`; `lib/planning/overview-timeline.ts`; `/` route"
         Database / persistence: Project dates and statuses
         Coverage: Implemented
-        Verification / known gap: Integer calendar-day positioning clips inclusive project ranges to the selected half-open window and fits every subdivision into the pane. Outward triangular ends indicate continuation before or after the visible window. No automated date-boundary tests.
+        Verification / known gap: Integer calendar-day positioning clips inclusive project ranges to the selected half-open window and fits every subdivision into the pane. Outward triangular ends indicate continuation before or after the visible window. Unit coverage verifies Today-marker positioning at interior and boundary dates.
       - ID: OVR-02
         Capability: Week, Month, Quarter, Half-year, Year, and All Events ranges; Month default
         Primary implementation: "`components/overview/overview.tsx` range state and range tabs; `lib/planning/overview-timeline.ts`"
@@ -187,13 +190,13 @@ groups:
         Primary implementation: "`components/projects/projects-list.tsx`; `/projects` route; shared search in `components/threshold-app.tsx`"
         Database / persistence: Projects, types, owners, activities
         Coverage: Partial
-        Verification / known gap: Core columns and selector sorting exist. Labels shorten “Activity Progress” and “Overdue Activities,” and status sorting is lexical rather than workflow ordered.
+        Verification / known gap: Core columns and selector sorting exist. Primary table content uses 14px text and tabular numerals, and project briefs have an expandable desktop disclosure. Labels shorten “Activity Progress” and “Overdue Activities,” and status sorting is lexical rather than workflow ordered.
       - ID: PRJ-02
         Capability: Create and edit project name, description, type, status, dates, and assigned team members
         Primary implementation: "`components/projects/project-form.tsx`; `components/shared/editor.tsx`; `components/projects/project-detail.tsx`"
         Database / persistence: "`save_project`; `projects`; `project_owners`"
         Coverage: Implemented
-        Verification / known gap: Team members are staged in a searchable multi-select modal and shown with explicit Remove actions. Escape cancels inline project editing, and displayed descriptions preserve authored line breaks. Client and database date-order validation; no automated CRUD test.
+        Verification / known gap: Team members are staged in a searchable multi-select modal and shown with explicit Remove actions on desktop and mobile. Required markers, inline errors, linked summaries, ARIA associations, and first-invalid focus supplement client and database validation; no automated CRUD test.
       - ID: PRJ-03
         Capability: Manually selected project status remains distinct from calculated activity progress
         Primary implementation: "`components/shared/status-pill.tsx`; `lib/planning/progress.ts`; `components/projects/projects-list.tsx`; `components/projects/project-detail.tsx`"
@@ -243,19 +246,19 @@ groups:
         Primary implementation: "`components/activities/activities-list.tsx`; `/activities` route"
         Database / persistence: Activities, projects, types, owners
         Coverage: Implemented
-        Verification / known gap: Manual UI.
+        Verification / known gap: Desktop table content uses 14px text and tabular numerals; mobile cards expose type, assignment, status, priority, dates, and overdue state. Manual responsive UI.
       - ID: ACT-02
         Capability: Filter activities by project, team member, type, status, priority, due date, and archive state; sort meaningful fields
         Primary implementation: "`components/activities/activity-filters.tsx`; `components/activities/activities-list.tsx`; `components/projects/project-activity-list.tsx`"
         Database / persistence: Activity fields and ownership
         Coverage: Partial
-        Verification / known gap: Shared text search and filters drive both the global list and the project-scoped activity list; the global list adds Project while project detail fixes that scope implicitly. Status and priority currently sort lexically rather than by defined workflow/priority order; due-date options cover overdue and next seven days only.
+        Verification / known gap: Shared text search and filters drive both lists; mobile keeps search visible and discloses secondary filters with an active count and Clear filters. True-empty and filtered-empty states are distinct. Status and priority currently sort lexically rather than by defined workflow/priority order; due-date options cover overdue and next seven days only.
       - ID: ACT-03
         Capability: Create and edit required dates, assigned team members, type, status, priority, notes, and project
         Primary implementation: "`components/activities/activity-form.tsx`; `components/shared/editor.tsx`; `components/activities/activity-panel.tsx`; `components/activities/activity-detail.tsx`; overview and project-detail launch points"
         Database / persistence: Authoritative `save_activity` in `202608300003_project_timing_constraints.sql`; activities and `activity_owners`
         Coverage: Implemented
-        Verification / known gap: Shared editor styling uses 16px field text, regular-weight 13px labels, 14px instructions/actions, visible focus treatment, and approximately 44px controls for comfortable maintenance. Team members are staged in a searchable multi-select modal. Client and database date-order validation; no automated CRUD test.
+        Verification / known gap: Shared editors use progressive disclosure, 16px controls, 44px actions, required markers, inline errors, linked summaries, ARIA associations, and first-invalid focus. Populated or invalid sections open automatically. No automated CRUD test.
       - ID: ACT-04
         Capability: Add multiple labeled external links through a staged modal and manage them as clickable, removable tiles
         Primary implementation: "`lib/data/planning-data.ts`; `components/activities/link-editor.tsx`; `components/activities/activity-form.tsx`; `components/activities/activity-detail.tsx`"
@@ -402,13 +405,13 @@ groups:
         Primary implementation: Feature forms; `components/shell/*`; `components/overview/project-card.tsx`; responsive CSS
         Database / persistence: Same persistence paths on all viewports
         Coverage: Implemented
-        Verification / known gap: Editor grids stack on small screens while retaining readable 16px controls and touch-sized actions. Manual responsive inspection; systematic device matrix remains.
+        Verification / known gap: Editor grids stack on small screens while retaining readable 16px controls and touch-sized actions; team-member and Save controls remain visible and contained. Release review covers 390×844 and representative desktop widths; a broader device matrix remains.
       - ID: A11Y-01
         Capability: Semantic, keyboard-accessible UI with focus visibility and suitable contrast
         Primary implementation: "Form labels, fieldsets, status roles, dialog attributes; `components/shared/modal-keyboard.ts`; global/extended CSS"
         Database / persistence: None
         Coverage: Partial
-        Verification / known gap: Central keyboard policy makes Enter save and Escape cancel the topmost modal while preserving multiline input. Editors use enlarged labels, instructions, fields, actions, picker content, and visible focus rings; nested picker dismissal leaves the underlying editor open. No automated accessibility audit; modal focus trapping/restoration and comprehensive keyboard testing remain.
+        Verification / known gap: Central keyboard policy preserves topmost-modal behavior. Forms expose required state and associated inline/summary errors with first-invalid focus; responsive navigation exposes current state and overflow focus restoration. No automated accessibility audit; comprehensive focus trapping and keyboard testing remain.
       - ID: VIS-01
         Capability: Threshold identity with warm editorial and restrained operational styling
         Primary implementation: "`components/shell/sidebar.tsx`; logo assets; `app/globals.css`; `app/extended.css`"

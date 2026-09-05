@@ -6,7 +6,7 @@ See `DEVELOPMENT.md` for the new-task startup, GitHub, Supabase, verification, a
 
 ## Active
 
-- Review Instinct's external feedback and the current product UI/UX before beginning project templates, with particular attention to the mobile experience. Inventory each recommendation, compare it with Threshold's confirmed product rules and current implementation, and record an explicit adopt/adapt/defer/reject decision with rationale before implementing approved changes and their mapped verification.
+- Complete the Instinct/mobile UX review release gate. The approved implementation is complete locally: responsive navigation/filters/schedules, accessible validation and activity disclosures, corrected mobile project-team and Save controls, unified activity CTAs/empty states, stronger table/card legibility and contrast, and the Today treatment. `pnpm verify` passes with 51 tests, the production build passes, and authorized browser checks pass at 390×844 and 1440×900 with no console errors. Rejected or deferred items remain out of scope: top-drawer navigation, a mandatory 768px breakpoint, renaming All Events, a blanket timeline legend, wholesale copy/restyling, and unnecessary archive restyling.
 
 ## Recently completed
 

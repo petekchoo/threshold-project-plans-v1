@@ -78,7 +78,7 @@ export function ProjectSchedule({ project, activities, onEdit }: { project: Proj
   const grid = <>{minor.map((mark) => <i aria-hidden="true" className="schedule-grid-minor" key={`minor-${mark.date}`} style={{ left: position(mark.date) }}/>) }{major.map((mark) => <i aria-hidden="true" className="schedule-grid-major" key={`major-${mark.date}`} style={{ left: position(mark.date) }}/>)}</>;
 
   return (
-    <div className="project-schedule-scroll">
+    <><p className="mobile-schedule-hint">Swipe horizontally to review the complete project timeline.</p><div className="project-schedule-scroll">
       <div className="project-schedule">
         <div className="schedule-header-label">Timeline</div>
         <div className="schedule-header-track">{grid}{major.map((mark) => <span key={mark.date} style={{ left: position(mark.date) }}>{mark.label}</span>)}</div>
@@ -91,6 +91,6 @@ export function ProjectSchedule({ project, activities, onEdit }: { project: Proj
           </div>
         ))}
       </div>
-    </div>
+    </div></>
   );
 }

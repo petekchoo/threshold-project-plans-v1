@@ -31,7 +31,20 @@ GitHub CLI is the standard interface for pull requests and GitHub checks.
 - Push with `git push -u origin <branch>`.
 - Open a pull request with `gh pr create` and inspect it with `gh pr view`.
 - Require successful repository verification and Vercel checks before merging.
-- Merge through `gh pr merge`; do not force-push or rewrite shared `main`.
+- Merge through `gh pr merge --delete-branch`; do not force-push or rewrite shared `main`.
+
+### Branch cleanup after merge
+
+After GitHub confirms a pull request merged successfully:
+
+1. Switch to `main` and fast-forward it from `origin/main`.
+2. Confirm the merged branch has no commits absent from `main` before deleting it locally.
+3. Delete the local merged branch with the safe, non-forcing branch-delete operation.
+4. Confirm the remote feature branch was deleted; delete it explicitly if GitHub did not remove it.
+5. Fetch with pruning so stale remote-tracking references disappear.
+6. Confirm the working tree is clean and local `main` matches `origin/main`.
+
+Never automatically delete a diverged branch, a branch containing commits absent from `main`, a named archive/backup branch, or a branch owned by a separate deployment remote. Inspect and preserve those branches until their unique work and purpose are resolved.
 
 GitHub authentication is machine-local and should remain in the operating system credential store. Never commit tokens or CLI credential files. If `gh` is unavailable or unauthenticated on a new machine, install it from the official GitHub CLI release and run `gh auth login`.
 
@@ -47,4 +60,4 @@ Supabase authentication and project linking are machine-local. Verify them with 
 2. Run `pnpm verify` and the relevant tests; run `pnpm build` for deployment-affecting changes.
 3. Keep commits focused and review the final diff.
 4. Push completed work and confirm GitHub checks.
-5. Leave local `main`, `origin/main`, and migration history synchronized when the work is complete and merged.
+5. Complete the post-merge branch cleanup above and leave local `main`, `origin/main`, and migration history synchronized.

@@ -8,7 +8,7 @@ Synchronization note: local `main` intentionally contains the post-merge PR #28 
 
 ## Active
 
-- QA-04 activity work-management database coverage is active on `feature/qa04-activity-database-coverage`. The new transactional pgTAP suite covers shared authenticated reads, anonymous isolation, authoritative aggregate activity saves, blocked direct writes, dependency-cycle rollback, dependency chronology, project-relative timing and exception boundaries, atomic project-start adjustment, and activity/project archive retention. The complete local database suite passes 82 assertions, and `pnpm verify` passes with 64 unit tests. Pull-request and deployment checks remain.
+- QA-04 activity work-management database coverage is pending merge in GitHub PR #29 from `feature/qa04-activity-database-coverage`. The new transactional pgTAP suite covers shared authenticated reads, anonymous isolation, authoritative aggregate activity saves, blocked direct writes, dependency-cycle rollback, dependency chronology, project-relative timing and exception boundaries, atomic project-start adjustment, and activity/project archive retention. The complete local database suite passes 82 assertions, and `pnpm verify` passes with 64 unit tests. Repository and Vercel checks are pending on head `3fd62e1`.
 
 ## Recently completed
 

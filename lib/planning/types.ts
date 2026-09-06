@@ -1,4 +1,4 @@
-export type Kind = 'overview' | 'projects' | 'activities' | 'administration' | 'project' | 'activity';
+export type Kind = 'overview' | 'projects' | 'activities' | 'templates' | 'administration' | 'project' | 'activity' | 'template';
 
 export type Member = {
   id: string;
@@ -48,6 +48,35 @@ export type ActivityLink = {
 
 export type ProjectTimingRule = 'advance_deadline' | 'post_project_deadline';
 export type ProjectBoundary = 'start' | 'end';
+
+export type TemplateScheduleRule =
+  | 'finish_before_project_end'
+  | 'finish_after_project_end'
+  | 'start_after_activity_finish'
+  | 'finish_after_activity_finish';
+
+export type ProjectTemplateActivity = {
+  id: string;
+  template_id: string;
+  activity_type_id: string;
+  name: string;
+  schedule_rule: TemplateScheduleRule;
+  offset_days: number;
+  duration_days: number;
+  relative_activity_id?: string | null;
+  sort_order: number;
+  archived_at?: string | null;
+  activity_types?: TypeRow;
+};
+
+export type ProjectTemplate = {
+  id: string;
+  name: string;
+  project_type_id: string;
+  archived_at?: string | null;
+  project_types?: TypeRow;
+  activities: ProjectTemplateActivity[];
+};
 
 export type Activity = {
   id: string;
@@ -162,4 +191,6 @@ export type AppData = {
   members: Member[];
   projectTypes: TypeRow[];
   activityTypes: TypeRow[];
+  templates: ProjectTemplate[];
+  archivedTemplates: ProjectTemplate[];
 };

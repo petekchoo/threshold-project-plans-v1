@@ -26,11 +26,17 @@ verification_catalog:
       - lib/planning/project-reschedule.test.ts
       - lib/planning/overview-timeline.test.ts
       - components/projects/reschedule-preview-dialog.test.ts
+      - lib/planning/project-template.test.ts
   - id: prj06-database
     kind: database
     command: pnpm db:test
     test_files:
       - supabase/tests/prj06_project_rescheduling.sql
+  - id: template-database
+    kind: database
+    command: pnpm db:test
+    test_files:
+      - supabase/tests/project_templates.sql
   - id: qa05-browser-smoke
     kind: end-to-end
     runner: playwright
@@ -295,6 +301,41 @@ groups:
         Database / persistence: "`activity_owners`; team members"
         Coverage: Implemented
         Verification / known gap: Manual UI verifies multi-select staging and explicit removal; persistence has no automated CRUD test.
+  - title: Project templates
+    scope: product-behavior
+    design_refs:
+      - DESIGN.md#experience-design
+      - DESIGN.md#data-and-integrations
+    columns:
+      - ID
+      - Capability
+      - Primary implementation
+      - Database / persistence
+      - Coverage
+      - Verification / known gap
+    requirements:
+      - ID: TPL-01
+        plans:
+          - plans/TPL-01-project-templates.md
+        verification:
+          - unit-vitest
+          - template-database
+        Capability: Create, search, edit, validate, and archive reusable project templates with deterministic project-end-connected activity graphs
+        Primary implementation: "Binding detail in `plans/TPL-01-project-templates.md`; `lib/planning/project-template.ts`; `components/templates/*`; `/templates` routes"
+        Database / persistence: "`project_templates`; `project_template_activities`; authoritative saves, validation, and archive functions in migration `202609060001`"
+        Coverage: Partial
+        Verification / known gap: One rule, offset, and duration per activity, active-type validation, derived Ready/Needs setup state, order-independent resolution, cycle rejection, responsive Templates navigation, and inline referenced-activity creation are implemented. Unit and local database suites pass. Authorized Docker-backed desktop/mobile validation covered authoring, inline creation, readiness, navigation, and containment; automated data-changing journeys remain under QA-05.
+      - ID: TPL-02
+        plans:
+          - plans/TPL-01-project-templates.md
+        verification:
+          - unit-vitest
+          - template-database
+        Capability: Search valid templates, preview a schedule from project name and end date, and atomically create an independent dated Draft project and Not Started activity graph
+        Primary implementation: "Binding detail in `plans/TPL-01-project-templates.md`; `components/projects/project-create-flow.tsx`; `lib/planning/project-template.ts`"
+        Database / persistence: "`preview_project_template`; `create_project_from_template` in migration `202609060001`"
+        Coverage: Partial
+        Verification / known gap: Searchable Ready-template selection, minimal name/end-date entry, schedule preview, independent atomic creation, inherited types, empty ownership/content fields, generated dependencies/timing rules, and derived project start are implemented. Unit and local transaction suites pass. Authorized Docker-backed desktop/mobile validation confirmed exact preview and generated project dates; automated browser coverage remains under QA-05.
   - title: Scheduling and dependencies
     scope: product-behavior
     design_refs:

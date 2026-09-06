@@ -11,7 +11,7 @@ Coding agents must also follow the agent-specific authorization and documentatio
 3. Read the relevant product rules and decisions in `DESIGN.md`, expanding to the full document only for broad or uncertain scope.
 4. Inspect the executable tests identified by each applicable plan before changing implemented behavior.
 5. Check the current branch and working-tree status before editing.
-6. Fetch `origin` before branching so new work starts from current GitHub `main`.
+6. Fetch `origin` before branching. If `TASKS.md` identifies an intentional local post-merge handoff commit, branch from local `main` so that commit is carried into the next feature pull request. Otherwise, start new work from current `origin/main`.
 
 `AGENTS.md` defines the always-read sources and routing details. The generated implementation-map section in `DESIGN.md` is for readable reference and does not need to be reread after the authoritative YAML entries unless the task is checking generation or documentation consistency.
 
@@ -36,6 +36,32 @@ Start the application with `pnpm dev`. When using the bundled Codex Node.js runt
 
 Before reporting the server as ready, request `http://localhost:3000` and confirm that it returns an HTTP 200 response. If `pnpm` is available but startup or compilation reports `node: not found`, load or activate the workspace's Node.js runtime, ensure it is inherited through `PATH`, and retry. Keep runtime paths and other machine-specific configuration out of the repository.
 
+For validation on a physical phone, place the phone and development Mac on the same trusted network, determine the Mac's current LAN address, and allow that address when starting Next.js:
+
+```sh
+THRESHOLD_ALLOWED_DEV_ORIGINS=<mac-lan-address> pnpm dev
+```
+
+Open the `Network` URL printed by Next.js on the phone, including port `3000`. `next.config.ts` reads the comma-separated `THRESHOLD_ALLOWED_DEV_ORIGINS` value and passes it to Next.js only in that server process. Do not commit a machine-specific address. Confirm that the server does not report a blocked cross-origin request for the phone address: without this allowance, HTML can appear while client interactions such as the mobile drawer remain unavailable.
+
+Browser authentication storage is origin-specific. A session established at `localhost`, a previous LAN address, or a Docker-backed run does not establish a valid session at the current LAN URL. Sign out and back in at the phone URL when data is empty or a stale session is suspected. After restarting the development server, fully reload or open a new tab to clear stale development overlays and client state.
+
+### Local application and validation environments
+
+“Local” can refer to the web process, browser viewport, or database. Treat them as separate choices and identify both the application host and backend before validation:
+
+| Purpose | Application host | Browser/device | Supabase backend |
+| --- | --- | --- | --- |
+| Manual desktop validation | Local Next.js at `http://localhost:3000` | Desktop browser at a representative wide viewport | The backend selected by `NEXT_PUBLIC_SUPABASE_URL` in ignored local environment configuration |
+| Manual mobile validation | The same local Next.js process; physical devices use its allowed LAN `Network` URL | Responsive emulation at 390 × 844 unless a task specifies a physical device | The same backend as the desktop session; viewport or device choice does not select a different backend |
+| Playwright desktop smoke | Local Next.js by default, or explicit `E2E_BASE_URL` | Chromium at 1440 × 900 | The backend configured for the targeted application server |
+| Playwright mobile smoke | The same target as desktop smoke | Chromium at 390 × 844 | The same backend configured for the targeted application server |
+| Database integration tests | No browser application required | None | Disposable Docker-hosted local Supabase started with `pnpm db:start` |
+
+Starting Docker does not automatically reconfigure `pnpm dev` or Playwright to use local Supabase. The web application always uses the public Supabase URL and key supplied to that application process. Before browser validation, classify that URL without printing credentials or project identifiers as one of: Docker-local, dedicated development, preview/staging, or production/shared. State the classification in the task handoff.
+
+Read-only browser smoke may run against a shared backend only with the dedicated E2E account and current-task authorization. Never run create, edit, archive, fixture, or teardown journeys against production or another shared backend. Data-changing browser tests require a disposable local fixture lifecycle or the future dedicated development backend, explicit authorization, and a verified cleanup path.
+
 ## GitHub pull requests and checks
 
 In Codex, use the connected GitHub integration for repository, pull-request, review, and check operations when those tools are available. The integration provides the authenticated GitHub connection directly and does not require a local `gh` executable. Outside that environment, or when the integration is unavailable, use GitHub CLI as the local fallback.
@@ -44,7 +70,7 @@ Before any GitHub operation in Codex, search both the initially available tools 
 
 - With the connected integration, verify access by reading the repository or pull request before performing a write.
 - Only after the user authorizes installing or using the GitHub CLI fallback, verify authentication with `gh auth status` and the repository with `gh repo view`.
-- Create focused commits on a feature branch based on current `origin/main`.
+- Create focused commits on a feature branch based on current `origin/main`, except when `TASKS.md` identifies an intentional local post-merge handoff commit; in that case, base the branch on local `main` and carry the handoff through the feature pull request.
 - Push with `git push -u origin <branch>`.
 - Open and inspect the pull request through the connected integration, or with `gh pr create` and `gh pr view` when using the CLI fallback.
 - Require successful repository verification and Vercel checks before merging.
@@ -73,6 +99,8 @@ Use the project-local CLI through the package scripts in `package.json`. The can
 Before local database work, run `docker version` and require both Client and Server output. Start the disposable local stack with `pnpm db:start`; this excludes the optional Studio UI while retaining the services needed by the application, `pnpm db:test`, and `pnpm db:test:concurrency`. If Docker is absent, stopped, awaiting macOS file-sharing permission, or cannot reach its engine, resolve that prerequisite before treating database-test failures as repository defects.
 
 Supabase authentication and project linking are machine-local. Verify them with `pnpm db:status` before database work. Apply migrations only after reviewing `pnpm db:push:dry-run` and receiving explicit authorization for the database write.
+
+The CLI link used by `pnpm db:status`, `pnpm db:push:dry-run`, and `pnpm db:push` is independent of the application URL in `.env.local`. Confirm both destinations separately: checking the linked migration target does not prove which backend the local web application or browser tests use.
 
 ## Finishing a task
 

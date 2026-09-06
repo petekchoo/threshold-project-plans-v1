@@ -8,10 +8,17 @@ QA-05 protects complete user journeys that cross routing, responsive layout, aut
 
 - Chromium is the baseline browser for the first slice.
 - Mobile assertions run at 390 × 844 and desktop assertions run at 1440 × 900.
+- Both viewport projects target the same application server and therefore the same Supabase backend. “Mobile” changes the viewport and responsive behavior; it is not a separate application deployment or database environment.
+- Physical-device validation uses the same server and backend. Start the server with `THRESHOLD_ALLOWED_DEV_ORIGINS=<mac-lan-address>`, open the printed port-3000 `Network` URL on a phone sharing the trusted network, and confirm the server reports no blocked cross-origin development-resource requests. Never commit the machine-specific address.
+- Treat the phone URL as a separate authentication origin from `localhost`, earlier LAN addresses, and Docker-backed runs. Sign in at the current phone URL; if a restarted development session shows a stale error overlay or unresponsive controls, fully reload or open a new tab before classifying it as a product defect.
+- Without `E2E_BASE_URL`, Playwright starts or reuses `http://localhost:3000`. With `E2E_BASE_URL`, it targets that explicit server and does not start the local Next.js process.
+- The targeted application's `NEXT_PUBLIC_SUPABASE_URL` determines its backend. Docker-local Supabase is used by database tests but does not become the browser backend unless the application process is explicitly configured for it.
+- Before every browser run, classify the target backend as Docker-local, dedicated development, preview/staging, or production/shared without exposing its URL, credentials, or project identifier. Record that classification in the task handoff.
 - Tests authenticate with a dedicated non-production account supplied through `THRESHOLD_E2E_EMAIL` and `THRESHOLD_E2E_PASSWORD`.
 - Local runs load those values directly from the ignored `.env.local` file when present; shell sourcing is not required.
 - The baseline account must have at least one active project. Credentials, generated browser state, screenshots, traces, and reports are never committed.
 - Slice 1 is read-only: editors are opened and cancelled, and tests must not save, archive, or otherwise change application data.
+- Data-changing journeys must refuse to run against production or another shared backend. They remain deferred until a disposable fixture lifecycle or dedicated development backend and cleanup path are available.
 
 ## Slice 1: responsive UX smoke coverage
 

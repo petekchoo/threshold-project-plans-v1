@@ -36,6 +36,16 @@ Start the application with `pnpm dev`. When using the bundled Codex Node.js runt
 
 Before reporting the server as ready, request `http://localhost:3000` and confirm that it returns an HTTP 200 response. If `pnpm` is available but startup or compilation reports `node: not found`, load or activate the workspace's Node.js runtime, ensure it is inherited through `PATH`, and retry. Keep runtime paths and other machine-specific configuration out of the repository.
 
+For validation on a physical phone, place the phone and development Mac on the same trusted network, determine the Mac's current LAN address, and allow that address when starting Next.js:
+
+```sh
+THRESHOLD_ALLOWED_DEV_ORIGINS=<mac-lan-address> pnpm dev
+```
+
+Open the `Network` URL printed by Next.js on the phone, including port `3000`. `next.config.ts` reads the comma-separated `THRESHOLD_ALLOWED_DEV_ORIGINS` value and passes it to Next.js only in that server process. Do not commit a machine-specific address. Confirm that the server does not report a blocked cross-origin request for the phone address: without this allowance, HTML can appear while client interactions such as the mobile drawer remain unavailable.
+
+Browser authentication storage is origin-specific. A session established at `localhost`, a previous LAN address, or a Docker-backed run does not establish a valid session at the current LAN URL. Sign out and back in at the phone URL when data is empty or a stale session is suspected. After restarting the development server, fully reload or open a new tab to clear stale development overlays and client state.
+
 ### Local application and validation environments
 
 “Local” can refer to the web process, browser viewport, or database. Treat them as separate choices and identify both the application host and backend before validation:
@@ -43,7 +53,7 @@ Before reporting the server as ready, request `http://localhost:3000` and confir
 | Purpose | Application host | Browser/device | Supabase backend |
 | --- | --- | --- | --- |
 | Manual desktop validation | Local Next.js at `http://localhost:3000` | Desktop browser at a representative wide viewport | The backend selected by `NEXT_PUBLIC_SUPABASE_URL` in ignored local environment configuration |
-| Manual mobile validation | The same local Next.js process | Responsive emulation at 390 × 844 unless a task specifies a physical device | The same backend as the desktop session; viewport emulation does not select a different backend |
+| Manual mobile validation | The same local Next.js process; physical devices use its allowed LAN `Network` URL | Responsive emulation at 390 × 844 unless a task specifies a physical device | The same backend as the desktop session; viewport or device choice does not select a different backend |
 | Playwright desktop smoke | Local Next.js by default, or explicit `E2E_BASE_URL` | Chromium at 1440 × 900 | The backend configured for the targeted application server |
 | Playwright mobile smoke | The same target as desktop smoke | Chromium at 390 × 844 | The same backend configured for the targeted application server |
 | Database integration tests | No browser application required | None | Disposable Docker-hosted local Supabase started with `pnpm db:start` |

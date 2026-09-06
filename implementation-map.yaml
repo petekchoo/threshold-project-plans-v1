@@ -121,7 +121,7 @@ groups:
         Primary implementation: "`components/shell/mobile-nav.tsx`; `app/extended.css`"
         Database / persistence: Supabase sign-out
         Coverage: Implemented
-        Verification / known gap: The linked Threshold mark returns to Overview. The non-sticky header scrolls with the document, while its hamburger opens a route-aware drawer containing every primary destination and Sign out. Escape, backdrop dismissal, focus trapping/return, and background scroll locking are implemented. The former fixed bottom navigation and its visual-viewport dependency are removed from the rendered shell.
+        Verification / known gap: The linked, tightly cropped ginkgo mark returns to Overview without clipping. The non-sticky header scrolls with the document, while its hamburger opens a route-aware drawer containing every primary destination and Sign out. Escape, backdrop dismissal, focus trapping/return, and background scroll locking are implemented. The former fixed bottom navigation and its visual-viewport dependency are removed from the rendered shell.
       - ID: SHELL-01
         Capability: Product metadata, document shell, and application identity
         Primary implementation: "`app/layout.tsx`; `RootLayout`; public favicon and logo assets"
@@ -199,7 +199,7 @@ groups:
         Primary implementation: "`components/projects/projects-list.tsx`; `/projects` route; shared search in `components/threshold-app.tsx`"
         Database / persistence: Projects, types, owners, activities
         Coverage: Partial
-        Verification / known gap: Core columns and selector sorting exist. Primary table content uses 14px text and tabular numerals, and project briefs have an expandable desktop disclosure. Mobile search, sort, archive visibility, and result count are contained in a responsive control grid. Labels shorten “Activity Progress” and “Overdue Activities,” and status sorting is lexical rather than workflow ordered.
+        Verification / known gap: Core columns and selector sorting exist. Primary table content uses 14px text and tabular numerals, and project briefs have an expandable desktop disclosure. Search covers project name and type; status, team member, type, end-date window, sort, and archive controls remain expanded on desktop and use the same counted mobile filter disclosure as Activities. Labels shorten “Activity Progress” and “Overdue Activities,” and status sorting is lexical rather than workflow ordered.
       - ID: PRJ-02
         Capability: Create and edit project name, description, type, status, dates, and assigned team members
         Primary implementation: "`components/projects/project-form.tsx`; `components/shared/editor.tsx`; `components/projects/project-detail.tsx`"
@@ -255,7 +255,7 @@ groups:
         Primary implementation: "`components/activities/activities-list.tsx`; `/activities` route"
         Database / persistence: Activities, projects, types, owners
         Coverage: Implemented
-        Verification / known gap: Desktop table content uses 14px text and tabular numerals; mobile cards expose type, assignment, status, priority, dates, and overdue state. Manual responsive UI.
+        Verification / known gap: Desktop table content uses 14px text and tabular numerals. Mobile cards expose project, type, assignment, status, dates, and a prominent upper-right overdue state; priority remains available in the desktop table, filters, and activity detail without crowding the mobile tile. The read-only activity summary uses four equal cells on desktop and a balanced two-by-two grid on mobile.
       - ID: ACT-02
         Capability: Filter activities by project, team member, type, status, priority, due date, and archive state; sort meaningful fields
         Primary implementation: "`components/activities/activity-filters.tsx`; `components/activities/activities-list.tsx`; `components/projects/project-activity-list.tsx`"

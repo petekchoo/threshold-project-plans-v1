@@ -54,7 +54,7 @@ export function MobileNav() {
   return <>
     <header className="mobile-header">
       <Link className="mobile-header-brand" href="/" aria-label="Threshold overview">
-        <Image src="/threshold-logo.png" alt="" width={150} height={54} priority/>
+        <Image src="/ginkgo-icon.png" alt="" width={48} height={48} priority/>
       </Link>
       <button ref={menuButtonRef} className="mobile-menu-button" type="button" aria-label="Open menu" aria-expanded={open} aria-haspopup="dialog" aria-controls="mobile-navigation-drawer" onClick={() => setOpen(true)}>
         <span aria-hidden="true"/><span aria-hidden="true"/><span aria-hidden="true"/>

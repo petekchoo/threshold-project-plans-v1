@@ -19,8 +19,13 @@ test('retains the desktop sidebar, tables, and expanded filters', async ({ page 
 
 test('retains desktop project filters and portfolio range controls', async ({ page }) => {
   await expect(page.getByLabel('Sort projects')).toBeVisible();
-  await expect(page.getByLabel('Show archived')).toBeVisible();
-  const checkbox = await page.getByLabel('Show archived').boundingBox();
+  await expect(page.getByLabel('Filter projects by status')).toBeVisible();
+  await expect(page.getByLabel('Filter projects by team member')).toBeVisible();
+  await expect(page.getByLabel('Filter projects by type')).toBeVisible();
+  await expect(page.getByLabel('Filter projects by end date')).toBeVisible();
+  await expect(page.getByLabel('Archived', { exact: true })).toBeVisible();
+  await expect(page.locator('.project-filter-toggle')).toBeHidden();
+  const checkbox = await page.getByLabel('Archived', { exact: true }).boundingBox();
   expect(checkbox?.width).toBe(20);
   expect(checkbox?.height).toBe(20);
   await page.locator('.sidebar').getByRole('link', { name: /Overview/ }).click();
@@ -31,7 +36,7 @@ test('retains desktop project filters and portfolio range controls', async ({ pa
 });
 
 test('keeps the desktop project editor contained without changing data', async ({ page }) => {
-  await page.getByRole('button', { name: /New project/ }).click();
+  await page.getByRole('button', { name: /Add project/ }).click();
   const dialog = page.getByRole('dialog', { name: 'Project' });
   await expect(dialog.getByRole('button', { name: 'Add team member' })).toBeVisible();
 

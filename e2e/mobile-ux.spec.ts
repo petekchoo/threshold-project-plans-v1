@@ -10,6 +10,12 @@ test('uses a scrolling mobile header and an accessible navigation drawer', async
   await expect(header).toBeVisible();
   await expect(header).toHaveCSS('position', 'relative');
   await expect(header.getByRole('link', { name: 'Threshold overview' })).toHaveAttribute('href', '/');
+  const logoBox = await header.locator('img').boundingBox();
+  const brandBox = await header.getByRole('link', { name: 'Threshold overview' }).boundingBox();
+  expect(logoBox).not.toBeNull();
+  expect(brandBox).not.toBeNull();
+  expect(logoBox!.x).toBeGreaterThanOrEqual(brandBox!.x);
+  expect(logoBox!.x + logoBox!.width).toBeLessThanOrEqual(brandBox!.x + brandBox!.width);
   await expect(page.locator('.sidebar')).toBeHidden();
   await expect(page.locator('.bottom-nav')).toHaveCount(0);
 
@@ -25,7 +31,7 @@ test('uses a scrolling mobile header and an accessible navigation drawer', async
 });
 
 test('keeps project team and form actions visible and contained', async ({ page }) => {
-  await page.getByRole('button', { name: /New project/ }).click();
+  await page.getByRole('button', { name: /Add project/ }).click();
   const dialog = page.getByRole('dialog', { name: 'Project' });
   await expect(dialog).toBeVisible();
   await expect(dialog.getByRole('button', { name: 'Close editor' })).toBeVisible();
@@ -47,7 +53,7 @@ test('keeps project team and form actions visible and contained', async ({ page 
 });
 
 test('presents linked validation errors and focuses the first invalid field', async ({ page }) => {
-  await page.getByRole('button', { name: /New project/ }).click();
+  await page.getByRole('button', { name: /Add project/ }).click();
   const dialog = page.getByRole('dialog', { name: 'Project' });
   await dialog.getByRole('button', { name: 'Save', exact: true }).click();
 
@@ -67,6 +73,8 @@ test('uses mobile activity cards and supports filter disclosure and reset', asyn
   await expect(page.getByRole('heading', { name: 'Activities', exact: true })).toBeVisible();
   await expect(page.locator('.table-card')).toBeHidden();
   await expect(page.locator('.mobile-list')).toBeVisible();
+  await expect(page.getByText('Project work', { exact: true })).toBeVisible();
+  await expect(page.locator('.activity-card .priority')).toHaveCount(0);
 
   const toggle = page.locator('.activity-filter-toggle');
   await toggle.click();
@@ -81,18 +89,33 @@ test('uses mobile activity cards and supports filter disclosure and reset', asyn
   await page.getByRole('button', { name: 'Clear filters' }).click();
   await expect(toggle).toHaveText('Filters');
   await expect(page.getByLabel('Filter by status')).toHaveValue('all');
+
+  const firstActivity = page.locator('.activity-card').first();
+  await firstActivity.click();
+  await expect(page.getByText('Dates', { exact: true })).toBeVisible();
+  const summaryBoxes = await page.locator('.activity-summary>div').evaluateAll(items => items.map(item => ({ width: item.getBoundingClientRect().width, height: item.getBoundingClientRect().height })));
+  expect(new Set(summaryBoxes.map(box => box.width)).size).toBe(1);
+  expect(new Set(summaryBoxes.map(box => box.height)).size).toBe(1);
 });
 
 test('contains project filters and keeps desktop-only timeline ranges off mobile', async ({ page }) => {
   const filters = page.locator('.project-filters');
   await expect(filters).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Add project' })).toHaveCSS('white-space', 'nowrap');
+  const filterToggle = page.locator('.project-filter-toggle');
+  await expect(filterToggle).toBeVisible();
+  await filterToggle.click();
+  await expect(page.getByLabel('Filter projects by status')).toBeVisible();
+  await expect(page.getByLabel('Filter projects by team member')).toBeVisible();
+  await expect(page.getByLabel('Filter projects by type')).toBeVisible();
+  await expect(page.getByLabel('Filter projects by end date')).toBeVisible();
   await expect(page.getByLabel('Sort projects')).toBeVisible();
-  await expect(page.getByLabel('Show archived')).toBeVisible();
-  const archiveBox = await page.getByLabel('Show archived').boundingBox();
+  await expect(page.getByLabel('Archived', { exact: true })).toBeVisible();
+  const archiveBox = await page.getByLabel('Archived', { exact: true }).boundingBox();
   expect(archiveBox?.width).toBe(20);
   expect(archiveBox?.height).toBe(20);
 
-  for (const control of [page.getByLabel('Search projects'), page.getByLabel('Sort projects'), page.getByLabel('Show archived')]) {
+  for (const control of [page.getByLabel('Search projects'), page.getByLabel('Sort projects'), page.getByLabel('Archived', { exact: true })]) {
     const box = await control.boundingBox();
     expect(box).not.toBeNull();
     expect(box!.x).toBeGreaterThanOrEqual(0);

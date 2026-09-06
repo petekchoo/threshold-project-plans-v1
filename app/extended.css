@@ -144,6 +144,8 @@ button.schedule-row-label{cursor:pointer}button.schedule-row-label:hover{backgro
 .activity-card-team{display:flex!important;align-items:center;gap:9px!important;margin-top:13px;color:#5f6762;font-size:12px}
 .activity-card-label{font-weight:700;color:var(--ink)}
 .activity-card-overdue{color:#8b382b;font-weight:700}
+.activity-card-heading{display:flex!important;align-items:flex-start;justify-content:space-between;gap:12px}
+.activity-card-heading .activity-card-overdue{font-size:var(--text-meta);text-transform:none;letter-spacing:0;white-space:nowrap}
 .activity-list-empty,.filtered-empty{background:#fff;border:1px dashed var(--line);padding:28px;text-align:center;color:#5f6762}
 .activity-list-empty strong,.filtered-empty strong{display:block;color:var(--ink);font:400 20px Georgia,serif}
 .activity-list-empty p,.filtered-empty p{font-size:13px;line-height:1.5}
@@ -190,6 +192,13 @@ body,button,input,select,textarea{font-family:var(--font-ui)}
 .form-disclosure>.owner-picker>legend,.form-disclosure>.link-editor>legend,.form-disclosure>.dependency-picker>legend{display:none}
 .project-add-activity{display:inline-flex!important;white-space:nowrap;flex:0 0 auto}
 .activity-panel .structured-form{gap:10px}
+.project-add-project{display:inline-flex;white-space:nowrap;flex:0 0 auto}
+.project-filter-toggle{display:none}
+.project-filter-controls{display:contents}
+.project-filter-clear{border:0;background:transparent;color:#604e2f;font-size:13px;font-weight:700;min-height:44px;padding:8px 10px}
+.activity-summary{grid-template-columns:repeat(4,minmax(0,1fr));gap:0;padding:0;align-items:stretch}
+.activity-summary>div{min-width:0;min-height:126px;padding:24px;display:flex;flex-direction:column;justify-content:center;border-right:1px solid var(--line)}
+.activity-summary>div:last-child{border-right:0}
 
 .mobile-header,.mobile-menu-backdrop{display:none}
 
@@ -199,8 +208,8 @@ body,button,input,select,textarea{font-family:var(--font-ui)}
   .bottom-nav{display:none!important}
   .content{padding-bottom:28px}
   .mobile-header{display:flex;position:relative;align-items:center;justify-content:space-between;height:72px;padding:8px 20px;background:#fff;border-bottom:1px solid var(--line);z-index:5}
-  .mobile-header-brand{display:flex;align-items:center;width:144px;height:54px;overflow:hidden}
-  .mobile-header-brand img{display:block;width:144px;height:auto}
+  .mobile-header-brand{display:flex;align-items:center;justify-content:center;width:52px;height:52px}
+  .mobile-header-brand img{display:block;width:48px;height:48px;object-fit:contain}
   .mobile-menu-button{width:44px;height:44px;border:1px solid var(--line);border-radius:3px;background:#fff;display:grid;align-content:center;justify-items:center;gap:5px;padding:10px;cursor:pointer}
   .mobile-menu-button span{display:block;width:22px;height:2px;background:var(--forest)}
   .mobile-menu-backdrop{position:fixed;inset:0;z-index:60;display:flex;justify-content:flex-end;background:#10251e99}
@@ -224,12 +233,19 @@ body,button,input,select,textarea{font-family:var(--font-ui)}
   .activity-filter-controls select{width:100%;min-width:0;min-height:44px;font-size:14px}
   .activity-filter-controls .filter-check{min-height:44px}
   .activity-filter-count{grid-column:1/-1;margin:0!important;font-size:13px!important}
-  .project-filters{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:10px;align-items:stretch;margin-top:0}
-  .project-filters>.filter-search{grid-column:1/-1;width:100%;min-width:0;min-height:44px;font-size:16px}
-  .project-filters .project-sort{display:grid;grid-template-columns:auto minmax(0,1fr);align-items:center;gap:8px;min-width:0;min-height:44px;font-size:13px}
-  .project-filters .project-sort select{width:100%;min-width:0;min-height:44px;font-size:14px}
-  .project-filters .project-archive-filter{min-width:0;min-height:44px;padding:0 10px;border:1px solid var(--line);background:#fff;border-radius:3px;font-size:14px}
-  .project-filters .project-archive-filter input,.timeline-visibility input{width:20px;height:20px;accent-color:var(--forest)}
+  .project-filters{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px;align-items:stretch;margin-top:0}
+  .project-filters>.filter-search{width:100%;min-width:0;min-height:44px;font-size:16px}
+  .project-filter-toggle{display:inline-flex;align-items:center;justify-content:center;min-height:44px;border:1px solid var(--line);background:#fff;border-radius:3px;padding:10px 14px;font-size:14px}
+  .project-filter-controls{grid-column:1/-1;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+  .project-filters.filters-collapsed .project-filter-controls{display:none}
+  .project-filter-controls select{width:100%;min-width:0;min-height:44px;font-size:14px}
+  .project-filter-controls .filter-check{min-height:44px}
+  .project-filter-count{grid-column:1/-1;margin:0!important;font-size:13px!important}
+  .timeline-visibility input{width:20px;height:20px;accent-color:var(--forest)}
+  .activity-summary{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .activity-summary>div{min-height:116px;border-bottom:1px solid var(--line)}
+  .activity-summary>div:nth-child(2){border-right:0}
+  .activity-summary>div:nth-child(n+3){border-bottom:0}
   .project-filter-count{grid-column:1/-1;margin:0!important;text-align:right;font-size:13px!important}
   .portfolio-card>.range-tabs{display:none}
   .portfolio-card>.section-head{flex-direction:column;align-items:stretch;gap:18px;margin-bottom:18px}

@@ -217,7 +217,7 @@ groups:
         Primary implementation: "`components/projects/project-detail.tsx`; `components/projects/project-schedule.tsx`; `lib/planning/project-schedule.ts`; `components/projects/project-activity-list.tsx`; `components/activities/activity-panel.tsx`; `/projects/[id]` route"
         Database / persistence: Projects, activities, dependencies
         Coverage: Implemented
-        Verification / known gap: The date-scaled timeline occupies the full workspace without a redundant Attention panel, includes the project row and end marker, maps activities to their actual dates, extends for post-project activity finishes, and adapts at one- and six-calendar-month boundaries. Scale marks before the visible date domain are excluded and narrow partial-period labels are suppressed, preventing compressed or overlapping first-month labels. Sticky opaque row labels mask bars at the timeline boundary during horizontal scrolling. The project activity list shares the global filters, opens an activity from the whole row without a redundant Edit affordance, and uses the shared non-breaking secondary Add activity action. Dependency connectors are intentionally excluded.
+        Verification / known gap: The date-scaled timeline occupies the full workspace without a redundant Attention panel, includes the project row and dated end marker, maps activities to their actual dates, and extends for post-project activity finishes. A fixed 18px-per-day scale uses light daily rules and bold labelled Monday rules, so the same distance always represents the same duration and longer schedules scroll horizontally. Sticky opaque row labels mask bars at the timeline boundary during horizontal scrolling. The project activity list shares the global filters, opens an activity from the whole row without a redundant Edit affordance, and uses the shared non-breaking secondary Add activity action. Activity details open first in the editor while the other compact sections remain collapsed until requested or validation requires them. Dependency connectors are intentionally excluded.
       - ID: PRJ-05
         Capability: Project date changes respect activity timing constraints and cannot place project start after active work
         Primary implementation: "`components/projects/project-form.tsx`; `components/projects/reschedule-preview-dialog.tsx`; authoritative project-reschedule preview and commit flow"
@@ -461,7 +461,7 @@ groups:
         Capability: Automated unit tests for scheduling calculations
         Current implementation: "Vitest; `lib/planning/scheduling.test.ts`; `lib/planning/project-schedule.test.ts`; `lib/planning/project-reschedule.test.ts`"
         Coverage: Partial
-        Next verification need: Project timing, project rescheduling, project-schedule scale boundaries, both dependency types, completed chronology, cross-project direction, exceptions, archive behavior, and calendar boundaries are covered. Add unit coverage for later scheduling features as they are implemented; transaction coverage remains under QA-04.
+        Next verification need: Project timing, project rescheduling, fixed daily project-schedule spacing and Monday marks, both dependency types, completed chronology, cross-project direction, exceptions, archive behavior, and calendar boundaries are covered. Add unit coverage for later scheduling features as they are implemented; transaction coverage remains under QA-04.
       - ID: QA-04
         verification:
           - prj06-database
@@ -477,7 +477,7 @@ groups:
         Capability: End-to-end core-journey tests
         Current implementation: "Playwright smoke suite in `e2e/*`; authenticated read-only setup; mobile Chromium at 390 × 844; desktop Chromium at 1440 × 900"
         Coverage: Partial
-        Next verification need: Slice 1 covers responsive navigation, project-editor team/action containment, accessible project validation, shared checkbox geometry, activity and project filter responsiveness, stacked mobile portfolio controls, detail-summary and administration containment, schedule-boundary clipping, and mobile project-activity editor label/section/action/notes containment. Add isolated activity-form mutation, CRUD, dependency, and administration mutation journeys, then require the suite in CI once disposable fixtures or a dedicated CI account are available.
+        Next verification need: Slice 1 covers responsive navigation, project-editor team/action containment, accessible project validation, shared checkbox geometry, activity and project filter responsiveness, stacked mobile portfolio controls, detail-summary and administration containment, fixed daily schedule spacing and boundary clipping, and mobile project-activity editor disclosure defaults plus label/section/action/notes containment. Add isolated activity-form mutation, CRUD, dependency, and administration mutation journeys, then require the suite in CI once disposable fixtures or a dedicated CI account are available.
       - ID: QA-06
         Capability: Build and deployment target
         Current implementation: "`package.json`; `next.config.ts`; `.github/workflows/verify.yml`; Tailwind/PostCSS configuration; Supabase CLI configuration and migrations"

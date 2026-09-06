@@ -134,7 +134,7 @@ test('contains detail summaries and administration rows on narrow screens', asyn
   }
 });
 
-test('keeps project schedule month labels distinct on narrow screens', async ({ page }) => {
+test('keeps the fixed daily project schedule readable on narrow screens', async ({ page }) => {
   const project = page.locator('.mobile-list a[href^="/projects/"]').first();
   await expect(project, 'The E2E account must contain at least one active project').toHaveCount(1);
   await project.click();
@@ -143,8 +143,12 @@ test('keeps project schedule month labels distinct on narrow screens', async ({ 
   await expect(schedule).toBeVisible();
   await expect(page.locator('.schedule-track').first()).toHaveCSS('overflow-x', 'hidden');
   await expect(page.locator('.schedule-row-label').first()).toHaveCSS('background-color', 'rgb(255, 255, 255)');
-  const boxes = await page.locator('.schedule-header-track span').evaluateAll((labels) => labels.map((label) => label.getBoundingClientRect()).map(({ x, width }) => ({ x, width })));
-  for (let index = 1; index < boxes.length; index += 1) expect(boxes[index - 1].x + boxes[index - 1].width).toBeLessThanOrEqual(boxes[index].x + 1);
+  const labels = page.locator('.schedule-header-track span');
+  const boxes = await labels.evaluateAll((items) => items.map((label) => label.getBoundingClientRect()).map(({ x }) => ({ x })));
+  if (boxes.length > 1) expect(boxes[1].x - boxes[0].x).toBeCloseTo(126, 0);
+  await expect(page.locator('.schedule-grid-minor').first()).toHaveCSS('width', '1px');
+  await expect(page.locator('.schedule-grid-major').first()).toHaveCSS('width', '2px');
+  await expect(page.locator('.project-end-marker span')).not.toHaveText('Project end');
 });
 
 test('keeps the project activity editor compact and its actions fully reachable', async ({ page }) => {
@@ -160,6 +164,9 @@ test('keeps the project activity editor compact and its actions fully reachable'
 
   const panel = page.getByRole('dialog', { name: /.+/ });
   await expect(panel).toBeVisible();
+  const disclosureStates = await panel.locator('.form-disclosure').evaluateAll((items) => items.map((item) => (item as HTMLDetailsElement).open));
+  expect(disclosureStates).toEqual([true, false, false, false, false, false]);
+  await expect(panel.locator('.structured-form')).toHaveCSS('gap', '10px');
   const required = panel.locator('label[for="name"] .required-mark');
   const nameInput = panel.getByLabel('Activity name');
   const requiredBox = await required.boundingBox();
@@ -178,6 +185,7 @@ test('keeps the project activity editor compact and its actions fully reachable'
   expect(Math.abs(requiredBox!.y - labelTextBox!.y)).toBeLessThan(3);
   expect(requiredBox!.x - (labelTextBox!.x + labelTextBox!.width)).toBeLessThan(6);
   expect(inputBox!.y).toBeGreaterThan(labelTextBox!.y + labelTextBox!.height);
+  await panel.locator('summary').filter({ hasText: 'Schedule and notes' }).click();
   const notes = panel.getByLabel('Notes');
   const notesSection = notes.locator('xpath=ancestor::fieldset');
   const notesBox = await notes.boundingBox();

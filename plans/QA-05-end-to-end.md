@@ -24,7 +24,7 @@ The first persistent smoke suite covers the regressions most likely to escape co
 | Project editor | Add team member remains available; Save and Cancel stay inside the viewport and dialog | Add team member and actions remain available and contained |
 | Validation | Error summary, linked inline error, invalid state, and focus on the first invalid field | Covered through the same shared editor implementation |
 | Overview | Project tiles remain visible; desktop-only timeline ranges remain hidden while Draft and Completed controls remain usable on a dedicated row beneath the title | Timeline range controls remain visible and functional |
-| Project and activity detail | Schedule labels remain distinct and mask bars at the row-label boundary; summary values remain inside their cells; Add activity does not wrap; the project activity editor keeps required markers, nested sections, full-width Notes, and final actions visually contained | Existing schedule remains visible, and only one Add activity action is exposed |
+| Project and activity detail | Fixed daily schedule spacing, weekly Monday labels, and the dated end marker remain legible while opaque row labels mask bars at the boundary; summary values remain inside their cells; Add activity does not wrap; the project activity editor opens only Activity details initially and keeps required markers, nested sections, full-width Notes, and final actions visually contained | The same fixed schedule scale remains visible, and only one Add activity action is exposed |
 | Administration | Rows and their actions remain contained at the narrow viewport | Cards retain the shared visual primitives and layout |
 
 ## Execution policy

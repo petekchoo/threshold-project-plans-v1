@@ -51,7 +51,12 @@ test('retains project schedule and a single activity creation action', async ({ 
   await project.click();
   await expect(page.getByRole('heading', { name: 'Activity sequence' })).toBeVisible();
   const schedule = page.locator('.project-schedule-scroll');
-  if (await schedule.count()) await expect(schedule).toBeVisible();
+  if (await schedule.count()) {
+    await expect(schedule).toBeVisible();
+    const majorLines = await page.locator('.schedule-header-track .schedule-grid-major').evaluateAll((items) => items.slice(0, 2).map((item) => item.getBoundingClientRect().x));
+    if (majorLines.length > 1) expect(majorLines[1] - majorLines[0]).toBeCloseTo(126, 0);
+    await expect(page.locator('.project-end-marker span')).not.toHaveText('Project end');
+  }
   else await expect(page.getByText('No activities yet', { exact: true }).first()).toBeVisible();
   await expect(page.getByRole('button', { name: /Add activity/ })).toHaveCount(1);
 });

@@ -270,7 +270,7 @@ groups:
         Primary implementation: "`components/activities/activity-form.tsx`; `components/shared/editor.tsx`; `components/activities/activity-panel.tsx`; `components/activities/activity-detail.tsx`; overview and project-detail launch points"
         Database / persistence: Authoritative `save_activity` in `202608300003_project_timing_constraints.sql`; activities and `activity_owners`
         Coverage: Implemented
-        Verification / known gap: Shared editors use progressive disclosure, 16px controls, 44px actions, required markers, inline errors, linked summaries, ARIA associations, and first-invalid focus. Populated or invalid sections open automatically. No automated CRUD test.
+        Verification / known gap: Shared editors use progressive disclosure, 16px controls, 44px actions, required markers, inline errors, linked summaries, ARIA associations, and first-invalid focus. Activity details opens initially; every secondary section begins collapsed even when configured, summarizes its values, and opens automatically when validation requires attention. No automated CRUD test.
       - ID: ACT-04
         Capability: Add multiple labeled external links through a staged modal and manage them as clickable, removable tiles
         Primary implementation: "`lib/data/planning-data.ts`; `components/activities/link-editor.tsx`; `components/activities/activity-form.tsx`; `components/activities/activity-detail.tsx`"
@@ -462,9 +462,9 @@ groups:
         verification:
           - unit-vitest
         Capability: Automated unit tests for scheduling calculations
-        Current implementation: "Vitest; `lib/planning/scheduling.test.ts`; `lib/planning/project-schedule.test.ts`; `lib/planning/project-reschedule.test.ts`"
+        Current implementation: "Vitest; `lib/planning/scheduling.test.ts`; `lib/planning/project-schedule.test.ts`; `lib/planning/project-tile.test.ts`; `lib/planning/project-reschedule.test.ts`"
         Coverage: Partial
-        Next verification need: Project timing, project rescheduling, fixed daily project-schedule spacing and Monday marks, both dependency types, completed chronology, cross-project direction, exceptions, archive behavior, and calendar boundaries are covered. Add unit coverage for later scheduling features as they are implemented; transaction coverage remains under QA-04.
+        Next verification need: Project timing, project rescheduling, fixed daily project-schedule spacing and Monday marks, project-tile Today positioning for active/future/past/one-day windows, both dependency types, completed chronology, cross-project direction, exceptions, archive behavior, and calendar boundaries are covered. Add unit coverage for later scheduling features as they are implemented; transaction coverage remains under QA-04.
       - ID: QA-04
         verification:
           - prj06-database
@@ -480,7 +480,7 @@ groups:
         Capability: End-to-end core-journey tests
         Current implementation: "Playwright smoke suite in `e2e/*`; authenticated read-only setup; mobile Chromium at 390 × 844; desktop Chromium at 1440 × 900"
         Coverage: Partial
-        Next verification need: Slice 1 covers responsive navigation, project-editor team/action containment, accessible project validation, shared checkbox geometry, activity and project filter responsiveness, stacked mobile portfolio controls, detail-summary and administration containment, fixed daily schedule spacing and boundary clipping, and mobile project-activity editor disclosure defaults plus label/section/action/notes containment. Add isolated activity-form mutation, CRUD, dependency, and administration mutation journeys, then require the suite in CI once disposable fixtures or a dedicated CI account are available.
+        Next verification need: Slice 1 covers responsive header/drawer navigation, project-editor team/action containment, accessible project validation, shared checkbox geometry, complete activity/project filter responsiveness, stacked mobile portfolio controls, shared aligned project-tile tracks and Today state, activity-card simplification, equal detail summaries, administration containment, fixed daily schedule spacing and boundary clipping, and mobile project-activity editor disclosure defaults plus label/section/action/notes containment. Add isolated activity-form mutation, CRUD, dependency, and administration mutation journeys, then require the suite in CI once disposable fixtures or a dedicated CI account are available.
       - ID: QA-06
         Capability: Build and deployment target
         Current implementation: "`package.json`; `next.config.ts`; `.github/workflows/verify.yml`; Tailwind/PostCSS configuration; Supabase CLI configuration and migrations"

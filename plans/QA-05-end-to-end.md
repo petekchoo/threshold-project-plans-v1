@@ -37,7 +37,7 @@ The first persistent smoke suite covers the regressions most likely to escape co
 
 ## Future slices
 
-- Add isolated authentication, overview, activity-editor disclosure, timeline Today marker, dependency, and administration journeys.
+- Add isolated authentication, deeper overview interactions, validation-driven activity-editor disclosure, dependency, and administration journeys.
 - Add create/edit/archive tests only with disposable seeded fixtures and teardown. They must not write to a shared development or production project.
 - Add a required GitHub Actions browser-test job after a dedicated CI account or disposable local Supabase fixture lifecycle is available.
 

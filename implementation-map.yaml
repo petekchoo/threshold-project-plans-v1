@@ -540,9 +540,9 @@ groups:
           - prj06-database
           - activity-work-management-database
         Capability: Database integration tests
-        Current implementation: "PRJ-06 pgTAP suite in `supabase/tests/prj06_project_rescheduling.sql`; activity work-management pgTAP suite in `supabase/tests/activity_work_management.sql`; explicit-barrier concurrency harness in `scripts/test-prj06-concurrency.sh`; transactional live verification migrations `202609040002`, `202609040005`, `202609040006`, and `202609040008`"
+        Current implementation: "PRJ-06 pgTAP suite in `supabase/tests/prj06_project_rescheduling.sql`; activity work-management pgTAP suite in `supabase/tests/activity_work_management.sql`; disposable-Supabase `database` job in `.github/workflows/verify.yml`; explicit-barrier concurrency harness in `scripts/test-prj06-concurrency.sh`; transactional live verification migrations `202609040002`, `202609040005`, `202609040006`, and `202609040008`"
         Coverage: Partial
-        Next verification need: Reusable pgTAP coverage now verifies authoritative activity aggregate saves, owners, links, dependencies, cycle rollback, dependency chronology, timing and exception boundaries, project-start adjustment, archive retention, shared authenticated reads, anonymous isolation, and denied direct writes. PRJ-06 separately covers atomic rescheduling, stale fingerprints, and the complete scoped-lock concurrency matrix. Extend coverage to administration writes and more granular RLS policy cases as those authorization rules evolve.
+        Next verification need: The required pull-request workflow runs all reusable pgTAP suites against disposable Supabase. Activity coverage verifies authoritative aggregate saves, owners, links, dependencies, cycle rollback, dependency chronology, timing and exception boundaries, project-start adjustment, archive retention, shared authenticated reads, anonymous isolation, and denied direct writes. PRJ-06 separately covers atomic rescheduling, stale fingerprints, and the complete scoped-lock concurrency matrix. Extend coverage to administration writes and more granular RLS policy cases as those authorization rules evolve.
       - ID: QA-05
         verification:
           - qa05-browser-smoke

@@ -8,7 +8,7 @@ Synchronization note: local `main` intentionally contains the post-merge PR #29 
 
 ## Active
 
-- Dedicated development Supabase setup is complete on `feature/dedicated-development-backend`. The new healthy hosted project is linked locally, all 21 migrations are applied with matching history, and the app's ignored environment defaults to development while preserving explicit production settings. Tracked safeguards refuse a production-backed local start, require matching app and CLI targets plus explicit write authorization, and provide a repeatable reserved-fixture reset. The reset was applied twice and verified at 3 projects, 5 activities, and 3 team members; no production data was copied.
+- Dedicated development Supabase setup is pending merge in GitHub PR #30 on `feature/dedicated-development-backend`. The new healthy hosted project is linked locally, all 21 migrations are applied with matching history, and the app's ignored environment defaults to development while preserving explicit production settings. Tracked safeguards refuse a production-backed local start, require matching app and CLI targets plus explicit write authorization, and provide a repeatable reserved-fixture reset. The reset was applied twice and verified at 3 projects, 5 activities, and 3 team members; no production data was copied. GitHub Verify run 77 passed both repository and disposable-Supabase database jobs, Vercel passed, `pnpm verify` passed with 64 tests, and the production build passed on head `3d7c503` before this handoff-only update; final-head checks are pending.
 
 ## Recently completed
 

@@ -21,6 +21,7 @@ Synchronization note: local `main` intentionally contains post-merge documentati
 ## Next
 
 - Complete and release `TPL-01` / `TPL-02` using the linked requirement plan, including unit, database, and core-journey coverage.
+- Establish a dedicated development Supabase backend for local application testing, separate from production. Define safe environment selection, credentials, migration promotion, seed/disposable fixture handling, and safeguards against accidental production writes. Docker remains the disposable database-test environment until this work is intentionally started.
 - Extend scheduling unit coverage as later project-rescheduling slices and dependency behaviors are implemented (`QA-03`).
 - Add database integration tests for dependency, timing, archive, and RLS behavior (`QA-04`).
 - Extend QA-05 beyond the responsive smoke slice with disposable-fixture authentication, overview, CRUD, dependency, timeline, and administration journeys, then make it a required CI job.

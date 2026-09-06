@@ -8,7 +8,7 @@ Synchronization note: local `main` intentionally contains the post-merge PR #29 
 
 ## Active
 
-- No product slice is active yet. Start the next feature branch from the intentional local post-merge handoff commit on `main`.
+- Dedicated development Supabase setup is complete on `feature/dedicated-development-backend`. The new healthy hosted project is linked locally, all 21 migrations are applied with matching history, and the app's ignored environment defaults to development while preserving explicit production settings. Tracked safeguards refuse a production-backed local start, require matching app and CLI targets plus explicit write authorization, and provide a repeatable reserved-fixture reset. The reset was applied twice and verified at 3 projects, 5 activities, and 3 team members; no production data was copied.
 
 ## Recently completed
 
@@ -24,7 +24,6 @@ Synchronization note: local `main` intentionally contains the post-merge PR #29 
 ## Next
 
 - After Slice 4, evaluate applying the template Schedule section and staged schedule-rule modal to dated project activities. Define how adding, editing, or removing rules derives or preserves real activity dates; how competing valid placements are resolved; when date changes require a preview and confirmation; and how the interaction fits existing dependency, project-relative timing, outside-project, propagation, and project-rescheduling behavior. Treat this as discovery and design work before assigning a requirement or implementation slice.
-- Establish a dedicated development Supabase backend for local application testing, separate from production. Define safe environment selection, credentials, migration promotion, seed/disposable fixture handling, and safeguards against accidental production writes. Docker remains the disposable database-test environment until this work is intentionally started.
 - Extend scheduling unit coverage as later project-rescheduling slices and dependency behaviors are implemented (`QA-03`).
 - Extend QA-05 beyond the responsive smoke slice with disposable-fixture authentication, overview, CRUD, dependency, timeline, and administration journeys, then make it a required CI job.
 

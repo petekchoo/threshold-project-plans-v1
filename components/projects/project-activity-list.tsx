@@ -10,7 +10,7 @@ import { Pill } from '../shared/status-pill';
 export function ProjectActivityList({ projectId, data, onNew, onEdit }: { projectId: string; data: AppData; onNew: () => void; onEdit: (activity: Activity) => void }) {
   const filters = useActivityFilters(data, '', projectId);
   return <section className="project-activity-list">
-    <div className="section-head"><div><p className="eyebrow">Project work</p><h2>Activities</h2></div><button className="quiet-btn" onClick={onNew}><Icon name="plus"/>Add activity</button></div>
+    <div className="section-head"><div><p className="eyebrow">Project work</p><h2>Activities</h2></div><button className="secondary-btn project-add-activity" onClick={onNew}><Icon name="plus"/>Add activity</button></div>
     <ActivityFilterBar data={data} filters={filters}/>
     {filters.rows.length ? filters.rows.map((activity) => <button type="button" onClick={() => onEdit(activity)} className="project-activity-row" key={activity.id}>
       <div><strong>{activity.name}</strong><small>{activity.activity_types?.name || 'Activity'}{activity.archived_at ? ' · Archived' : ''}</small></div>

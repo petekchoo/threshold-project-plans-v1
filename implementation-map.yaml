@@ -160,7 +160,7 @@ groups:
         Primary implementation: "`components/overview/overview.tsx` visibility state"
         Database / persistence: Project status
         Coverage: Implemented
-        Verification / known gap: Manual UI.
+        Verification / known gap: Mobile places the Draft and Completed controls on a dedicated row beneath the single-line portfolio title; desktop retains the inline timeline toolbar. Browser coverage verifies the mobile stacking.
       - ID: OVR-04
         Capability: Linked overdue, due-in-seven-days, and unassigned metrics with actionable activity lists
         Primary implementation: "`components/overview/overview.tsx`; `components/overview/activity-attention-list.tsx`; `components/activities/activity-panel.tsx`; `lib/planning/dates.ts` (`isoDate`, `addDays`)"
@@ -217,7 +217,7 @@ groups:
         Primary implementation: "`components/projects/project-detail.tsx`; `components/projects/project-schedule.tsx`; `lib/planning/project-schedule.ts`; `components/projects/project-activity-list.tsx`; `components/activities/activity-panel.tsx`; `/projects/[id]` route"
         Database / persistence: Projects, activities, dependencies
         Coverage: Implemented
-        Verification / known gap: The date-scaled timeline occupies the full workspace without a redundant Attention panel, includes the project row and end marker, maps activities to their actual dates, extends for post-project activity finishes, and adapts at one- and six-calendar-month boundaries. Scale marks before the visible date domain are excluded and narrow partial-period labels are suppressed, preventing compressed or overlapping first-month labels. The project activity list shares the global filters and opens an activity from the whole row without a redundant Edit affordance. Dependency connectors are intentionally excluded.
+        Verification / known gap: The date-scaled timeline occupies the full workspace without a redundant Attention panel, includes the project row and end marker, maps activities to their actual dates, extends for post-project activity finishes, and adapts at one- and six-calendar-month boundaries. Scale marks before the visible date domain are excluded and narrow partial-period labels are suppressed, preventing compressed or overlapping first-month labels. Sticky opaque row labels mask bars at the timeline boundary during horizontal scrolling. The project activity list shares the global filters, opens an activity from the whole row without a redundant Edit affordance, and uses the shared non-breaking secondary Add activity action. Dependency connectors are intentionally excluded.
       - ID: PRJ-05
         Capability: Project date changes respect activity timing constraints and cannot place project start after active work
         Primary implementation: "`components/projects/project-form.tsx`; `components/projects/reschedule-preview-dialog.tsx`; authoritative project-reschedule preview and commit flow"
@@ -477,7 +477,7 @@ groups:
         Capability: End-to-end core-journey tests
         Current implementation: "Playwright smoke suite in `e2e/*`; authenticated read-only setup; mobile Chromium at 390 × 844; desktop Chromium at 1440 × 900"
         Coverage: Partial
-        Next verification need: Slice 1 covers responsive navigation, project-editor team/action containment, accessible project validation, shared checkbox geometry, activity and project filter responsiveness, mobile portfolio controls, detail-summary and administration containment, mobile project-activity editor label/section/action containment, desktop layout preservation, and project schedule/CTA regressions. Add isolated activity-form mutation, CRUD, dependency, and administration mutation journeys, then require the suite in CI once disposable fixtures or a dedicated CI account are available.
+        Next verification need: Slice 1 covers responsive navigation, project-editor team/action containment, accessible project validation, shared checkbox geometry, activity and project filter responsiveness, stacked mobile portfolio controls, detail-summary and administration containment, schedule-boundary clipping, and mobile project-activity editor label/section/action/notes containment. Add isolated activity-form mutation, CRUD, dependency, and administration mutation journeys, then require the suite in CI once disposable fixtures or a dedicated CI account are available.
       - ID: QA-06
         Capability: Build and deployment target
         Current implementation: "`package.json`; `next.config.ts`; `.github/workflows/verify.yml`; Tailwind/PostCSS configuration; Supabase CLI configuration and migrations"

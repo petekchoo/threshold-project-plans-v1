@@ -102,6 +102,13 @@ test('contains project filters and keeps desktop-only timeline ranges off mobile
   await expect(page.getByLabel('Draft')).toBeVisible();
   await expect(page.getByLabel('Completed')).toBeVisible();
   await expect(page.locator('.project-cards')).toBeVisible();
+  const portfolioTitle = page.locator('.portfolio-card>.section-head>div').first();
+  const portfolioFilters = page.locator('.portfolio-card .timeline-visibility');
+  const titleBox = await portfolioTitle.boundingBox();
+  const filtersBox = await portfolioFilters.boundingBox();
+  expect(titleBox).not.toBeNull();
+  expect(filtersBox).not.toBeNull();
+  expect(filtersBox!.y).toBeGreaterThanOrEqual(titleBox!.y + titleBox!.height);
 });
 
 test('contains detail summaries and administration rows on narrow screens', async ({ page }) => {
@@ -131,6 +138,7 @@ test('keeps project schedule month labels distinct on narrow screens', async ({ 
   const schedule = page.locator('.project-schedule-scroll');
   if (!await schedule.count()) return;
   await expect(schedule).toBeVisible();
+  await expect(page.locator('.schedule-track').first()).toHaveCSS('overflow-x', 'hidden');
   const boxes = await page.locator('.schedule-header-track span').evaluateAll((labels) => labels.map((label) => label.getBoundingClientRect()).map(({ x, width }) => ({ x, width })));
   for (let index = 1; index < boxes.length; index += 1) expect(boxes[index - 1].x + boxes[index - 1].width).toBeLessThanOrEqual(boxes[index].x + 1);
 });
@@ -141,6 +149,9 @@ test('keeps the project activity editor compact and its actions fully reachable'
   await project.click();
   const activity = page.locator('.project-activity-row').first();
   await expect(activity, 'The E2E project must contain at least one activity').toHaveCount(1);
+  const addActivity = page.getByRole('button', { name: 'Add activity', exact: true });
+  await expect(addActivity).toHaveCSS('white-space', 'nowrap');
+  expect(await addActivity.evaluate((button) => getComputedStyle(button).display)).toMatch(/flex/);
   await activity.click();
 
   const panel = page.getByRole('dialog', { name: /.+/ });
@@ -149,9 +160,27 @@ test('keeps the project activity editor compact and its actions fully reachable'
   const nameInput = panel.getByLabel('Activity name');
   const requiredBox = await required.boundingBox();
   const inputBox = await nameInput.boundingBox();
+  const labelTextBox = await panel.locator('label[for="name"]').evaluate((label) => {
+    const text = label.firstChild;
+    if (!text) return null;
+    const range = document.createRange();
+    range.selectNode(text);
+    const { x, y, width, height } = range.getBoundingClientRect();
+    return { x, y, width, height };
+  });
   expect(requiredBox).not.toBeNull();
   expect(inputBox).not.toBeNull();
-  expect(inputBox!.y - requiredBox!.y).toBeLessThan(30);
+  expect(labelTextBox).not.toBeNull();
+  expect(Math.abs(requiredBox!.y - labelTextBox!.y)).toBeLessThan(3);
+  expect(requiredBox!.x - (labelTextBox!.x + labelTextBox!.width)).toBeLessThan(6);
+  expect(inputBox!.y).toBeGreaterThan(labelTextBox!.y + labelTextBox!.height);
+  const notes = panel.getByLabel('Notes');
+  const notesSection = notes.locator('xpath=ancestor::fieldset');
+  const notesBox = await notes.boundingBox();
+  const notesSectionBox = await notesSection.boundingBox();
+  expect(notesBox).not.toBeNull();
+  expect(notesSectionBox).not.toBeNull();
+  expect(notesBox!.width).toBeGreaterThan(notesSectionBox!.width * .85);
 
   for (const legend of ['Activity team members', 'External links', 'Prerequisites']) {
     await expect(panel.locator('legend').filter({ hasText: legend })).toBeHidden();

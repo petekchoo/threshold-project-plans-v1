@@ -109,6 +109,9 @@ test('contains project filters and keeps desktop-only timeline ranges off mobile
   expect(titleBox).not.toBeNull();
   expect(filtersBox).not.toBeNull();
   expect(filtersBox!.y).toBeGreaterThanOrEqual(titleBox!.y + titleBox!.height);
+  const firstProjectBox = await page.locator('.project-cards>*').first().boundingBox();
+  expect(firstProjectBox).not.toBeNull();
+  expect(firstProjectBox!.y - (filtersBox!.y + filtersBox!.height)).toBeGreaterThanOrEqual(17);
 });
 
 test('contains detail summaries and administration rows on narrow screens', async ({ page }) => {
@@ -139,6 +142,7 @@ test('keeps project schedule month labels distinct on narrow screens', async ({ 
   if (!await schedule.count()) return;
   await expect(schedule).toBeVisible();
   await expect(page.locator('.schedule-track').first()).toHaveCSS('overflow-x', 'hidden');
+  await expect(page.locator('.schedule-row-label').first()).toHaveCSS('background-color', 'rgb(255, 255, 255)');
   const boxes = await page.locator('.schedule-header-track span').evaluateAll((labels) => labels.map((label) => label.getBoundingClientRect()).map(({ x, width }) => ({ x, width })));
   for (let index = 1; index < boxes.length; index += 1) expect(boxes[index - 1].x + boxes[index - 1].width).toBeLessThanOrEqual(boxes[index].x + 1);
 });
@@ -181,6 +185,13 @@ test('keeps the project activity editor compact and its actions fully reachable'
   expect(notesBox).not.toBeNull();
   expect(notesSectionBox).not.toBeNull();
   expect(notesBox!.width).toBeGreaterThan(notesSectionBox!.width * .85);
+  for (const field of [panel.getByLabel('Start date'), panel.getByLabel('Due date')]) {
+    const fieldBox = await field.boundingBox();
+    expect(fieldBox).not.toBeNull();
+    expect(fieldBox!.x).toBeGreaterThanOrEqual(notesSectionBox!.x);
+    expect(fieldBox!.x + fieldBox!.width).toBeLessThanOrEqual(notesSectionBox!.x + notesSectionBox!.width);
+    expect(fieldBox!.width).toBeLessThanOrEqual(notesBox!.width + 1);
+  }
 
   for (const legend of ['Activity team members', 'External links', 'Prerequisites']) {
     await expect(panel.locator('legend').filter({ hasText: legend })).toBeHidden();

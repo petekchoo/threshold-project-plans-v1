@@ -40,7 +40,7 @@ select,textarea{font:inherit}a{color:inherit;text-decoration:none}.live-dot{font
 .project-schedule{min-width:760px;display:grid;grid-template-columns:220px minmax(520px,1fr)}
 .schedule-header-label,.schedule-header-track{height:44px;border-bottom:1px solid #ebe8e0}
 .schedule-header-label{display:flex;align-items:center;padding:0 8px;color:#777;font-size:var(--text-label);font-weight:700;text-transform:uppercase;letter-spacing:.1em}
-.schedule-header-label,.schedule-row-label{position:sticky;left:0;z-index:5;background:#fff;box-shadow:1px 0 #ebe8e0}
+.schedule-header-label,.schedule-row-label{position:sticky;left:0;z-index:10;background:#fff;box-shadow:1px 0 #ebe8e0}
 .schedule-header-track,.schedule-track{position:relative}
 .schedule-header-track span{position:absolute;z-index:2;top:14px;padding-left:6px;overflow:hidden;text-overflow:ellipsis;font-size:var(--text-label);font-weight:700;color:#626a65;white-space:nowrap}
 .schedule-row{display:contents}
@@ -185,7 +185,7 @@ body,button,input,select,textarea{font-family:var(--font-ui)}
 .relationship-link{grid-template-columns:minmax(0,1fr) auto}
 .modal-close{width:40px;height:40px;padding:0;display:grid;place-items:center;cursor:pointer}
 .edit-form label{display:flex;flex-wrap:wrap;align-items:baseline;column-gap:3px;row-gap:9px}
-.edit-form label>input,.edit-form label>select,.edit-form label>textarea,.edit-form label>.field-error{flex:1 0 100%;width:100%}
+.edit-form label>input,.edit-form label>select,.edit-form label>textarea,.edit-form label>.field-error{flex:1 1 100%;width:100%;min-width:0;max-width:100%}
 .form-disclosure .form-section>label{width:100%}
 .form-disclosure>.owner-picker>legend,.form-disclosure>.link-editor>legend,.form-disclosure>.dependency-picker>legend{display:none}
 .project-add-activity{display:inline-flex!important;white-space:nowrap;flex:0 0 auto}
@@ -213,7 +213,7 @@ body,button,input,select,textarea{font-family:var(--font-ui)}
   .project-filters .project-archive-filter input,.timeline-visibility input{width:20px;height:20px;accent-color:var(--forest)}
   .project-filter-count{grid-column:1/-1;margin:0!important;text-align:right;font-size:13px!important}
   .portfolio-card>.range-tabs{display:none}
-  .portfolio-card>.section-head{flex-direction:column;align-items:stretch}
+  .portfolio-card>.section-head{flex-direction:column;align-items:stretch;gap:18px;margin-bottom:18px}
   .portfolio-card>.section-head .eyebrow,.portfolio-card>.section-head h2{white-space:nowrap}
   .timeline-visibility{width:100%;justify-content:flex-start}
   .timeline-visibility label{min-height:44px;padding:0 10px;border:1px solid var(--line);background:#fff;border-radius:3px;font-size:13px}
@@ -228,6 +228,8 @@ body,button,input,select,textarea{font-family:var(--font-ui)}
   .activity-filter-controls{grid-template-columns:1fr}
   .form-disclosure>summary{padding:14px 16px}
 }
+
+.project-schedule .schedule-header-label,.project-schedule .schedule-row-label{background:#fff}
 
 @media(max-width:700px){
   .project-summary strong,.activity-summary strong{white-space:normal;overflow:visible;text-overflow:clip;overflow-wrap:anywhere;line-height:1.35}

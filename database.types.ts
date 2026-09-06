@@ -271,6 +271,111 @@ export type Database = {
           },
         ]
       }
+      project_template_activities: {
+        Row: {
+          activity_type_id: string
+          archived_at: string | null
+          created_at: string
+          duration_days: number
+          id: string
+          name: string
+          offset_days: number
+          relative_activity_id: string | null
+          schedule_rule: Database["public"]["Enums"]["template_schedule_rule"]
+          sort_order: number
+          template_id: string
+          updated_at: string
+        }
+        Insert: {
+          activity_type_id: string
+          archived_at?: string | null
+          created_at?: string
+          duration_days: number
+          id?: string
+          name: string
+          offset_days: number
+          relative_activity_id?: string | null
+          schedule_rule: Database["public"]["Enums"]["template_schedule_rule"]
+          sort_order?: number
+          template_id: string
+          updated_at?: string
+        }
+        Update: {
+          activity_type_id?: string
+          archived_at?: string | null
+          created_at?: string
+          duration_days?: number
+          id?: string
+          name?: string
+          offset_days?: number
+          relative_activity_id?: string | null
+          schedule_rule?: Database["public"]["Enums"]["template_schedule_rule"]
+          sort_order?: number
+          template_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "project_template_activities_activity_type_id_fkey"
+            columns: ["activity_type_id"]
+            isOneToOne: false
+            referencedRelation: "activity_types"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "project_template_activities_relative_activity_id_fkey"
+            columns: ["relative_activity_id"]
+            isOneToOne: false
+            referencedRelation: "project_template_activities"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "project_template_activities_template_id_fkey"
+            columns: ["template_id"]
+            isOneToOne: false
+            referencedRelation: "project_templates"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      project_templates: {
+        Row: {
+          archived_at: string | null
+          created_at: string
+          created_by: string | null
+          id: string
+          name: string
+          project_type_id: string
+          updated_at: string
+        }
+        Insert: {
+          archived_at?: string | null
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          name: string
+          project_type_id: string
+          updated_at?: string
+        }
+        Update: {
+          archived_at?: string | null
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          name?: string
+          project_type_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "project_templates_project_type_id_fkey"
+            columns: ["project_type_id"]
+            isOneToOne: false
+            referencedRelation: "project_types"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       project_types: {
         Row: {
           archived_at: string | null
@@ -382,6 +487,8 @@ export type Database = {
     Functions: {
       archive_activity: { Args: { p_activity_id: string }; Returns: undefined }
       archive_project: { Args: { p_project_id: string }; Returns: undefined }
+      archive_project_template: { Args: { p_template_id: string }; Returns: undefined }
+      archive_project_template_activity: { Args: { p_activity_id: string }; Returns: undefined }
       calculate_project_reschedule: {
         Args: { p_new_end: string; p_new_start: string; p_project_id: string }
         Returns: Json
@@ -389,6 +496,10 @@ export type Database = {
       complete_project_reschedule_plan: {
         Args: { p_plan: Json }
         Returns: Json
+      }
+      create_project_from_template: {
+        Args: { p_project_end: string; p_project_name: string; p_template_id: string }
+        Returns: string
       }
       discover_activity_mutation_scope: {
         Args: {
@@ -427,6 +538,10 @@ export type Database = {
         Args: { p_new_end: string; p_new_start: string; p_project_id: string }
         Returns: Json
       }
+      preview_project_template: {
+        Args: { p_project_end: string; p_template_id: string }
+        Returns: Json
+      }
       project_schedule_fingerprint: {
         Args: { p_project_id: string }
         Returns: string
@@ -456,6 +571,8 @@ export type Database = {
         Args: { p_owner_ids?: string[]; p_project: Json }
         Returns: string
       }
+      save_project_template: { Args: { p_template: Json }; Returns: string }
+      save_project_template_activity: { Args: { p_activity: Json }; Returns: string }
       validate_project_schedule: {
         Args: { p_project_id: string }
         Returns: undefined
@@ -466,6 +583,7 @@ export type Database = {
       activity_status: "not_started" | "in_progress" | "blocked" | "completed"
       dependency_type: "finish_to_start" | "finish_to_finish"
       project_status: "draft" | "on_track" | "at_risk" | "blocked" | "completed"
+      template_schedule_rule: "finish_before_project_end" | "finish_after_project_end" | "start_after_activity_finish" | "finish_after_activity_finish"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -597,6 +715,7 @@ export const Constants = {
       activity_status: ["not_started", "in_progress", "blocked", "completed"],
       dependency_type: ["finish_to_start", "finish_to_finish"],
       project_status: ["draft", "on_track", "at_risk", "blocked", "completed"],
+      template_schedule_rule: ["finish_before_project_end", "finish_after_project_end", "start_after_activity_finish", "finish_after_activity_finish"],
     },
   },
 } as const

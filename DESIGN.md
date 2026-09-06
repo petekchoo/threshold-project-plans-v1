@@ -62,14 +62,16 @@ Initial success measures remain to be defined. Candidate prototype measures incl
 4. The user opens a project to see its information, project-specific Gantt view, task sequence, and dependencies.
 5. The user opens a task or activity to inspect and quickly edit its owner, type, status, dates, links, dependencies, and other details.
 6. The user opens a task-focused view and filters tasks by owner, type, status, and due date to identify priorities.
-7. The user creates a project or event and adds its tasks, prerequisites, timing, and dependencies.
-8. An administrator centrally manages project types, activity types, and the team-member directory.
+7. The user creates a blank project or creates one from a reusable template by supplying a name and end date.
+8. The user creates and maintains reusable project templates whose activity schedules resolve from the project end date.
+9. An administrator centrally manages project types, activity types, and the team-member directory.
 
 ### Information architecture
 
 - **Sign in**
 - **Overview / Home:** Cross-project Gantt, project status, project visibility controls, linked summary activity metrics, team workload, and actionable overdue, due-in-seven-days, and unassigned activity lists.
 - **Projects:** A dedicated searchable and sortable project list/table in addition to the overview Gantt.
+- **Templates:** Searchable reusable project templates with derived readiness, project type, ordered activity schedules, and archive controls.
 - **Project detail:** Project summary, followed by a full-width project-level Gantt, followed by the activity list. The summary uses compact content-sized Status, Dates, and Activity Progress regions, while Next Due receives the remaining width and wraps long activity names. The activity list provides the same status, priority, team member, type, due-date, sort, and archive controls as the global Activities view; its project scope is implicit. The whole activity row opens editing, without a separate Edit affordance. A separate Attention-count panel is intentionally omitted because the filterable activity list exposes the actionable work directly.
 - **Activities:** Filterable, sortable cross-project activity table.
 - **Activity detail:** A full-page editing surface with owners, required dates, status, priority, plain-text notes, labeled external links, dependency search/assignment, and linked dependency references.
@@ -80,8 +82,8 @@ Initial success measures remain to be defined. Candidate prototype measures incl
 
 ### Navigation
 
-- **Desktop:** Persistent left sidebar with Overview, Projects, Activities, Administration, and user/profile controls.
-- **Mobile:** A document-flow Threshold header links back to Overview and opens a drawer containing Overview, Projects, Activities, Administration, and Sign out.
+- **Desktop:** Persistent left sidebar with Overview, Projects, Activities, Templates, Administration, and user/profile controls.
+- **Mobile:** A document-flow Threshold header links back to Overview and opens a drawer containing Overview, Projects, Activities, Templates, Administration, and Sign out.
 - The shell does not include a global top search, connection-status indicator, or create button; Projects and Activities provide local text search and filters, while creation actions remain on their owning pages.
 - Navigation destinations and all creation/editing capabilities are available on both desktop and mobile.
 
@@ -136,6 +138,7 @@ Exact colors, fonts, imagery, and component styling require further visual inspe
 - Project detail with project-specific Gantt and visible activity sequencing/dependencies.
 - Filterable activity view supporting owner, type, status, and due-date filters.
 - Central administration of project types, activity types, and team members.
+- Reusable project-template authoring and atomic creation of dated Draft projects from valid templates.
 - Multiple owners per activity.
 - Search, add, view, follow, configure, and remove dependencies from activity detail.
 - Responsive desktop and mobile experience.
@@ -161,6 +164,13 @@ Exact colors, fonts, imagery, and component styling require further visual inspe
 - Project owners are manually assigned by the creating/editing user and are not derived from activity ownership.
 - The interface calls assigned people **team members** at the project and activity levels. “Owner” remains an internal data-model term only and is not user-facing vocabulary.
 - Project and activity forms show only currently assigned team members. An **Add team member** button opens a searchable multi-select modal populated from Administration; saving the modal applies the staged selection to the form, and each assigned team member has an explicit Remove action.
+- Project templates are separate undated planning objects containing only a required name, project type, ordered template activities, and archive metadata. They do not carry project descriptions, dates, status, team members, notes, or links.
+- Template activities contain only a required name, activity type, one primary scheduling rule, one calendar-day offset, one calendar-day duration, and an activity reference when the rule requires one. They do not carry status, priority, team members, notes, or links.
+- Template activity fields present scheduling rule, offset, then duration. Both numeric values use elapsed calendar-day arithmetic: zero duration produces a same-day activity; zero offset uses the anchor date. Finish-after-project-end requires an offset of at least one.
+- A template activity may finish before project end, finish after project end, start after another template activity finishes, or finish after another template activity finishes. Start-based rules calculate forward by duration; finish-based rules calculate backward by duration. Every activity has exactly one primary rule, and every acyclic activity-reference chain must terminate at a concrete project-end anchor regardless of display or creation order.
+- Activity-relative template rules select an existing activity in the same template and provide an inline Create activity path that returns the newly saved activity as the selected reference.
+- Template readiness is derived rather than stored. A template is Ready only when it has at least one activity and its entire graph is complete, acyclic, and resolvable to project end. Incomplete templates remain editable as Needs setup but cannot create projects.
+- Adding a project offers a blank-project path and a searchable Ready-template path. Template creation asks only for project name and end date, previews all calculated dates, then atomically creates an independent Draft project and its complete Not Started activity graph without team-member assignments, notes, or links. The project inherits the template type, uses empty description, and derives start as the earlier of its earliest activity start and end date. Generated activities use Normal priority and receive the corresponding dependencies, project-relative timing rules, and outside-project exceptions.
 - Each activity requires a start date and end/due date before it can be saved.
 - Each activity supports plain-text notes.
 - Each activity has a priority: Low, Normal, High, or Urgent.
@@ -282,8 +292,9 @@ This map connects the functional specification to its current implementation. Re
 
 | ID | Kind | Command | Executable files |
 | --- | --- | --- | --- |
-| unit-vitest | unit | `pnpm test` | `lib/planning/scheduling.test.ts`; `lib/planning/project-schedule.test.ts`; `lib/planning/project-tile.test.ts`; `lib/planning/project-reschedule.test.ts`; `lib/planning/overview-timeline.test.ts`; `components/projects/reschedule-preview-dialog.test.ts` |
+| unit-vitest | unit | `pnpm test` | `lib/planning/scheduling.test.ts`; `lib/planning/project-schedule.test.ts`; `lib/planning/project-tile.test.ts`; `lib/planning/project-reschedule.test.ts`; `lib/planning/overview-timeline.test.ts`; `components/projects/reschedule-preview-dialog.test.ts`; `lib/planning/project-template.test.ts` |
 | prj06-database | database | `pnpm db:test` | `supabase/tests/prj06_project_rescheduling.sql` |
+| template-database | database | `pnpm db:test` | `supabase/tests/project_templates.sql` |
 | qa05-browser-smoke | end-to-end | `pnpm test:e2e` | `e2e/auth.setup.ts`; `e2e/mobile-ux.spec.ts`; `e2e/desktop-ux.spec.ts` |
 
 ### Authentication, shell, and shared data
@@ -332,6 +343,13 @@ This map connects the functional specification to its current implementation. Re
 | ACT-05 | Full activity detail page with schedule context, notes, assigned team members, links, and relationships | `components/activities/activity-detail.tsx`; `/activities/[id]` route | Activity query assembled in `lib/data/planning-data.ts` (`loadData`) | Partial | Core details exist. Project-timing rule is editable but is not yet summarized on the read-only detail surface. | Design: [#experience-design](#experience-design), [#data-and-integrations](#data-and-integrations), [#list-and-card-views](#list-and-card-views) |
 | ACT-06 | Derived overdue state permits past dates and excludes completed work | `components/activities/activities-list.tsx`; `components/overview/overview.tsx`; `components/overview/project-card.tsx` | Required activity dates; no overdue status column | Implemented | Client-derived overview metric and detail list share the same incomplete-and-before-today predicate; the next-seven-days list begins today and excludes overdue work. No date/time-zone unit tests. | Design: [#experience-design](#experience-design), [#data-and-integrations](#data-and-integrations), [#list-and-card-views](#list-and-card-views) |
 | ACT-07 | Multiple assigned team members and unassigned activities | `components/activities/team-member-picker.tsx`; `components/shared/avatar-list.tsx`; overview metric/detail list and activity filters | `activity_owners`; team members | Implemented | Manual UI verifies multi-select staging and explicit removal; persistence has no automated CRUD test. | Design: [#experience-design](#experience-design), [#data-and-integrations](#data-and-integrations), [#list-and-card-views](#list-and-card-views) |
+
+### Project templates
+
+| ID | Capability | Primary implementation | Database / persistence | Coverage | Verification / known gap | Traceability |
+| --- | --- | --- | --- | --- | --- | --- |
+| TPL-01 | Create, search, edit, validate, and archive reusable project templates with deterministic project-end-connected activity graphs | Binding detail in `plans/TPL-01-project-templates.md`; `lib/planning/project-template.ts`; `components/templates/*`; `/templates` routes | `project_templates`; `project_template_activities`; authoritative saves, validation, and archive functions in migration `202609060001` | Partial | One rule, offset, and duration per activity, active-type validation, derived Ready/Needs setup state, order-independent resolution, cycle rejection, responsive Templates navigation, and inline referenced-activity creation are implemented. Unit and local database suites pass; automated authoring journeys remain under QA-05. | Design: [#experience-design](#experience-design), [#data-and-integrations](#data-and-integrations); Plans: `plans/TPL-01-project-templates.md`; Verification: `pnpm test`, `pnpm db:test` |
+| TPL-02 | Search valid templates, preview a schedule from project name and end date, and atomically create an independent dated Draft project and Not Started activity graph | Binding detail in `plans/TPL-01-project-templates.md`; `components/projects/project-create-flow.tsx`; `lib/planning/project-template.ts` | `preview_project_template`; `create_project_from_template` in migration `202609060001` | Partial | Searchable Ready-template selection, minimal name/end-date entry, schedule preview, independent atomic creation, inherited types, empty ownership/content fields, generated dependencies/timing rules, and derived project start are implemented. Unit and local transaction suites pass; automated browser coverage remains under QA-05. | Design: [#experience-design](#experience-design), [#data-and-integrations](#data-and-integrations); Plans: `plans/TPL-01-project-templates.md`; Verification: `pnpm test`, `pnpm db:test` |
 
 ### Scheduling and dependencies
 

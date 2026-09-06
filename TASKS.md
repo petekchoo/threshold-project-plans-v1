@@ -8,7 +8,7 @@ Synchronization note: local `main` intentionally contains post-merge documentati
 
 ## Active
 
-- No active implementation slice. Begin the next task from local `main` so the post-merge PR #26 handoff is carried forward.
+- `TPL-01` / `TPL-02` project templates and project-from-template creation are active on `feature/project-templates`. Separate undated templates, deterministic rule/offset/duration scheduling, graph validation, Templates navigation, derived readiness, inline referenced-activity creation, searchable project creation, preview, and atomic materialization are implemented. `pnpm verify` passes with 64 tests, the production build passes, local schema lint reports no errors, and `pnpm db:test` passes 31 assertions including the 12-case template transaction suite after applying `202609060001` only to the disposable local stack. Linked status and dry-run confirm that `202609060001_project_templates.sql` is the only pending remote migration; it has not been applied remotely. Browser verification and pull-request release gates remain. This branch carries the intentional post-PR #26 local handoff commits beyond `origin/main`.
 
 ## Recently completed
 
@@ -20,7 +20,7 @@ Synchronization note: local `main` intentionally contains post-merge documentati
 
 ## Next
 
-- Design and deliver reusable project templates for common or repeating work such as private dinners and menu launches. Define which project fields, activity details, relative date offsets, dependencies, project-relative timing rules, and assignments belong in a template; support template maintenance and atomic creation of an editable dated project with its complete activity graph. Reuse the project schedule-shifting model for date materialization and add unit, database, and core-journey coverage.
+- Complete and release `TPL-01` / `TPL-02` using the linked requirement plan, including unit, database, and core-journey coverage.
 - Extend scheduling unit coverage as later project-rescheduling slices and dependency behaviors are implemented (`QA-03`).
 - Add database integration tests for dependency, timing, archive, and RLS behavior (`QA-04`).
 - Extend QA-05 beyond the responsive smoke slice with disposable-fixture authentication, overview, CRUD, dependency, timeline, and administration journeys, then make it a required CI job.

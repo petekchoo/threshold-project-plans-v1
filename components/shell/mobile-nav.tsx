@@ -10,6 +10,7 @@ const destinations = [
   ['/', '⌂', 'Overview'],
   ['/projects', '◇', 'Projects'],
   ['/activities', '✓', 'Activities'],
+  ['/templates', '▤', 'Templates'],
   ['/administration', '⚙', 'Administration'],
 ] as const;
 

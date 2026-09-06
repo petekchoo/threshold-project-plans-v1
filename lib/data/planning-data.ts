@@ -1,8 +1,8 @@
 import { supabase } from '../supabase';
-import type { Activity, AppData, Dependency, Project } from '../planning/types';
+import type { Activity, AppData, Dependency, Project, ProjectTemplate, ProjectTemplateActivity } from '../planning/types';
 
 export async function loadData(): Promise<AppData> {
-  const [p, a, m, pt, at, d] = await Promise.all([
+  const [p, a, m, pt, at, d, templates, templateActivities] = await Promise.all([
     supabase.from('projects').select('*,project_types(*),project_owners(team_members(*))').order('start_date'),
     supabase
       .from('activities')
@@ -12,10 +12,12 @@ export async function loadData(): Promise<AppData> {
     supabase.from('project_types').select('*').is('archived_at', null).order('name'),
     supabase.from('activity_types').select('*').is('archived_at', null).order('name'),
     supabase.from('activity_dependencies').select('*').is('archived_at', null),
+    supabase.from('project_templates').select('*,project_types(*)').order('name'),
+    supabase.from('project_template_activities').select('*,activity_types(*)').order('sort_order'),
   ]);
 
-  if (p.error || a.error || m.error || pt.error || at.error || d.error) {
-    throw p.error || a.error || m.error || pt.error || at.error || d.error;
+  if (p.error || a.error || m.error || pt.error || at.error || d.error || templates.error || templateActivities.error) {
+    throw p.error || a.error || m.error || pt.error || at.error || d.error || templates.error || templateActivities.error;
   }
 
   const dependencies = (d.data || []) as Dependency[];
@@ -25,6 +27,11 @@ export async function loadData(): Promise<AppData> {
     activity_dependencies: dependencies.filter((dependency) => dependency.activity_id === activity.id),
   }));
   const allProjects = (p.data || []) as Project[];
+  const allTemplateActivities = (templateActivities.data || []) as ProjectTemplateActivity[];
+  const allTemplates = ((templates.data || []) as Omit<ProjectTemplate, 'activities'>[]).map((template) => ({
+    ...template,
+    activities: allTemplateActivities.filter((activity) => activity.template_id === template.id && !activity.archived_at),
+  }));
 
   return {
     projects: allProjects.filter((project) => !project.archived_at),
@@ -34,5 +41,7 @@ export async function loadData(): Promise<AppData> {
     members: (m.data || []) as AppData['members'],
     projectTypes: (pt.data || []) as AppData['projectTypes'],
     activityTypes: (at.data || []) as AppData['activityTypes'],
+    templates: allTemplates.filter((template) => !template.archived_at),
+    archivedTemplates: allTemplates.filter((template) => template.archived_at),
   };
 }

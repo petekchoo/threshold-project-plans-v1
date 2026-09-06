@@ -285,3 +285,12 @@ body,button,input,select,textarea{font-family:var(--font-ui)}
   .activity-panel{height:100dvh;max-height:100dvh}
   .structured-form>.form-actions{position:static;margin-top:0;padding:18px 0 max(24px,env(safe-area-inset-bottom));background:transparent}
 }
+/* Project templates */
+.template-readiness,.template-readiness-card strong{font-weight:700}.template-readiness.ready,.template-readiness-card.ready strong{color:#276143}.template-readiness.needs-setup,.template-readiness-card.needs-setup strong{color:#8a5b16}
+.template-readiness-card{display:flex;gap:14px;align-items:baseline;margin:0 0 22px;padding:14px 16px;border:1px solid var(--line);border-radius:10px;background:#fff}
+.template-readiness-card span{color:var(--muted)}.template-filters{display:flex;align-items:center;gap:14px}.template-filters .filter-search{flex:1}.heading-actions{display:flex;gap:10px;flex-wrap:wrap}
+.link-button{border:0;background:none;color:inherit;padding:0;text-align:left;cursor:pointer}.template-reference{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px;align-items:end}.template-reference .secondary-btn{margin-bottom:1px}
+.project-create-choice,.template-picker{display:grid;gap:14px;margin-top:20px}.choice-card{display:flex;flex-direction:column;gap:5px;width:100%;padding:18px;border:1px solid var(--line);border-radius:10px;background:#fff;color:inherit;text-align:left;cursor:pointer}.choice-card:hover,.choice-card:focus-visible{border-color:var(--gold);box-shadow:0 0 0 2px #b593522e}.choice-card span{color:var(--muted)}
+.template-picker label{display:grid;gap:6px}.template-picker-list{display:grid;gap:8px;max-height:52vh;overflow:auto}.template-preview{display:grid;gap:10px}.template-preview h2{font-size:1.05rem}.nested-modal{z-index:90}
+@media(max-width:900px){.template-table{display:block}.template-table table{min-width:680px}}
+@media(max-width:760px){.template-filters{align-items:stretch;flex-direction:column}.template-reference{grid-template-columns:1fr}.template-reference .secondary-btn{width:100%}.heading-actions{width:100%}.heading-actions button{flex:1}.template-readiness-card{align-items:flex-start;flex-direction:column}}

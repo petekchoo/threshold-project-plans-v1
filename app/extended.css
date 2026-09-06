@@ -192,6 +192,15 @@ body,button,input,select,textarea{font-family:var(--font-ui)}
 .form-disclosure>.owner-picker>legend,.form-disclosure>.link-editor>legend,.form-disclosure>.dependency-picker>legend{display:none}
 .project-add-activity{display:inline-flex!important;white-space:nowrap;flex:0 0 auto}
 .activity-panel .structured-form{gap:10px}
+.project-date-progress{margin:16px 0 22px}
+.project-date-labels{display:flex;justify-content:space-between;gap:12px;margin-bottom:8px;color:#626963;font-size:var(--text-meta);font-variant-numeric:tabular-nums}
+.project-card-track{position:relative;width:100%;background:#e7e4dc}
+.project-date-track{height:5px}
+.project-date-track>i{position:absolute;inset:0 auto 0 0;width:var(--elapsed-percent);background:#aeb8b2}
+.project-date-track>b{position:absolute;z-index:2;left:var(--today-position);top:50%;width:9px;height:9px;border:2px solid #fff;border-radius:50%;background:var(--gold);box-shadow:0 0 0 1px var(--gold);transform:translate(-50%,-50%)}
+.project-date-track>small{position:absolute;left:clamp(22px,var(--today-position),calc(100% - 22px));top:11px;color:#806b43;font-size:var(--text-label);font-weight:700;transform:translateX(-50%)}
+.progress>.project-card-track{display:block;height:7px;margin:0;background:#e7e4dc}
+.project-completion-track>i{display:block;height:100%;background:#527a69}
 .metric-grid article:before{display:none}
 .overview-activity-row strong{font-family:var(--font-display);font-weight:400}
 .project-filter-toggle{display:none}

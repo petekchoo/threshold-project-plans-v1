@@ -5,6 +5,7 @@ import { useState } from 'react';
 import { AvatarList } from '../shared/avatar-list';
 import { Heading } from '../shared/page-heading';
 import { Pill } from '../shared/status-pill';
+import { ProjectTile } from './project-tile';
 import { addDays, date, isoDate } from '../../lib/planning/dates';
 import type { AppData, Project } from '../../lib/planning/types';
 
@@ -52,6 +53,6 @@ export function Projects({ data, query, onNew }: { data: AppData; query: string;
       <span className="project-filter-count" aria-live="polite">{projects.length} projects</span>
     </div>
     <div className="table-card"><table><thead><tr><th>Project</th><th>Type</th><th>Status</th><th>Start</th><th>End</th><th>Progress</th><th>Overdue</th><th>Team members</th></tr></thead><tbody>{projects.map((project) => { const overdue = data.activities.filter((activity) => activity.project_id === project.id && activity.status !== 'completed' && activity.due_date < today).length; return <tr key={project.id}><td><Link href={`/projects/${project.id}`}><strong>{project.name}</strong></Link>{project.archived_at ? <small>Archived</small> : project.description ? <details className="project-description"><summary>Project brief</summary><p>{project.description}</p></details> : null}</td><td>{project.project_types?.name}</td><td><Pill value={project.status}/></td><td>{date(project.start_date)}</td><td>{date(project.end_date)}</td><td>{progress(project, data.activities)}%</td><td>{overdue}</td><td><AvatarList owners={project.project_owners?.map((owner) => owner.team_members) || []}/></td></tr>; })}</tbody></table></div>
-    <div className="mobile-list">{projects.map((project) => <Link key={project.id} href={`/projects/${project.id}`} className="project-tile"><div className="card-title"><div><small>{project.project_types?.name || 'Project'}</small><h3>{project.name}</h3></div><Pill value={project.status}/></div><div className="date-row"><span>{date(project.start_date)}</span><i/><span>{date(project.end_date)}</span></div><div className="progress"><div><span>Activity progress</span><strong>{progress(project, data.activities)}%</strong></div><i><b style={{ width: `${progress(project, data.activities)}%` }}/></i></div><div className="project-card-signals"><span><b>{data.activities.filter((activity) => activity.project_id === project.id && activity.status !== 'completed' && activity.due_date < today).length}</b> overdue</span><span><b>{data.activities.filter((activity) => activity.project_id === project.id && activity.status === 'blocked').length}</b> blocked</span></div><p className="next"><span>Next</span>{[...data.activities].filter((activity) => activity.project_id === project.id && activity.status !== 'completed').sort((a, b) => a.due_date.localeCompare(b.due_date))[0]?.name || 'No open activities'}</p></Link>)}</div>
+    <div className="mobile-list">{projects.map((project) => <ProjectTile key={project.id} project={project} activities={data.activities}/>)}</div>
   </>;
 }

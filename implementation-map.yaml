@@ -22,6 +22,7 @@ verification_catalog:
     test_files:
       - lib/planning/scheduling.test.ts
       - lib/planning/project-schedule.test.ts
+      - lib/planning/project-tile.test.ts
       - lib/planning/project-reschedule.test.ts
       - lib/planning/overview-timeline.test.ts
       - components/projects/reschedule-preview-dialog.test.ts
@@ -150,11 +151,13 @@ groups:
         Coverage: Implemented
         Verification / known gap: Integer calendar-day positioning clips inclusive project ranges to the selected half-open window and fits every subdivision into the pane. Outward triangular ends indicate continuation before or after the visible window. Unit coverage verifies Today-marker positioning at interior and boundary dates.
       - ID: OVR-02
+        verification:
+          - unit-vitest
         Capability: Week, Month, Quarter, Half-year, Year, and All Events ranges; Month default
-        Primary implementation: "`components/overview/overview.tsx` range state and range tabs; `lib/planning/overview-timeline.ts`"
+        Primary implementation: "`components/overview/overview.tsx` range state and range tabs; `lib/planning/overview-timeline.ts`; shared mobile `components/projects/project-tile.tsx` and `lib/planning/project-tile.ts`"
         Database / persistence: None
         Coverage: Implemented
-        Verification / known gap: Month is the default on the desktop Gantt. Forward windows all begin today and end after 7 days or 1, 3, 6, or 12 calendar months; All Events uses the quarter-normalized full visible-project span. Quarter uses monthly labels with weekly subdivision lines; other views use day, week, month, or quarter divisions as specified. Mobile uses project tiles instead of the Gantt, so its non-operative desktop range selector is hidden.
+        Verification / known gap: Month is the default on the desktop Gantt. Forward windows all begin today and end after 7 days or 1, 3, 6, or 12 calendar months; All Events uses the quarter-normalized full visible-project span. Quarter uses monthly labels with weekly subdivision lines; other views use day, week, month, or quarter divisions as specified. Shared mobile project tiles replace the Gantt with exactly aligned project-window and activity-completion tracks; the first uses endpoint date labels, elapsed fill, and a visible Today marker only inside the project window. Unit tests cover active, future, past, and one-day windows.
       - ID: OVR-03
         Capability: Draft and completed project visibility controls
         Primary implementation: "`components/overview/overview.tsx` visibility state"
@@ -199,7 +202,7 @@ groups:
         Primary implementation: "`components/projects/projects-list.tsx`; `/projects` route; shared search in `components/threshold-app.tsx`"
         Database / persistence: Projects, types, owners, activities
         Coverage: Partial
-        Verification / known gap: Core columns and selector sorting exist. Primary table content uses 14px text and tabular numerals, and project briefs have an expandable desktop disclosure. Search covers project name and type; status, team member, type, end-date window, sort, and archive controls remain expanded on desktop and use the same counted mobile filter disclosure as Activities. Labels shorten “Activity Progress” and “Overdue Activities,” and status sorting is lexical rather than workflow ordered.
+        Verification / known gap: Core columns and selector sorting exist. Primary table content uses 14px text and tabular numerals, and project briefs have an expandable desktop disclosure. Search covers project name and type; status, team member, type, end-date window, sort, and archive controls remain expanded on desktop and use the same counted mobile filter disclosure as Activities. Projects and Overview share one mobile project-tile component, including aligned project-window and activity-progress tracks. Labels shorten “Activity Progress” and “Overdue Activities,” and status sorting is lexical rather than workflow ordered.
       - ID: PRJ-02
         Capability: Create and edit project name, description, type, status, dates, and assigned team members
         Primary implementation: "`components/projects/project-form.tsx`; `components/shared/editor.tsx`; `components/projects/project-detail.tsx`"

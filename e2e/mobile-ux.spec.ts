@@ -125,6 +125,11 @@ test('contains project filters and keeps desktop-only timeline ranges off mobile
     expect(box!.x + box!.width).toBeLessThanOrEqual(390);
   }
   expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(390);
+  const projectTile = page.locator('.project-tile').first();
+  const projectTracks = await projectTile.locator('.project-date-track,.project-completion-track').evaluateAll(items => items.map(item => item.getBoundingClientRect().width));
+  expect(projectTracks).toHaveLength(2);
+  expect(projectTracks[0]).toBe(projectTracks[1]);
+  await expect(projectTile.getByText('Today', { exact: true })).toBeVisible();
 
   await page.getByRole('button', { name: 'Open menu' }).click();
   await page.getByRole('dialog', { name: 'Main menu' }).getByRole('link', { name: 'Overview' }).click();
@@ -133,6 +138,9 @@ test('contains project filters and keeps desktop-only timeline ranges off mobile
   await expect(page.getByLabel('Draft')).toBeVisible();
   await expect(page.getByLabel('Completed')).toBeVisible();
   await expect(page.locator('.project-cards')).toBeVisible();
+  const overviewTracks = await page.locator('.project-cards .project-tile').first().locator('.project-date-track,.project-completion-track').evaluateAll(items => items.map(item => item.getBoundingClientRect().width));
+  expect(overviewTracks).toHaveLength(2);
+  expect(overviewTracks[0]).toBe(overviewTracks[1]);
   expect(await page.locator('.metric-grid article').first().evaluate(article => getComputedStyle(article, '::before').display)).toBe('none');
   const activityName = page.locator('.overview-activity-row strong').first();
   const projectName = page.locator('.project-tile .card-title h3').first();

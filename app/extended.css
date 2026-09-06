@@ -192,7 +192,8 @@ body,button,input,select,textarea{font-family:var(--font-ui)}
 .form-disclosure>.owner-picker>legend,.form-disclosure>.link-editor>legend,.form-disclosure>.dependency-picker>legend{display:none}
 .project-add-activity{display:inline-flex!important;white-space:nowrap;flex:0 0 auto}
 .activity-panel .structured-form{gap:10px}
-.project-add-project{display:inline-flex;white-space:nowrap;flex:0 0 auto}
+.metric-grid article:before{display:none}
+.overview-activity-row strong{font-family:var(--font-display);font-weight:400}
 .project-filter-toggle{display:none}
 .project-filter-controls{display:contents}
 .project-filter-clear{border:0;background:transparent;color:#604e2f;font-size:13px;font-weight:700;min-height:44px;padding:8px 10px}

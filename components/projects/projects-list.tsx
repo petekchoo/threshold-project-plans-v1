@@ -4,7 +4,6 @@ import Link from 'next/link';
 import { useState } from 'react';
 import { AvatarList } from '../shared/avatar-list';
 import { Heading } from '../shared/page-heading';
-import { Icon } from '../shared/icon';
 import { Pill } from '../shared/status-pill';
 import { addDays, date, isoDate } from '../../lib/planning/dates';
 import type { AppData, Project } from '../../lib/planning/types';
@@ -37,7 +36,7 @@ export function Projects({ data, query, onNew }: { data: AppData; query: string;
   const clearFilters = () => { setStatus('all'); setOwner('all'); setType('all'); setEndDate('all'); setSort('start_date'); setShowArchived(false); };
 
   return <>
-    <Heading eyebrow="Planning portfolio" title="Projects" copy="Search, sort, and open every operating window." action={<button className="secondary-btn project-add-project" onClick={onNew}><Icon name="plus"/>Add project</button>}/>
+    <Heading eyebrow="Planning portfolio" title="Projects" copy="Search, sort, and open every operating window." action={<button className="secondary-btn" onClick={onNew}>＋ Add project</button>}/>
     <div className={`filters project-filters ${filtersOpen ? 'filters-open' : 'filters-collapsed'}`}>
       <input className="filter-search" type="search" aria-label="Search projects" placeholder="Search projects" value={search} onChange={(event) => setSearch(event.target.value)}/>
       <button className="project-filter-toggle" type="button" aria-expanded={filtersOpen} aria-controls="project-filter-controls" onClick={() => setFiltersOpen(value => !value)}>Filters{activeFilterCount ? ` (${activeFilterCount})` : ''}</button>

@@ -101,7 +101,10 @@ test('uses mobile activity cards and supports filter disclosure and reset', asyn
 test('contains project filters and keeps desktop-only timeline ranges off mobile', async ({ page }) => {
   const filters = page.locator('.project-filters');
   await expect(filters).toBeVisible();
-  await expect(page.getByRole('button', { name: 'Add project' })).toHaveCSS('white-space', 'nowrap');
+  const addProject = page.getByRole('button', { name: 'Add project' });
+  const addProjectText = await addProject.innerText();
+  expect(addProjectText).toBe('＋ Add project');
+  expect(await addProject.evaluate(button => { const range = document.createRange(); range.selectNodeContents(button); return range.getClientRects().length; })).toBe(1);
   const filterToggle = page.locator('.project-filter-toggle');
   await expect(filterToggle).toBeVisible();
   await filterToggle.click();
@@ -130,6 +133,12 @@ test('contains project filters and keeps desktop-only timeline ranges off mobile
   await expect(page.getByLabel('Draft')).toBeVisible();
   await expect(page.getByLabel('Completed')).toBeVisible();
   await expect(page.locator('.project-cards')).toBeVisible();
+  expect(await page.locator('.metric-grid article').first().evaluate(article => getComputedStyle(article, '::before').display)).toBe('none');
+  const activityName = page.locator('.overview-activity-row strong').first();
+  const projectName = page.locator('.project-tile .card-title h3').first();
+  if (await activityName.count() && await projectName.count()) {
+    expect(await activityName.evaluate(element => getComputedStyle(element).fontFamily)).toBe(await projectName.evaluate(element => getComputedStyle(element).fontFamily));
+  }
   const portfolioTitle = page.locator('.portfolio-card>.section-head>div').first();
   const portfolioFilters = page.locator('.portfolio-card .timeline-visibility');
   const titleBox = await portfolioTitle.boundingBox();

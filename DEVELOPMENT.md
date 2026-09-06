@@ -56,7 +56,7 @@ Dedicated local-testing credentials are stored in the ignored `.env.local` file 
 
 | Purpose | Application host | Browser/device | Supabase backend |
 | --- | --- | --- | --- |
-| Manual desktop validation | Local Next.js at `http://localhost:3000` | Desktop browser at a representative wide viewport | The backend selected by `NEXT_PUBLIC_SUPABASE_URL` in ignored local environment configuration |
+| Manual desktop validation | Local Next.js at `http://localhost:3000` | Desktop browser at a representative wide viewport | Dedicated development Supabase selected by the guarded ignored local environment configuration |
 | Manual mobile validation | The same local Next.js process; physical devices use its allowed LAN `Network` URL | Responsive emulation at 390 × 844 unless a task specifies a physical device | The same backend as the desktop session; viewport or device choice does not select a different backend |
 | Playwright desktop smoke | Local Next.js by default, or explicit `E2E_BASE_URL` | Chromium at 1440 × 900 | The backend configured for the targeted application server |
 | Playwright mobile smoke | The same target as desktop smoke | Chromium at 390 × 844 | The same backend configured for the targeted application server |
@@ -64,7 +64,15 @@ Dedicated local-testing credentials are stored in the ignored `.env.local` file 
 
 Starting Docker does not automatically reconfigure `pnpm dev` or Playwright to use local Supabase. The web application always uses the public Supabase URL and key supplied to that application process. Before browser validation, classify that URL without printing credentials or project identifiers as one of: Docker-local, dedicated development, preview/staging, or production/shared. State the classification in the task handoff.
 
-Read-only browser smoke may run against a shared backend only with the dedicated E2E account and current-task authorization. Never run create, edit, archive, fixture, or teardown journeys against production or another shared backend. Data-changing browser tests require a disposable local fixture lifecycle or the future dedicated development backend, explicit authorization, and a verified cleanup path.
+Read-only browser smoke may run against a shared backend only with the dedicated E2E account and current-task authorization. Never run create, edit, archive, fixture, or teardown journeys against production or another shared backend. Data-changing browser tests require a disposable local fixture lifecycle or the dedicated development backend's reserved fixture graph, explicit authorization, and a verified cleanup path.
+
+### Hosted environment selection
+
+Local application development uses the separate hosted development Supabase project by default. `.env.local` is ignored and stores the selected environment, development and production public settings, the development database password, and dedicated E2E credentials. Never print or commit those values. `pnpm dev` runs a preflight that refuses to start unless the active browser URL and publishable key match the selected development environment.
+
+The machine-local CLI link and browser configuration are separate but must agree for hosted database commands. Run `pnpm env:check` before linked database work; it verifies the selected environment, active browser variables, and CLI link without printing project identifiers. `pnpm db:status`, `pnpm db:lint`, `pnpm db:push:dry-run`, `pnpm db:push`, and `pnpm db:types` use the same guard. A reviewed and explicitly authorized development migration write additionally requires `THRESHOLD_ALLOW_DB_WRITE=development pnpm db:push`. Production promotion requires selecting and linking production deliberately and setting `THRESHOLD_ALLOW_DB_WRITE=production` only for the authorized command.
+
+`pnpm db:seed:dev` resets only the reserved development fixture records and the dedicated development E2E account; it does not clear unrelated development data. Run it only after explicit authorization with `THRESHOLD_ALLOW_DB_WRITE=development pnpm db:seed:dev`. The script refuses non-development targets, verifies the app and CLI destinations match, obtains the development secret key through the authenticated CLI without persisting it, and creates relative-date fixtures suitable for manual and future browser validation.
 
 ## GitHub pull requests and checks
 
@@ -104,7 +112,7 @@ Before local database work, run `docker version` and require both Client and Ser
 
 Supabase authentication and project linking are machine-local. Verify them with `pnpm db:status` before database work. Apply migrations only after reviewing `pnpm db:push:dry-run` and receiving explicit authorization for the database write.
 
-The CLI link used by `pnpm db:status`, `pnpm db:push:dry-run`, and `pnpm db:push` is independent of the application URL in `.env.local`. Confirm both destinations separately: checking the linked migration target does not prove which backend the local web application or browser tests use.
+The guarded linked commands verify that the CLI link and application URL in `.env.local` identify the same selected environment. Docker database tests remain independent of both.
 
 ## Finishing a task
 

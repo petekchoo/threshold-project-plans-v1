@@ -16,9 +16,9 @@ QA-05 protects complete user journeys that cross routing, responsive layout, aut
 - Before every browser run, classify the target backend as Docker-local, dedicated development, preview/staging, or production/shared without exposing its URL, credentials, or project identifier. Record that classification in the task handoff.
 - Tests authenticate with a dedicated non-production account supplied through `THRESHOLD_E2E_EMAIL` and `THRESHOLD_E2E_PASSWORD`.
 - Local runs load those values directly from the ignored `.env.local` file when present; shell sourcing is not required.
-- The baseline account must have at least one active project. Credentials, generated browser state, screenshots, traces, and reports are never committed.
+- The baseline account and resettable fixture graph live in the dedicated hosted development project. `pnpm db:seed:dev` creates or updates the account and replaces only records using reserved fixture identifiers; credentials, generated browser state, screenshots, traces, and reports are never committed.
 - Slice 1 is read-only: editors are opened and cancelled, and tests must not save, archive, or otherwise change application data.
-- Data-changing journeys must refuse to run against production or another shared backend. They remain deferred until a disposable fixture lifecycle or dedicated development backend and cleanup path are available.
+- Data-changing journeys must refuse to run against production or another shared backend. The dedicated development backend and reserved fixture-reset lifecycle are available; mutation journeys remain deferred until each test is scoped to those fixtures and proves cleanup or reset behavior.
 
 ## Slice 1: responsive UX smoke coverage
 
@@ -45,7 +45,7 @@ The first persistent smoke suite covers the regressions most likely to escape co
 ## Future slices
 
 - Add isolated authentication, deeper overview interactions, validation-driven activity-editor disclosure, dependency, and administration journeys.
-- Add create/edit/archive tests only with disposable seeded fixtures and teardown. They must not write to a shared development or production project.
+- Add create/edit/archive tests only against the reserved development fixture graph with explicit reset/cleanup. They must refuse production and must not mutate unrelated development rows.
 - Add a required GitHub Actions browser-test job after a dedicated CI account or disposable local Supabase fixture lifecycle is available.
 
 ## Acceptance gate

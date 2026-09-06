@@ -6,6 +6,7 @@
     "node": ">=22.13.0"
   },
   "scripts": {
+    "predev": "node scripts/supabase-environment.mjs check --require-development",
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
@@ -18,15 +19,17 @@
     "typecheck": "tsc --noEmit --incremental false",
     "map:generate": "node scripts/implementation-map.mjs generate",
     "map:check": "node scripts/implementation-map.mjs validate",
-    "db:status": "supabase migration list",
+    "env:check": "node scripts/supabase-environment.mjs check --require-link",
+    "db:status": "node scripts/supabase-environment.mjs status",
     "db:start": "supabase start -x studio",
     "db:stop": "supabase stop",
     "db:test": "supabase test db",
     "db:test:concurrency": "bash scripts/test-prj06-concurrency.sh",
-    "db:lint": "supabase db lint --linked --level warning",
-    "db:push:dry-run": "supabase db push --dry-run",
-    "db:push": "supabase db push",
-    "db:types": "supabase gen types typescript --linked --schema public > database.types.ts",
+    "db:seed:dev": "node scripts/seed-development.mjs",
+    "db:lint": "node scripts/supabase-environment.mjs lint",
+    "db:push:dry-run": "node scripts/supabase-environment.mjs push-dry-run",
+    "db:push": "node scripts/supabase-environment.mjs push",
+    "db:types": "node scripts/supabase-environment.mjs types",
     "verify": "pnpm map:check && pnpm typecheck && pnpm lint && pnpm test"
   },
   "dependencies": {

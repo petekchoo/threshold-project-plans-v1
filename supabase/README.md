@@ -25,3 +25,14 @@ Authentication and the linked project are machine-local. Do not commit tokens, p
 `pnpm db:start` excludes the optional Studio UI to reduce startup surface for command-line schema testing. Run `pnpm supabase start` directly when Studio is needed. Never use `supabase db reset --linked` as a local-test workaround; it destroys the linked database.
 
 The CLI is the canonical write path. A project-scoped Supabase MCP connection may be used for read-only inspection, logs, advisors, and verification; it should not become a second routine migration path.
+
+## Hosted development project
+
+The local web application and ordinary linked CLI work default to the separate hosted development project. Run `pnpm env:check` to verify that the ignored active browser configuration and machine-local CLI link both identify the selected development environment. Guarded linked commands load `SUPABASE_DEV_DB_PASSWORD` from `.env.local` without printing it.
+
+- Inspect migration history with `pnpm db:status`.
+- Review pending migrations with `pnpm db:push:dry-run`.
+- After explicit authorization, apply them with `THRESHOLD_ALLOW_DB_WRITE=development pnpm db:push`.
+- Reset only the reserved development fixtures with `THRESHOLD_ALLOW_DB_WRITE=development pnpm db:seed:dev` after explicit authorization.
+
+Do not use the development seed against production, copy raw production data into development, or treat the hosted development project as disposable infrastructure. The seed script preserves unrelated development rows and replaces only its reserved fixture graph. Continue using Docker-hosted Supabase for migration replay and transactional database tests.

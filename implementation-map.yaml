@@ -42,6 +42,11 @@ verification_catalog:
     command: pnpm db:test
     test_files:
       - supabase/tests/project_templates.sql
+  - id: data-api-privileges-database
+    kind: database
+    command: pnpm db:test
+    test_files:
+      - supabase/tests/data_api_privileges.sql
   - id: qa05-browser-smoke
     kind: end-to-end
     runner: playwright
@@ -101,9 +106,10 @@ groups:
       - ID: AUTH-02
         verification:
           - activity-work-management-database
+          - data-api-privileges-database
         Capability: Universal authenticated access to shared MVP data
         Primary implementation: "`lib/data/planning-data.ts` (`loadData`); `lib/supabase.ts`"
-        Database / persistence: RLS policies named `authenticated shared access` in `202608290001_initial_schema.sql`
+        Database / persistence: RLS policies named `authenticated shared access` in `202608290001_initial_schema.sql`; explicit least-privilege Data API grants in `202609060004` and `202609060005`
         Coverage: Implemented
         Verification / known gap: Transactional database coverage verifies shared authenticated project/activity reads, anonymous isolation, RPC boundaries, and denied direct aggregate writes. Role-based access is intentionally deferred.
       - ID: DATA-01
@@ -539,10 +545,11 @@ groups:
         verification:
           - prj06-database
           - activity-work-management-database
+          - data-api-privileges-database
         Capability: Database integration tests
-        Current implementation: "PRJ-06 pgTAP suite in `supabase/tests/prj06_project_rescheduling.sql`; activity work-management pgTAP suite in `supabase/tests/activity_work_management.sql`; disposable-Supabase `database` job in `.github/workflows/verify.yml`; explicit-barrier concurrency harness in `scripts/test-prj06-concurrency.sh`; transactional live verification migrations `202609040002`, `202609040005`, `202609040006`, and `202609040008`"
+        Current implementation: "PRJ-06 pgTAP suite in `supabase/tests/prj06_project_rescheduling.sql`; activity work-management pgTAP suite in `supabase/tests/activity_work_management.sql`; Data API privilege suite in `supabase/tests/data_api_privileges.sql`; disposable-Supabase `database` job in `.github/workflows/verify.yml`; explicit-barrier concurrency harness in `scripts/test-prj06-concurrency.sh`; transactional live verification migrations `202609040002`, `202609040005`, `202609040006`, and `202609040008`"
         Coverage: Partial
-        Next verification need: The required pull-request workflow runs all reusable pgTAP suites against disposable Supabase. Activity coverage verifies authoritative aggregate saves, owners, links, dependencies, cycle rollback, dependency chronology, timing and exception boundaries, project-start adjustment, archive retention, shared authenticated reads, anonymous isolation, and denied direct writes. PRJ-06 separately covers atomic rescheduling, stale fingerprints, and the complete scoped-lock concurrency matrix. Extend coverage to administration writes and more granular RLS policy cases as those authorization rules evolve.
+        Next verification need: The required pull-request workflow runs all reusable pgTAP suites against disposable Supabase. Activity coverage verifies authoritative aggregate saves, owners, links, dependencies, cycle rollback, dependency chronology, timing and exception boundaries, project-start adjustment, archive retention, shared authenticated reads, anonymous isolation, and denied direct writes. Data API coverage verifies least-privilege table and function grants, protected aggregate boundaries, administrative reference writes, service-role access, RLS retention, and secure defaults for future objects. PRJ-06 separately covers atomic rescheduling, stale fingerprints, and the complete scoped-lock concurrency matrix. Extend coverage to finer row-level authorization rules as those rules evolve.
       - ID: QA-05
         verification:
           - qa05-browser-smoke

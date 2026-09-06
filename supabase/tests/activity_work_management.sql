@@ -44,7 +44,11 @@ values
   ('68000000-0000-0000-0000-000000000003', '66000000-0000-0000-0000-000000000004', '66000000-0000-0000-0000-000000000003', 'finish_to_start');
 
 set local role anon;
-select is((select count(*)::integer from public.projects), 0, 'anonymous users cannot read shared project data');
+select throws_ok(
+  $$select count(*) from public.projects$$,
+  '42501', null,
+  'anonymous users are denied at the project table permission boundary'
+);
 select throws_ok(
   $$select public.save_activity('{"project_id":"65000000-0000-0000-0000-000000000001","name":"Anonymous","status":"not_started","priority":"normal","start_date":"2026-04-01","due_date":"2026-04-01"}'::jsonb)$$,
   '42501', null,

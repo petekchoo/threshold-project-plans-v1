@@ -26,6 +26,8 @@ Authentication and the linked project are machine-local. Do not commit tokens, p
 
 The CLI is the canonical write path. A project-scoped Supabase MCP connection may be used for read-only inspection, logs, advisors, and verification; it should not become a second routine migration path.
 
+Data API access is explicit and least-privilege. Authenticated users can read shared application data, manage profile and administration reference records, and execute only the approved aggregate RPCs. Direct project, activity, relationship, and template writes remain blocked. Anonymous roles receive no application-table or public-function privileges, and new public objects receive no automatic Data API grants. Add explicit grants and pgTAP coverage whenever a migration introduces a new table, sequence, or callable function.
+
 ## Hosted development project
 
 The local web application and ordinary linked CLI work default to the separate hosted development project. Run `pnpm env:check` to verify that the ignored active browser configuration and machine-local CLI link both identify the selected development environment. Guarded linked commands load `SUPABASE_DEV_DB_PASSWORD` from `.env.local` without printing it.

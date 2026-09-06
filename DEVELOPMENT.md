@@ -36,6 +36,22 @@ Start the application with `pnpm dev`. When using the bundled Codex Node.js runt
 
 Before reporting the server as ready, request `http://localhost:3000` and confirm that it returns an HTTP 200 response. If `pnpm` is available but startup or compilation reports `node: not found`, load or activate the workspace's Node.js runtime, ensure it is inherited through `PATH`, and retry. Keep runtime paths and other machine-specific configuration out of the repository.
 
+### Local application and validation environments
+
+“Local” can refer to the web process, browser viewport, or database. Treat them as separate choices and identify both the application host and backend before validation:
+
+| Purpose | Application host | Browser/device | Supabase backend |
+| --- | --- | --- | --- |
+| Manual desktop validation | Local Next.js at `http://localhost:3000` | Desktop browser at a representative wide viewport | The backend selected by `NEXT_PUBLIC_SUPABASE_URL` in ignored local environment configuration |
+| Manual mobile validation | The same local Next.js process | Responsive emulation at 390 × 844 unless a task specifies a physical device | The same backend as the desktop session; viewport emulation does not select a different backend |
+| Playwright desktop smoke | Local Next.js by default, or explicit `E2E_BASE_URL` | Chromium at 1440 × 900 | The backend configured for the targeted application server |
+| Playwright mobile smoke | The same target as desktop smoke | Chromium at 390 × 844 | The same backend configured for the targeted application server |
+| Database integration tests | No browser application required | None | Disposable Docker-hosted local Supabase started with `pnpm db:start` |
+
+Starting Docker does not automatically reconfigure `pnpm dev` or Playwright to use local Supabase. The web application always uses the public Supabase URL and key supplied to that application process. Before browser validation, classify that URL without printing credentials or project identifiers as one of: Docker-local, dedicated development, preview/staging, or production/shared. State the classification in the task handoff.
+
+Read-only browser smoke may run against a shared backend only with the dedicated E2E account and current-task authorization. Never run create, edit, archive, fixture, or teardown journeys against production or another shared backend. Data-changing browser tests require a disposable local fixture lifecycle or the future dedicated development backend, explicit authorization, and a verified cleanup path.
+
 ## GitHub pull requests and checks
 
 In Codex, use the connected GitHub integration for repository, pull-request, review, and check operations when those tools are available. The integration provides the authenticated GitHub connection directly and does not require a local `gh` executable. Outside that environment, or when the integration is unavailable, use GitHub CLI as the local fallback.
@@ -73,6 +89,8 @@ Use the project-local CLI through the package scripts in `package.json`. The can
 Before local database work, run `docker version` and require both Client and Server output. Start the disposable local stack with `pnpm db:start`; this excludes the optional Studio UI while retaining the services needed by the application, `pnpm db:test`, and `pnpm db:test:concurrency`. If Docker is absent, stopped, awaiting macOS file-sharing permission, or cannot reach its engine, resolve that prerequisite before treating database-test failures as repository defects.
 
 Supabase authentication and project linking are machine-local. Verify them with `pnpm db:status` before database work. Apply migrations only after reviewing `pnpm db:push:dry-run` and receiving explicit authorization for the database write.
+
+The CLI link used by `pnpm db:status`, `pnpm db:push:dry-run`, and `pnpm db:push` is independent of the application URL in `.env.local`. Confirm both destinations separately: checking the linked migration target does not prove which backend the local web application or browser tests use.
 
 ## Finishing a task
 

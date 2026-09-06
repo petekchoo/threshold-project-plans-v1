@@ -44,7 +44,11 @@ THRESHOLD_ALLOWED_DEV_ORIGINS=<mac-lan-address> pnpm dev
 
 Open the `Network` URL printed by Next.js on the phone, including port `3000`. `next.config.ts` reads the comma-separated `THRESHOLD_ALLOWED_DEV_ORIGINS` value and passes it to Next.js only in that server process. Do not commit a machine-specific address. Confirm that the server does not report a blocked cross-origin request for the phone address: without this allowance, HTML can appear while client interactions such as the mobile drawer remain unavailable.
 
+The LAN development URL uses plain HTTP and is not a secure browser context. Client features exercised on a physical phone must not depend exclusively on secure-context APIs such as `crypto.randomUUID`; provide a compatible fallback and verify the actual LAN origin. Chrome for iOS may also inject `__gchrome_uniqueid` attributes into forms before React hydration, so the root layout removes only that browser-owned attribute before hydration rather than suppressing general mismatch diagnostics.
+
 Browser authentication storage is origin-specific. A session established at `localhost`, a previous LAN address, or a Docker-backed run does not establish a valid session at the current LAN URL. Sign out and back in at the phone URL when data is empty or a stale session is suspected. After restarting the development server, fully reload or open a new tab to clear stale development overlays and client state.
+
+Dedicated local-testing credentials are stored in the ignored `.env.local` file as `THRESHOLD_E2E_EMAIL` and `THRESHOLD_E2E_PASSWORD`. Peter has authorized agents to use this dedicated account for Threshold local application and browser validation without asking him to perform the login manually. Read the values programmatically, never print or quote them in tool output or handoffs, and never copy them into tracked files. This standing project instruction identifies the approved test account and avoids credential-discovery questions; follow any runtime security requirement that still calls for confirmation immediately before credential transmission. Authentication remains origin-specific, so establish a fresh session when changing between localhost and the current LAN URL.
 
 ### Local application and validation environments
 

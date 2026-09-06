@@ -55,18 +55,25 @@ export type TemplateScheduleRule =
   | 'start_after_activity_finish'
   | 'finish_after_activity_finish';
 
+export type ProjectTemplateActivityRule = {
+  id: string;
+  template_activity_id: string;
+  schedule_rule: TemplateScheduleRule;
+  offset_days: number;
+  relative_activity_id?: string | null;
+  sort_order: number;
+};
+
 export type ProjectTemplateActivity = {
   id: string;
   template_id: string;
   activity_type_id: string;
   name: string;
-  schedule_rule: TemplateScheduleRule;
-  offset_days: number;
   duration_days: number;
-  relative_activity_id?: string | null;
   sort_order: number;
   archived_at?: string | null;
   activity_types?: TypeRow;
+  rules: ProjectTemplateActivityRule[];
 };
 
 export type ProjectTemplate = {

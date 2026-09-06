@@ -5,26 +5,36 @@ test.beforeEach(async ({ page }) => {
   await expect(page.getByRole('heading', { name: 'Projects', exact: true })).toBeVisible();
 });
 
-test('uses route-aware bottom navigation and an accessible More dialog', async ({ page }) => {
-  const navigation = page.getByRole('navigation', { name: 'Primary navigation' });
-  await expect(navigation).toBeVisible();
-  await expect(navigation.getByRole('link', { name: 'Projects' })).toHaveAttribute('aria-current', 'page');
+test('uses a scrolling mobile header and an accessible navigation drawer', async ({ page }) => {
+  const header = page.locator('.mobile-header');
+  await expect(header).toBeVisible();
+  await expect(header).toHaveCSS('position', 'relative');
+  await expect(header.getByRole('link', { name: 'Threshold overview' })).toHaveAttribute('href', '/');
+  const logoBox = await header.locator('img').boundingBox();
+  const brandBox = await header.getByRole('link', { name: 'Threshold overview' }).boundingBox();
+  expect(logoBox).not.toBeNull();
+  expect(brandBox).not.toBeNull();
+  expect(logoBox!.x).toBeGreaterThanOrEqual(brandBox!.x);
+  expect(logoBox!.x + logoBox!.width).toBeLessThanOrEqual(brandBox!.x + brandBox!.width);
   await expect(page.locator('.sidebar')).toBeHidden();
+  await expect(page.locator('.bottom-nav')).toHaveCount(0);
 
-  const more = navigation.getByRole('button', { name: 'More' });
-  await more.click();
-  const menu = page.getByRole('dialog', { name: 'More navigation' });
+  const menuButton = header.getByRole('button', { name: 'Open menu' });
+  await menuButton.click();
+  const menu = page.getByRole('dialog', { name: 'Main menu' });
   await expect(menu).toBeVisible();
+  await expect(menu.getByRole('link', { name: 'Projects' })).toHaveAttribute('aria-current', 'page');
   await expect(menu.getByRole('button', { name: 'Close menu' })).toBeFocused();
   await page.keyboard.press('Escape');
   await expect(menu).toBeHidden();
-  await expect(more).toBeFocused();
+  await expect(menuButton).toBeFocused();
 });
 
 test('keeps project team and form actions visible and contained', async ({ page }) => {
-  await page.getByRole('button', { name: /New project/ }).click();
+  await page.getByRole('button', { name: /Add project/ }).click();
   const dialog = page.getByRole('dialog', { name: 'Project' });
   await expect(dialog).toBeVisible();
+  await expect(dialog.getByRole('button', { name: 'Close editor' })).toBeVisible();
   await expect(dialog.getByText('Project team members')).toBeVisible();
   await expect(dialog.getByRole('button', { name: 'Add team member' })).toBeVisible();
 
@@ -43,7 +53,7 @@ test('keeps project team and form actions visible and contained', async ({ page 
 });
 
 test('presents linked validation errors and focuses the first invalid field', async ({ page }) => {
-  await page.getByRole('button', { name: /New project/ }).click();
+  await page.getByRole('button', { name: /Add project/ }).click();
   const dialog = page.getByRole('dialog', { name: 'Project' });
   await dialog.getByRole('button', { name: 'Save', exact: true }).click();
 
@@ -58,17 +68,194 @@ test('presents linked validation errors and focuses the first invalid field', as
 });
 
 test('uses mobile activity cards and supports filter disclosure and reset', async ({ page }) => {
-  await page.getByRole('navigation', { name: 'Primary navigation' }).getByRole('link', { name: 'Activities' }).click();
+  await page.getByRole('button', { name: 'Open menu' }).click();
+  await page.getByRole('dialog', { name: 'Main menu' }).getByRole('link', { name: 'Activities' }).click();
   await expect(page.getByRole('heading', { name: 'Activities', exact: true })).toBeVisible();
   await expect(page.locator('.table-card')).toBeHidden();
   await expect(page.locator('.mobile-list')).toBeVisible();
+  await expect(page.getByText('Project work', { exact: true })).toBeVisible();
+  await expect(page.locator('.activity-card .priority')).toHaveCount(0);
 
   const toggle = page.locator('.activity-filter-toggle');
   await toggle.click();
   await expect(toggle).toHaveAttribute('aria-expanded', 'true');
+  const archived = page.getByLabel('Archived', { exact: true });
+  await expect(archived).toBeVisible();
+  const archivedBox = await archived.boundingBox();
+  expect(archivedBox?.width).toBe(20);
+  expect(archivedBox?.height).toBe(20);
   await page.getByLabel('Filter by status').selectOption('completed');
   await expect(toggle).toHaveText(/Filters \(1\)/);
   await page.getByRole('button', { name: 'Clear filters' }).click();
   await expect(toggle).toHaveText('Filters');
   await expect(page.getByLabel('Filter by status')).toHaveValue('all');
+
+  const firstActivity = page.locator('.activity-card').first();
+  await firstActivity.click();
+  await expect(page.getByText('Dates', { exact: true })).toBeVisible();
+  const summaryBoxes = await page.locator('.activity-summary>div').evaluateAll(items => items.map(item => ({ width: item.getBoundingClientRect().width, height: item.getBoundingClientRect().height })));
+  expect(new Set(summaryBoxes.map(box => box.width)).size).toBe(1);
+  expect(new Set(summaryBoxes.map(box => box.height)).size).toBe(1);
+});
+
+test('contains project filters and keeps desktop-only timeline ranges off mobile', async ({ page }) => {
+  const filters = page.locator('.project-filters');
+  await expect(filters).toBeVisible();
+  const addProject = page.getByRole('button', { name: 'Add project' });
+  const addProjectText = await addProject.innerText();
+  expect(addProjectText).toBe('＋ Add project');
+  expect(await addProject.evaluate(button => { const range = document.createRange(); range.selectNodeContents(button); return range.getClientRects().length; })).toBe(1);
+  const filterToggle = page.locator('.project-filter-toggle');
+  await expect(filterToggle).toBeVisible();
+  await filterToggle.click();
+  await expect(page.getByLabel('Filter projects by status')).toBeVisible();
+  await expect(page.getByLabel('Filter projects by team member')).toBeVisible();
+  await expect(page.getByLabel('Filter projects by type')).toBeVisible();
+  await expect(page.getByLabel('Filter projects by end date')).toBeVisible();
+  await expect(page.getByLabel('Sort projects')).toBeVisible();
+  await expect(page.getByLabel('Archived', { exact: true })).toBeVisible();
+  const archiveBox = await page.getByLabel('Archived', { exact: true }).boundingBox();
+  expect(archiveBox?.width).toBe(20);
+  expect(archiveBox?.height).toBe(20);
+
+  for (const control of [page.getByLabel('Search projects'), page.getByLabel('Sort projects'), page.getByLabel('Archived', { exact: true })]) {
+    const box = await control.boundingBox();
+    expect(box).not.toBeNull();
+    expect(box!.x).toBeGreaterThanOrEqual(0);
+    expect(box!.x + box!.width).toBeLessThanOrEqual(390);
+  }
+  expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(390);
+  const projectTile = page.locator('.project-tile').first();
+  const projectTracks = await projectTile.locator('.project-date-track,.project-completion-track').evaluateAll(items => items.map(item => item.getBoundingClientRect().width));
+  expect(projectTracks).toHaveLength(2);
+  expect(projectTracks[0]).toBe(projectTracks[1]);
+  await expect(projectTile.getByText('Today', { exact: true })).toBeVisible();
+
+  await page.getByRole('button', { name: 'Open menu' }).click();
+  await page.getByRole('dialog', { name: 'Main menu' }).getByRole('link', { name: 'Overview' }).click();
+  await expect(page.getByRole('heading', { name: 'Active projects' })).toBeVisible();
+  await expect(page.locator('.range-tabs')).toBeHidden();
+  await expect(page.getByLabel('Draft')).toBeVisible();
+  await expect(page.getByLabel('Completed')).toBeVisible();
+  await expect(page.locator('.project-cards')).toBeVisible();
+  const overviewTracks = await page.locator('.project-cards .project-tile').first().locator('.project-date-track,.project-completion-track').evaluateAll(items => items.map(item => item.getBoundingClientRect().width));
+  expect(overviewTracks).toHaveLength(2);
+  expect(overviewTracks[0]).toBe(overviewTracks[1]);
+  expect(await page.locator('.metric-grid article').first().evaluate(article => getComputedStyle(article, '::before').display)).toBe('none');
+  const activityName = page.locator('.overview-activity-row strong').first();
+  const projectName = page.locator('.project-tile .card-title h3').first();
+  if (await activityName.count() && await projectName.count()) {
+    expect(await activityName.evaluate(element => getComputedStyle(element).fontFamily)).toBe(await projectName.evaluate(element => getComputedStyle(element).fontFamily));
+  }
+  const portfolioTitle = page.locator('.portfolio-card>.section-head>div').first();
+  const portfolioFilters = page.locator('.portfolio-card .timeline-visibility');
+  const titleBox = await portfolioTitle.boundingBox();
+  const filtersBox = await portfolioFilters.boundingBox();
+  expect(titleBox).not.toBeNull();
+  expect(filtersBox).not.toBeNull();
+  expect(filtersBox!.y).toBeGreaterThanOrEqual(titleBox!.y + titleBox!.height);
+  const firstProjectBox = await page.locator('.project-cards>*').first().boundingBox();
+  expect(firstProjectBox).not.toBeNull();
+  expect(firstProjectBox!.y - (filtersBox!.y + filtersBox!.height)).toBeGreaterThanOrEqual(17);
+});
+
+test('contains detail summaries and administration rows on narrow screens', async ({ page }) => {
+  await page.getByRole('button', { name: 'Open menu' }).click();
+  await page.getByRole('dialog', { name: 'Main menu' }).getByRole('link', { name: 'Activities' }).click();
+  const activity = page.locator('.mobile-list a[href^="/activities/"]').first();
+  await expect(activity, 'The E2E account must contain at least one activity').toHaveCount(1);
+  await activity.click();
+  for (const value of await page.locator('.activity-summary>div').all()) {
+    const cell = await value.boundingBox();
+    const content = await value.locator('strong,.status-pill').first().boundingBox();
+    if (cell && content) expect(content.x + content.width).toBeLessThanOrEqual(cell.x + cell.width + 1);
+  }
+
+  await page.goto('/administration');
+  await expect(page.getByRole('heading', { name: 'Administration' })).toBeVisible();
+  expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(390);
+  for (const row of await page.locator('.admin-row').all()) {
+    const box = await row.boundingBox();
+    if (box) expect(box.x + box.width).toBeLessThanOrEqual(390);
+  }
+});
+
+test('keeps the fixed daily project schedule readable on narrow screens', async ({ page }) => {
+  const project = page.locator('.mobile-list a[href^="/projects/"]').first();
+  await expect(project, 'The E2E account must contain at least one active project').toHaveCount(1);
+  await project.click();
+  const schedule = page.locator('.project-schedule-scroll');
+  if (!await schedule.count()) return;
+  await expect(schedule).toBeVisible();
+  await expect(page.locator('.schedule-track').first()).toHaveCSS('overflow-x', 'hidden');
+  await expect(page.locator('.schedule-row-label').first()).toHaveCSS('background-color', 'rgb(255, 255, 255)');
+  const labels = page.locator('.schedule-header-track span');
+  const boxes = await labels.evaluateAll((items) => items.map((label) => label.getBoundingClientRect()).map(({ x }) => ({ x })));
+  if (boxes.length > 1) expect(boxes[1].x - boxes[0].x).toBeCloseTo(126, 0);
+  await expect(page.locator('.schedule-grid-minor').first()).toHaveCSS('width', '1px');
+  await expect(page.locator('.schedule-grid-major').first()).toHaveCSS('width', '2px');
+  await expect(page.locator('.project-end-marker span')).not.toHaveText('Project end');
+});
+
+test('keeps the project activity editor compact and its actions fully reachable', async ({ page }) => {
+  const project = page.locator('.mobile-list a[href^="/projects/"]').first();
+  await expect(project, 'The E2E account must contain at least one active project').toHaveCount(1);
+  await project.click();
+  const activity = page.locator('.project-activity-row').first();
+  await expect(activity, 'The E2E project must contain at least one activity').toHaveCount(1);
+  const addActivity = page.getByRole('button', { name: 'Add activity', exact: true });
+  await expect(addActivity).toHaveCSS('white-space', 'nowrap');
+  expect(await addActivity.evaluate((button) => getComputedStyle(button).display)).toMatch(/flex/);
+  await activity.click();
+
+  const panel = page.getByRole('dialog', { name: /.+/ });
+  await expect(panel).toBeVisible();
+  const disclosureStates = await panel.locator('.form-disclosure').evaluateAll((items) => items.map((item) => (item as HTMLDetailsElement).open));
+  expect(disclosureStates).toEqual([true, false, false, false, false, false]);
+  await expect(panel.locator('.structured-form')).toHaveCSS('gap', '10px');
+  const required = panel.locator('label[for="name"] .required-mark');
+  const nameInput = panel.getByLabel('Activity name');
+  const requiredBox = await required.boundingBox();
+  const inputBox = await nameInput.boundingBox();
+  const labelTextBox = await panel.locator('label[for="name"]').evaluate((label) => {
+    const text = label.firstChild;
+    if (!text) return null;
+    const range = document.createRange();
+    range.selectNode(text);
+    const { x, y, width, height } = range.getBoundingClientRect();
+    return { x, y, width, height };
+  });
+  expect(requiredBox).not.toBeNull();
+  expect(inputBox).not.toBeNull();
+  expect(labelTextBox).not.toBeNull();
+  expect(Math.abs(requiredBox!.y - labelTextBox!.y)).toBeLessThan(3);
+  expect(requiredBox!.x - (labelTextBox!.x + labelTextBox!.width)).toBeLessThan(6);
+  expect(inputBox!.y).toBeGreaterThan(labelTextBox!.y + labelTextBox!.height);
+  await panel.locator('summary').filter({ hasText: 'Schedule and notes' }).click();
+  const notes = panel.getByLabel('Notes');
+  const notesSection = notes.locator('xpath=ancestor::fieldset');
+  const notesBox = await notes.boundingBox();
+  const notesSectionBox = await notesSection.boundingBox();
+  expect(notesBox).not.toBeNull();
+  expect(notesSectionBox).not.toBeNull();
+  expect(notesBox!.width).toBeGreaterThan(notesSectionBox!.width * .85);
+  for (const field of [panel.getByLabel('Start date'), panel.getByLabel('Due date')]) {
+    const fieldBox = await field.boundingBox();
+    expect(fieldBox).not.toBeNull();
+    expect(fieldBox!.x).toBeGreaterThanOrEqual(notesSectionBox!.x);
+    expect(fieldBox!.x + fieldBox!.width).toBeLessThanOrEqual(notesSectionBox!.x + notesSectionBox!.width);
+    expect(fieldBox!.width).toBeLessThanOrEqual(notesBox!.width + 1);
+  }
+
+  for (const legend of ['Activity team members', 'External links', 'Prerequisites']) {
+    await expect(panel.locator('legend').filter({ hasText: legend })).toBeHidden();
+  }
+
+  const actions = panel.locator('.structured-form>.form-actions');
+  await actions.scrollIntoViewIfNeeded();
+  const actionsBox = await actions.boundingBox();
+  expect(actionsBox).not.toBeNull();
+  expect(actionsBox!.y + actionsBox!.height).toBeLessThanOrEqual(844);
+  await expect(actions.getByRole('button', { name: 'Cancel', exact: true })).toBeVisible();
+  await expect(actions.getByRole('button', { name: 'Save', exact: true })).toBeVisible();
 });

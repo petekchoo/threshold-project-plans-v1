@@ -19,11 +19,13 @@ The first persistent smoke suite covers the regressions most likely to escape co
 
 | Surface | Mobile, 390 × 844 | Desktop, 1440 × 900 |
 | --- | --- | --- |
-| Navigation | Route-aware bottom navigation; hidden sidebar; accessible More dialog, focus, Escape, and focus return | Sidebar remains visible; mobile navigation remains hidden |
-| Lists and filters | Activity cards replace the table; filters disclose, count, and clear | Tables and expanded filters remain visible |
+| Navigation | In-flow linked Threshold header; hidden sidebar and bottom navigation; complete route-aware drawer with focus, Escape, and focus return | Sidebar remains visible; mobile header remains hidden |
+| Lists and filters | Activity cards replace the table and omit secondary priority while elevating overdue state; activity and project filters disclose, count, and clear; project status, owner, type, end date, sort, archive, and count remain contained; custom checkboxes preserve 20px geometry and accessible labels | Tables and the complete activity/project filter sets remain expanded with the same shared checkbox treatment |
 | Project editor | Add team member remains available; Save and Cancel stay inside the viewport and dialog | Add team member and actions remain available and contained |
 | Validation | Error summary, linked inline error, invalid state, and focus on the first invalid field | Covered through the same shared editor implementation |
-| Project detail | Covered by the narrow editor regression | Existing schedule remains visible, and only one Add activity action is exposed |
+| Overview | Shared project tiles show exactly aligned project-window and activity-progress tracks; project dates frame elapsed time and Today appears only inside the window; desktop-only timeline ranges remain hidden while Draft and Completed controls remain usable on a dedicated row beneath the title | Timeline range controls remain visible and functional |
+| Project and activity detail | Fixed daily schedule spacing, weekly Monday labels, and the dated end marker remain legible while opaque row labels mask bars at the boundary; the read-only activity summary forms an equal 2×2 grid with a Dates label; Add activity does not wrap; the project activity editor opens only Activity details initially and keeps required markers, nested sections, full-width Notes, and final actions visually contained | The same fixed schedule scale remains visible, the activity summary uses four equal cells, and only one Add activity action is exposed |
+| Administration | Rows and their actions remain contained at the narrow viewport | Cards retain the shared visual primitives and layout |
 
 ## Execution policy
 
@@ -35,7 +37,7 @@ The first persistent smoke suite covers the regressions most likely to escape co
 
 ## Future slices
 
-- Add isolated authentication, overview, activity-editor disclosure, timeline Today marker, dependency, and administration journeys.
+- Add isolated authentication, deeper overview interactions, validation-driven activity-editor disclosure, dependency, and administration journeys.
 - Add create/edit/archive tests only with disposable seeded fixtures and teardown. They must not write to a shared development or production project.
 - Add a required GitHub Actions browser-test job after a dedicated CI account or disposable local Supabase fixture lifecycle is available.
 

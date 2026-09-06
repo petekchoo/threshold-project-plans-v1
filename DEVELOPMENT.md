@@ -83,3 +83,12 @@ Supabase authentication and project linking are machine-local. Verify them with 
 5. Complete the post-merge branch cleanup above and leave local `main`, `origin/main`, and migration history synchronized.
 
 Treat `TASKS.md` as the durable operational handoff as well as the work list. Refresh its active entry for material pre-merge transitions that affect readiness, including linked deployment, completion of final verification, pull-request creation, and check or review outcomes. After a successful merge and cleanup, do not open a documentation-only pull request solely to replace a pending-merge handoff with the completed merge state. Reconcile the prior merge and activate the next work in the first commit of the next implementation branch. If no subsequent work is planned, a documentation-only completion pull request may be used when preserving a final durable handoff is valuable. Before ending or restarting a Codex session, compare the active entry with the current branch, linked migration state when applicable, and GitHub pull-request/check state; record links or identifiers needed to resume without relying on chat history.
+
+### Post-merge continuation decision
+
+After a successful merge, branch cleanup, and synchronization of local `main`, ask the user whether they are continuing immediately into another feature or wrapping up the work session.
+
+- **Continuing immediately:** update the completed-merge handoff locally, commit it on local `main`, and start the next feature branch from that local commit. Carry the handoff commit through the next feature pull request. Do not push the local-only handoff commit directly to `origin/main`.
+- **Wrapping up:** ask whether the completed-merge handoff should be preserved through a small documentation-only pull request. Do not push directly to `origin/main` unless the user explicitly authorizes bypassing the normal pull-request and check workflow.
+
+Before proceeding, state whether local `main` is ahead of `origin/main` and how the handoff commit will reach GitHub. Once the applicable pull request merges, remove any temporary synchronization note from `TASKS.md` and confirm local `main` matches `origin/main` again.

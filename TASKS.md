@@ -4,7 +4,7 @@ This file is the durable handoff for work that spans Codex tasks. Keep entries c
 
 See `DEVELOPMENT.md` for the new-task startup, GitHub, Supabase, verification, and synchronization workflow.
 
-Synchronization note: local `main` intentionally contains one post-merge documentation commit beyond `origin/main` at `063e581`. That commit records the completed PR #26 handoff below. Start the next task by branching from local `main`; carry this documentation commit through that feature branch and its pull request. Do not push the local-only commit directly to `origin/main`. Replace this note after the next feature PR is merged and local `main` is synchronized again.
+Synchronization note: local `main` intentionally contains post-merge documentation commits beyond `origin/main` at `063e581`. They record the completed PR #26 handoff below and make the local-handoff branching exception explicit in `DEVELOPMENT.md`. Start the next task by branching from local `main`; carry these documentation commits through that feature branch and its pull request. Do not push the local-only commits directly to `origin/main`. Replace this note after the next feature PR is merged and local `main` is synchronized again.
 
 ## Active
 

@@ -11,7 +11,7 @@ Coding agents must also follow the agent-specific authorization and documentatio
 3. Read the relevant product rules and decisions in `DESIGN.md`, expanding to the full document only for broad or uncertain scope.
 4. Inspect the executable tests identified by each applicable plan before changing implemented behavior.
 5. Check the current branch and working-tree status before editing.
-6. Fetch `origin` before branching so new work starts from current GitHub `main`.
+6. Fetch `origin` before branching. If `TASKS.md` identifies an intentional local post-merge handoff commit, branch from local `main` so that commit is carried into the next feature pull request. Otherwise, start new work from current `origin/main`.
 
 `AGENTS.md` defines the always-read sources and routing details. The generated implementation-map section in `DESIGN.md` is for readable reference and does not need to be reread after the authoritative YAML entries unless the task is checking generation or documentation consistency.
 
@@ -44,7 +44,7 @@ Before any GitHub operation in Codex, search both the initially available tools 
 
 - With the connected integration, verify access by reading the repository or pull request before performing a write.
 - Only after the user authorizes installing or using the GitHub CLI fallback, verify authentication with `gh auth status` and the repository with `gh repo view`.
-- Create focused commits on a feature branch based on current `origin/main`.
+- Create focused commits on a feature branch based on current `origin/main`, except when `TASKS.md` identifies an intentional local post-merge handoff commit; in that case, base the branch on local `main` and carry the handoff through the feature pull request.
 - Push with `git push -u origin <branch>`.
 - Open and inspect the pull request through the connected integration, or with `gh pr create` and `gh pr view` when using the CLI fallback.
 - Require successful repository verification and Vercel checks before merging.

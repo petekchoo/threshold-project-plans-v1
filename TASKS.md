@@ -8,7 +8,7 @@ Synchronization note: local `main` intentionally contains the post-merge PR #28 
 
 ## Active
 
-- No product slice is active yet. The local Next.js development server and disposable local Supabase stack were intentionally left running for the next task. Rediscover them with the documented port/status checks rather than relying on a saved process ID or LAN address. The web application remains configured through ignored `.env.local` for the shared backend; the running Docker Supabase stack is the disposable database-test environment and does not automatically back the web application.
+- QA-04 activity work-management database coverage is active on `feature/qa04-activity-database-coverage`. The new transactional pgTAP suite covers shared authenticated reads, anonymous isolation, authoritative aggregate activity saves, blocked direct writes, dependency-cycle rollback, dependency chronology, project-relative timing and exception boundaries, atomic project-start adjustment, and activity/project archive retention. The complete local database suite passes 82 assertions, and `pnpm verify` passes with 64 unit tests. Pull-request and deployment checks remain.
 
 ## Recently completed
 
@@ -22,11 +22,9 @@ Synchronization note: local `main` intentionally contains the post-merge PR #28 
 
 ## Next
 
-- Complete the `TPL-01` / `TPL-02` Slice 4 pull-request and deployment checks.
 - After Slice 4, evaluate applying the template Schedule section and staged schedule-rule modal to dated project activities. Define how adding, editing, or removing rules derives or preserves real activity dates; how competing valid placements are resolved; when date changes require a preview and confirmation; and how the interaction fits existing dependency, project-relative timing, outside-project, propagation, and project-rescheduling behavior. Treat this as discovery and design work before assigning a requirement or implementation slice.
 - Establish a dedicated development Supabase backend for local application testing, separate from production. Define safe environment selection, credentials, migration promotion, seed/disposable fixture handling, and safeguards against accidental production writes. Docker remains the disposable database-test environment until this work is intentionally started.
 - Extend scheduling unit coverage as later project-rescheduling slices and dependency behaviors are implemented (`QA-03`).
-- Add database integration tests for dependency, timing, archive, and RLS behavior (`QA-04`).
 - Extend QA-05 beyond the responsive smoke slice with disposable-fixture authentication, overview, CRUD, dependency, timeline, and administration journeys, then make it a required CI job.
 
 ## Distant future

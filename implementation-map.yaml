@@ -32,6 +32,11 @@ verification_catalog:
     command: pnpm db:test
     test_files:
       - supabase/tests/prj06_project_rescheduling.sql
+  - id: activity-work-management-database
+    kind: database
+    command: pnpm db:test
+    test_files:
+      - supabase/tests/activity_work_management.sql
   - id: template-database
     kind: database
     command: pnpm db:test
@@ -94,11 +99,13 @@ groups:
         Coverage: Implemented
         Verification / known gap: Manual UI; no automated auth tests.
       - ID: AUTH-02
+        verification:
+          - activity-work-management-database
         Capability: Universal authenticated access to shared MVP data
         Primary implementation: "`lib/data/planning-data.ts` (`loadData`); `lib/supabase.ts`"
         Database / persistence: RLS policies named `authenticated shared access` in `202608290001_initial_schema.sql`
         Coverage: Implemented
-        Verification / known gap: Database policy inspection; role-based access intentionally deferred.
+        Verification / known gap: Transactional database coverage verifies shared authenticated project/activity reads, anonymous isolation, RPC boundaries, and denied direct aggregate writes. Role-based access is intentionally deferred.
       - ID: DATA-01
         Capability: Load shared planning data and refresh on database changes
         Primary implementation: "`lib/data/planning-data.ts` (`loadData`); `components/threshold-app.tsx` (`refresh`, `threshold-live`)"
@@ -272,17 +279,21 @@ groups:
         Coverage: Partial
         Verification / known gap: Shared text search and filters drive both lists; mobile keeps search visible and discloses secondary filters with an active count and Clear filters. True-empty and filtered-empty states are distinct. Status and priority currently sort lexically rather than by defined workflow/priority order; due-date options cover overdue and next seven days only.
       - ID: ACT-03
+        verification:
+          - activity-work-management-database
         Capability: Create and edit required dates, assigned team members, type, status, priority, notes, and project
         Primary implementation: "`components/activities/activity-form.tsx`; `components/shared/editor.tsx`; `components/activities/activity-panel.tsx`; `components/activities/activity-detail.tsx`; overview and project-detail launch points"
         Database / persistence: Authoritative `save_activity` in `202608300003_project_timing_constraints.sql`; activities and `activity_owners`
         Coverage: Implemented
-        Verification / known gap: Shared editors use progressive disclosure, 16px controls, 44px actions, required markers, inline errors, linked summaries, ARIA associations, and first-invalid focus. Activity details opens initially; every secondary section begins collapsed even when configured, summarizes its values, and opens automatically when validation requires attention. No automated CRUD test.
+        Verification / known gap: Shared editors use progressive disclosure, 16px controls, 44px actions, required markers, inline errors, linked summaries, ARIA associations, and first-invalid focus. Activity details opens initially; every secondary section begins collapsed even when configured, summarizes its values, and opens automatically when validation requires attention. Transactional database coverage verifies authoritative aggregate saves; browser CRUD coverage remains under QA-05.
       - ID: ACT-04
+        verification:
+          - activity-work-management-database
         Capability: Add multiple labeled external links through a staged modal and manage them as clickable, removable tiles
         Primary implementation: "`lib/data/planning-data.ts`; `components/activities/link-editor.tsx`; `components/activities/activity-form.tsx`; `components/activities/activity-detail.tsx`"
         Database / persistence: "`activity_links`; authoritative `save_activity` in migration `202608300003`"
         Coverage: Partial
-        Verification / known gap: Modal Save/Cancel, clickable tiles, explicit removal, and active-link filtering are implemented. Links render in the side panel rather than the specified bottom position.
+        Verification / known gap: Modal Save/Cancel, clickable tiles, explicit removal, and active-link filtering are implemented; transactional database coverage verifies link persistence through the authoritative aggregate save. Links render in the side panel rather than the specified bottom position.
       - ID: ACT-05
         Capability: Full activity detail page with schedule context, notes, assigned team members, links, and relationships
         Primary implementation: "`components/activities/activity-detail.tsx`; `/activities/[id]` route"
@@ -296,11 +307,13 @@ groups:
         Coverage: Implemented
         Verification / known gap: Client-derived overview metric and detail list share the same incomplete-and-before-today predicate; the next-seven-days list begins today and excludes overdue work. No date/time-zone unit tests.
       - ID: ACT-07
+        verification:
+          - activity-work-management-database
         Capability: Multiple assigned team members and unassigned activities
         Primary implementation: "`components/activities/team-member-picker.tsx`; `components/shared/avatar-list.tsx`; overview metric/detail list and activity filters"
         Database / persistence: "`activity_owners`; team members"
         Coverage: Implemented
-        Verification / known gap: Manual UI verifies multi-select staging and explicit removal; persistence has no automated CRUD test.
+        Verification / known gap: Manual UI verifies multi-select staging and explicit removal; transactional database coverage verifies owner persistence through the authoritative activity save. Browser CRUD coverage remains under QA-05.
   - title: Project templates
     scope: product-behavior
     design_refs:
@@ -368,11 +381,13 @@ groups:
         Coverage: Partial
         Verification / known gap: Handles direct changes to the edited dependent. PRJ-06 preserves completed-prerequisite chronology and blocks completed-dependent/incomplete-prerequisite inconsistencies during project rescheduling. Multi-level propagation, downstream impact previews, reverse prerequisite proposals, and the specified update/remove resolution are not implemented.
       - ID: DEP-04
+        verification:
+          - activity-work-management-database
         Capability: Prevent circular dependencies and explain the relationship path
         Primary implementation: Dependency candidate exclusion of self; database `prevent_dependency_cycle` trigger
         Database / persistence: "`prevent_dependency_cycle` in initial schema"
         Coverage: Partial
-        Verification / known gap: Database blocks cycles, but selection-time path detection and full-path explanation are not implemented.
+        Verification / known gap: Transactional database coverage verifies cycle rejection and aggregate rollback. Selection-time path detection and full-path explanation are not implemented.
       - ID: DEP-05
         Capability: Activity-level dependency timeline shows project, selected activity, prerequisites, and dependents with filters
         Primary implementation: "`components/activities/activity-detail.tsx` focus timeline"
@@ -380,17 +395,21 @@ groups:
         Coverage: Partial
         Verification / known gap: Project and selected activity render. Relationship lanes, dependents, direction labels, and All/Prerequisites/Dependents filters are not implemented.
       - ID: DEP-06
+        verification:
+          - activity-work-management-database
         Capability: "Complete N calendar days before project end without an additional date selection"
         Primary implementation: "`components/activities/activity-form.tsx` Project timing controls; `lib/planning/scheduling.ts` (`projectTimingDeadline`, `projectTimingConflict`)"
         Database / persistence: "Activity timing columns; end-boundary normalization and enforcement in `202608310001_project_end_timing_rules.sql`; `validate_activity_project_timing`; updated `save_activity`"
         Coverage: Implemented
-        Verification / known gap: Unit tests cover the inclusive advance-deadline boundary and calendar arithmetic. The end-boundary migration is applied; database integration coverage remains under QA-04.
+        Verification / known gap: Unit and transactional database tests cover the inclusive advance-deadline boundary, calendar arithmetic, and rejection after the deadline. The end-boundary migration is applied.
       - ID: DEP-07
+        verification:
+          - activity-work-management-database
         Capability: "Complete after project end and within N calendar days; start may occur earlier"
         Primary implementation: "`components/activities/activity-form.tsx` Project timing controls; `lib/planning/scheduling.ts` (`projectTimingDeadline`, `projectTimingConflict`)"
         Database / persistence: "Activity timing columns; validation triggers; `202609030001_post_project_finish_window.sql`; authoritative `save_activity`"
         Coverage: Implemented
-        Verification / known gap: Both inclusive finish-window boundaries and after-project warning suppression are scoped to the finish date. Unit tests cover calendar and conflict-message boundaries; the migration is applied and its preflight found no incompatible existing records. Database integration coverage remains under QA-04.
+        Verification / known gap: Both inclusive finish-window boundaries and after-project warning suppression are scoped to the finish date. Unit and transactional database tests cover the post-project window boundaries; the migration is applied and its preflight found no incompatible existing records.
       - ID: DEP-08
         Capability: Neutral, factual scheduling warnings identify dates and quantify differences
         Primary implementation: "`lib/planning/scheduling.ts` (`projectTimingConflict`); dependency adjustment and outside-window copy in `components/activities/activity-form.tsx`"
@@ -398,17 +417,21 @@ groups:
         Coverage: Partial
         Verification / known gap: New timing messages follow the convention. Older archive and dependency messages need a comprehensive language review.
       - ID: DEP-09
+        verification:
+          - activity-work-management-database
         Capability: Activities may finish after project end with an explicit exception
         Primary implementation: "`components/activities/activity-form.tsx` (`submit`)"
         Database / persistence: "`allow_outside_project`; authoritative activity functions and restricted table grants in `202609030002_protect_activity_exceptions.sql`"
         Coverage: Implemented
-        Verification / known gap: The UI obtains confirmation for an unauthorized after-project finish. The database requires a consistent exception flag, denies direct authenticated activity-table writes, and limits the security-definer save/archive functions to authenticated callers. The migration preflight found no inconsistent existing flags; automated database integration coverage remains under QA-04.
+        Verification / known gap: The UI obtains confirmation for an unauthorized after-project finish. Transactional database tests verify consistent exception flags, denied direct authenticated writes, and authenticated/anonymous function boundaries. The migration preflight found no inconsistent existing flags.
       - ID: DEP-10
+        verification:
+          - activity-work-management-database
         Capability: Project start is on or before every active activity start; an earlier activity atomically proposes moving project start
         Primary implementation: "`components/activities/activity-form.tsx`; `components/projects/project-form.tsx`; `lib/planning/scheduling.ts` (`movesProjectStart`)"
         Database / persistence: "`validate_activity_project_timing`; `validate_project_activity_timing`; `save_activity` in `202608300004_project_start_envelope.sql`"
         Coverage: Implemented
-        Verification / known gap: Client and database enforcement are implemented; automated boundary and transaction tests remain under `QA-03` and `QA-04`.
+        Verification / known gap: Client and database enforcement are implemented; transactional database coverage verifies rejection and the authorized atomic project-start adjustment. Additional client boundary tests remain under QA-03.
   - title: Administration, archives, responsive design, and presentation
     scope: product-presentation
     design_refs:
@@ -436,23 +459,29 @@ groups:
         Coverage: Partial
         Verification / known gap: Archived rows appear through filters, but their detail routes resolve only active records and therefore render no detail content.
       - ID: ARC-02
+        verification:
+          - activity-work-management-database
         Capability: Archive projects and their activities/links/dependencies
         Primary implementation: "`components/projects/project-detail.tsx` (`archiveProject`)"
         Database / persistence: "`archive_project`"
         Coverage: Implemented
-        Verification / known gap: Confirmation exists; no restore flow.
+        Verification / known gap: Confirmation exists; transactional database coverage verifies retained project, activity, link, and cross-project dependency archive markers. No restore flow.
       - ID: ARC-03
+        verification:
+          - activity-work-management-database
         Capability: Archive an activity with downstream-impact preview and archive affected relationships
         Primary implementation: No complete UI entry point
         Database / persistence: "`archive_activity` in migration `202608300002` archives the activity, links, and relationships"
         Coverage: Partial
-        Verification / known gap: Database function exists but is unreachable from the app. Activity archive control and required downstream-impact preview are missing.
+        Verification / known gap: Transactional database coverage verifies that the function retains and marks the activity, its links, and incoming and outgoing dependencies while leaving downstream activities active. The function is unreachable from the app; the activity archive control and required downstream-impact preview are missing.
       - ID: ARC-04
+        verification:
+          - activity-work-management-database
         Capability: Retain archived dependency relationships for history while hiding them and excluding them from scheduling/cycle logic
         Primary implementation: "`lib/data/planning-data.ts` filters active dependencies"
         Database / persistence: "`archive_activity`; `archive_project`; `prevent_dependency_cycle`; dependency `archived_at`"
         Coverage: Implemented
-        Verification / known gap: Active scheduling and cycle traversal ignore archived relationships. No visible history surface or integration test exists.
+        Verification / known gap: Active scheduling and cycle traversal ignore archived relationships. Transactional database coverage verifies that activity and project archive operations retain dependency rows with archive markers. No visible history surface exists.
       - ID: RSP-01
         Capability: Full desktop and mobile creation/editing
         Primary implementation: Feature forms; `components/shell/*`; `components/overview/project-card.tsx`; responsive CSS
@@ -509,10 +538,11 @@ groups:
       - ID: QA-04
         verification:
           - prj06-database
+          - activity-work-management-database
         Capability: Database integration tests
-        Current implementation: "PRJ-06 pgTAP suite in `supabase/tests/prj06_project_rescheduling.sql`; explicit-barrier concurrency harness in `scripts/test-prj06-concurrency.sh`; transactional live verification migrations `202609040002`, `202609040005`, `202609040006`, and `202609040008`"
+        Current implementation: "PRJ-06 pgTAP suite in `supabase/tests/prj06_project_rescheduling.sql`; activity work-management pgTAP suite in `supabase/tests/activity_work_management.sql`; explicit-barrier concurrency harness in `scripts/test-prj06-concurrency.sh`; transactional live verification migrations `202609040002`, `202609040005`, `202609040006`, and `202609040008`"
         Coverage: Partial
-        Next verification need: PRJ-06 covers atomic success/rollback, timing rules, exceptions, archive behavior, permissions, stale fingerprints, and the complete scoped-lock concurrency matrix. Extend reusable database coverage to activity saves, cycle rejection, and broader RLS behavior.
+        Next verification need: Reusable pgTAP coverage now verifies authoritative activity aggregate saves, owners, links, dependencies, cycle rollback, dependency chronology, timing and exception boundaries, project-start adjustment, archive retention, shared authenticated reads, anonymous isolation, and denied direct writes. PRJ-06 separately covers atomic rescheduling, stale fingerprints, and the complete scoped-lock concurrency matrix. Extend coverage to administration writes and more granular RLS policy cases as those authorization rules evolve.
       - ID: QA-05
         verification:
           - qa05-browser-smoke

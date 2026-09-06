@@ -1,8 +1,8 @@
 import { supabase } from '../supabase';
-import type { Activity, AppData, Dependency, Project, ProjectTemplate, ProjectTemplateActivity } from '../planning/types';
+import type { Activity, AppData, Dependency, Project, ProjectTemplate, ProjectTemplateActivity, ProjectTemplateActivityRule } from '../planning/types';
 
 export async function loadData(): Promise<AppData> {
-  const [p, a, m, pt, at, d, templates, templateActivities] = await Promise.all([
+  const [p, a, m, pt, at, d, templates, templateActivities, templateRules] = await Promise.all([
     supabase.from('projects').select('*,project_types(*),project_owners(team_members(*))').order('start_date'),
     supabase
       .from('activities')
@@ -14,10 +14,11 @@ export async function loadData(): Promise<AppData> {
     supabase.from('activity_dependencies').select('*').is('archived_at', null),
     supabase.from('project_templates').select('*,project_types(*)').order('name'),
     supabase.from('project_template_activities').select('*,activity_types(*)').order('sort_order'),
+    supabase.from('project_template_activity_rules').select('*').order('sort_order'),
   ]);
 
-  if (p.error || a.error || m.error || pt.error || at.error || d.error || templates.error || templateActivities.error) {
-    throw p.error || a.error || m.error || pt.error || at.error || d.error || templates.error || templateActivities.error;
+  if (p.error || a.error || m.error || pt.error || at.error || d.error || templates.error || templateActivities.error || templateRules.error) {
+    throw p.error || a.error || m.error || pt.error || at.error || d.error || templates.error || templateActivities.error || templateRules.error;
   }
 
   const dependencies = (d.data || []) as Dependency[];
@@ -27,7 +28,11 @@ export async function loadData(): Promise<AppData> {
     activity_dependencies: dependencies.filter((dependency) => dependency.activity_id === activity.id),
   }));
   const allProjects = (p.data || []) as Project[];
-  const allTemplateActivities = (templateActivities.data || []) as ProjectTemplateActivity[];
+  const allTemplateRules = (templateRules.data || []) as ProjectTemplateActivityRule[];
+  const allTemplateActivities = ((templateActivities.data || []) as Omit<ProjectTemplateActivity, 'rules'>[]).map((activity) => ({
+    ...activity,
+    rules: allTemplateRules.filter((rule) => rule.template_activity_id === activity.id),
+  }));
   const allTemplates = ((templates.data || []) as Omit<ProjectTemplate, 'activities'>[]).map((template) => ({
     ...template,
     activities: allTemplateActivities.filter((activity) => activity.template_id === template.id && !activity.archived_at),

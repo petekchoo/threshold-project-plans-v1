@@ -1,103 +1,101 @@
 import { addDays } from './dates';
-
-export type TemplateScheduleRule =
-  | 'finish_before_project_end'
-  | 'finish_after_project_end'
-  | 'start_after_activity_finish'
-  | 'finish_after_activity_finish';
+import type { ProjectTemplateActivityRule, TemplateScheduleRule } from './types';
 
 export type TemplateScheduleActivity = {
   id: string;
   name: string;
-  schedule_rule: TemplateScheduleRule;
-  offset_days: number;
   duration_days: number;
-  relative_activity_id?: string | null;
+  rules: Pick<ProjectTemplateActivityRule, 'schedule_rule' | 'offset_days' | 'relative_activity_id'>[];
 };
 
-export type ResolvedTemplateActivity = TemplateScheduleActivity & {
-  start_date: string;
-  due_date: string;
-};
-
-export type TemplateSchedule = {
-  project_start_date: string;
-  project_end_date: string;
-  activities: ResolvedTemplateActivity[];
-};
+export type ResolvedTemplateActivity = TemplateScheduleActivity & { start_date: string; due_date: string };
+export type TemplateSchedule = { project_start_date: string; project_end_date: string; activities: ResolvedTemplateActivity[] };
 
 const activityRule = (rule: TemplateScheduleRule) =>
   rule === 'start_after_activity_finish' || rule === 'finish_after_activity_finish';
 
-export function resolveTemplateSchedule(
-  activities: TemplateScheduleActivity[],
-  projectEndDate: string,
-): TemplateSchedule {
+export function resolveTemplateSchedule(activities: TemplateScheduleActivity[], projectEndDate: string): TemplateSchedule {
   if (!activities.length) throw new Error('Add at least one activity before using this template.');
   if (!/^\d{4}-\d{2}-\d{2}$/.test(projectEndDate)) throw new Error('Enter a valid project end date.');
-
   const byId = new Map(activities.map((activity) => [activity.id, activity]));
-  const resolved = new Map<string, ResolvedTemplateActivity>();
-  const visiting = new Set<string>();
+  const latestFinish = new Map<string, number>();
 
-  const visit = (id: string): ResolvedTemplateActivity => {
-    const existing = resolved.get(id);
-    if (existing) return existing;
-    const activity = byId.get(id);
-    if (!activity) throw new Error('A template activity reference is missing.');
-    if (visiting.has(id)) throw new Error(`The schedule contains a cycle involving “${activity.name}”.`);
-    if (!Number.isInteger(activity.offset_days) || activity.offset_days < 0)
-      throw new Error(`“${activity.name}” needs a non-negative whole-day offset.`);
-    if (!Number.isInteger(activity.duration_days) || activity.duration_days < 0)
-      throw new Error(`“${activity.name}” needs a non-negative whole-day duration.`);
-    if (activity.schedule_rule === 'finish_after_project_end' && activity.offset_days < 1)
-      throw new Error(`“${activity.name}” must finish at least one day after project end.`);
-
-    visiting.add(id);
-    let startDate: string;
-    let dueDate: string;
-
-    if (activityRule(activity.schedule_rule)) {
-      if (!activity.relative_activity_id)
-        throw new Error(`“${activity.name}” needs a referenced template activity.`);
-      if (activity.relative_activity_id === id)
-        throw new Error(`“${activity.name}” cannot reference itself.`);
-      const reference = visit(activity.relative_activity_id);
-      if (activity.schedule_rule === 'start_after_activity_finish') {
-        startDate = addDays(reference.due_date, activity.offset_days);
-        dueDate = addDays(startDate, activity.duration_days);
-      } else {
-        dueDate = addDays(reference.due_date, activity.offset_days);
-        startDate = addDays(dueDate, -activity.duration_days);
-      }
-    } else {
-      if (activity.relative_activity_id)
+  for (const activity of activities) {
+    if (!Number.isInteger(activity.duration_days) || activity.duration_days < 1)
+      throw new Error(`“${activity.name}” needs a duration of at least one day.`);
+    for (const rule of activity.rules) {
+      if (!Number.isInteger(rule.offset_days) || rule.offset_days < 0)
+        throw new Error(`“${activity.name}” needs a non-negative whole-day offset.`);
+      if (rule.schedule_rule === 'finish_after_project_end' && rule.offset_days < 1)
+        throw new Error(`“${activity.name}” must finish at least one day after project end.`);
+      if (activityRule(rule.schedule_rule)) {
+        if (!rule.relative_activity_id || !byId.has(rule.relative_activity_id))
+          throw new Error(`“${activity.name}” needs a referenced template activity.`);
+        if (rule.relative_activity_id === activity.id) throw new Error(`“${activity.name}” cannot reference itself.`);
+      } else if (rule.relative_activity_id) {
         throw new Error(`“${activity.name}” cannot reference another activity with its project-end rule.`);
-      dueDate = addDays(
-        projectEndDate,
-        activity.schedule_rule === 'finish_before_project_end'
-          ? -activity.offset_days
-          : activity.offset_days,
-      );
-      startDate = addDays(dueDate, -activity.duration_days);
+      }
+      if (rule.schedule_rule === 'finish_before_project_end')
+        latestFinish.set(activity.id, Math.min(latestFinish.get(activity.id) ?? Infinity, -rule.offset_days));
+      if (rule.schedule_rule === 'finish_after_project_end')
+        latestFinish.set(activity.id, Math.min(latestFinish.get(activity.id) ?? Infinity, rule.offset_days));
     }
+  }
 
+  const edges = activities.flatMap((activity) => activity.rules
+    .filter((rule) => activityRule(rule.schedule_rule))
+    .map((rule) => ({ activity, rule, reference: byId.get(rule.relative_activity_id!)! })));
+  const visiting = new Set<string>();
+  const visited = new Set<string>();
+  const visit = (id: string) => {
+    if (visiting.has(id)) throw new Error('The schedule contains a cycle.');
+    if (visited.has(id)) return;
+    visiting.add(id);
+    for (const edge of edges) if (edge.activity.id === id) visit(edge.reference.id);
     visiting.delete(id);
-    const result = { ...activity, start_date: startDate, due_date: dueDate };
-    resolved.set(id, result);
-    return result;
+    visited.add(id);
   };
+  for (const activity of activities) visit(activity.id);
+  for (let pass = 0; pass < activities.length; pass += 1) {
+    let changed = false;
+    for (const { activity, rule, reference } of edges) {
+      const dependentLatest = latestFinish.get(activity.id);
+      if (dependentLatest === undefined) continue;
+      const bound = rule.schedule_rule === 'start_after_activity_finish'
+        ? dependentLatest - (activity.duration_days - 1) - rule.offset_days
+        : dependentLatest - rule.offset_days;
+      if (bound < (latestFinish.get(reference.id) ?? Infinity)) {
+        latestFinish.set(reference.id, bound);
+        changed = true;
+      }
+    }
+    if (!changed) break;
+    if (pass === activities.length - 1) throw new Error('The schedule contains a cycle.');
+  }
+  const unbounded = activities.find((activity) => !Number.isFinite(latestFinish.get(activity.id)));
+  if (unbounded) throw new Error(`“${unbounded.name}” does not trace to a project-end rule.`);
 
-  const resolvedActivities = activities.map((activity) => visit(activity.id));
+  for (const { activity, rule, reference } of edges) {
+    const due = latestFinish.get(activity.id)!;
+    const start = due - (activity.duration_days - 1);
+    const referenceDue = latestFinish.get(reference.id)!;
+    const valid = rule.schedule_rule === 'start_after_activity_finish'
+      ? start >= referenceDue + rule.offset_days
+      : due >= referenceDue + rule.offset_days;
+    if (!valid) throw new Error(`“${activity.name}” has schedule rules that cannot coexist.`);
+  }
+  for (const activity of activities) for (const rule of activity.rules) {
+    if (rule.schedule_rule === 'finish_after_project_end' && latestFinish.get(activity.id)! <= 0)
+      throw new Error(`“${activity.name}” has schedule rules that cannot coexist.`);
+  }
+
+  const resolvedActivities = activities.map((activity) => {
+    const due_date = addDays(projectEndDate, latestFinish.get(activity.id)!);
+    return { ...activity, due_date, start_date: addDays(due_date, -(activity.duration_days - 1)) };
+  });
   const earliestStart = resolvedActivities.reduce(
-    (earliest, activity) => (activity.start_date < earliest ? activity.start_date : earliest),
+    (earliest, activity) => activity.start_date < earliest ? activity.start_date : earliest,
     projectEndDate,
   );
-
-  return {
-    project_start_date: earliestStart,
-    project_end_date: projectEndDate,
-    activities: resolvedActivities,
-  };
+  return { project_start_date: earliestStart, project_end_date: projectEndDate, activities: resolvedActivities };
 }
-

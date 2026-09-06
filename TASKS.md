@@ -4,11 +4,11 @@ This file is the durable handoff for work that spans Codex tasks. Keep entries c
 
 See `DEVELOPMENT.md` for the new-task startup, GitHub, Supabase, verification, and synchronization workflow.
 
-Synchronization note: local `main` intentionally contains a post-merge handoff commit beyond `origin/main` at merge commit `ef49009`. It records the completed PR #27 release and tomorrow's review priority. Start the next task by branching from local `main`; carry this documentation commit through that feature branch and its pull request. Do not push the local-only commit directly to `origin/main`. Replace this note after the next feature PR is merged and local `main` is synchronized again.
+Synchronization note: branch `feature/template-multiple-constraints` starts from local `main`, which intentionally contained the post-merge PR #27 handoff commit beyond `origin/main`. Carry that handoff through this feature branch and its pull request. Do not push the local-only commit directly to `origin/main`. Replace this note after the feature PR is merged and local `main` is synchronized again.
 
 ## Active
 
-- Next session: conduct a detailed desktop and physical-mobile review of the complete `TPL-01` / `TPL-02` template authoring and project-from-template journeys. Capture usability observations and desired refinements first, classify each against the confirmed template contract, then agree the next scoped implementation slice before editing.
+- `TPL-01` / `TPL-02` Slice 4 is implemented on `feature/template-multiple-constraints`: duration is a positive inclusive activity detail defaulting to one day; the blank Schedule section supports staged add/edit/remove rules; preview and atomic materialization use the latest valid project-end-traceable schedule and reject cycles or contradictory graphs. Migrations `202609060002_template_multiple_constraints.sql` and `202609060003_derive_unruled_template_prerequisites.sql` are applied to the linked backend; the follow-up permits a prerequisite's dates to be derived from an anchored dependent. Empty-state migration replay, 64 unit checks, 45 database assertions, traceability verification, and production build pass. Authorized desktop, 390×844, and physical-phone-origin review covered migrated one-day values, blank scheduling, staged rule add/edit/remove, conditional activity controls, nested creation, accessible removal, responsive containment, compact activity-count sizing, and globally wrapped table metadata. Chrome iOS form-attribute hydration noise is removed narrowly before hydration, temporary schedule-rule IDs no longer depend on secure-context-only `crypto.randomUUID` at the HTTP LAN origin, offset zero can be cleared and replaced, newly created referenced activities retain their real names immediately, the activity table summarizes explicit and inverse relationships, and the activity editor links read-only incoming relationships back to the activity where each rule is managed. Data-changing browser coverage remains deferred to disposable QA-05 fixtures.
 
 ## Recently completed
 
@@ -21,7 +21,8 @@ Synchronization note: local `main` intentionally contains a post-merge handoff c
 
 ## Next
 
-- Review `TPL-01` / `TPL-02` end to end and turn the agreed findings into a bounded follow-up slice.
+- Complete the `TPL-01` / `TPL-02` Slice 4 pull-request and deployment checks.
+- After Slice 4, evaluate applying the template Schedule section and staged schedule-rule modal to dated project activities. Define how adding, editing, or removing rules derives or preserves real activity dates; how competing valid placements are resolved; when date changes require a preview and confirmation; and how the interaction fits existing dependency, project-relative timing, outside-project, propagation, and project-rescheduling behavior. Treat this as discovery and design work before assigning a requirement or implementation slice.
 - Establish a dedicated development Supabase backend for local application testing, separate from production. Define safe environment selection, credentials, migration promotion, seed/disposable fixture handling, and safeguards against accidental production writes. Docker remains the disposable database-test environment until this work is intentionally started.
 - Extend scheduling unit coverage as later project-rescheduling slices and dependency behaviors are implemented (`QA-03`).
 - Add database integration tests for dependency, timing, archive, and RLS behavior (`QA-04`).

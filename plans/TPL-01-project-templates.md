@@ -25,28 +25,22 @@ It does not store a project description, status, dates, team members, notes, or 
 
 ### Template activity
 
-A template activity stores, in editor order:
+A template activity stores a required name, required active activity type, stable identifier, display order, one positive integer calendar-day duration, and one or more scheduling constraints. Each constraint stores a required rule, one integer calendar-day offset, and an activity reference when the rule requires one. It does not store status, priority, team members, notes, or links.
 
-1. a required scheduling rule;
-2. one integer calendar-day offset;
-3. one integer calendar-day duration;
+Duration belongs to the activity rather than to a constraint. It defaults to `1`, cannot be zero or negative, and uses inclusive calendar-day counting: `1` produces a same-day activity and `N` produces a finish `N - 1` calendar days after its start. Offset is always entered as a non-negative magnitude; the selected rule supplies its direction and anchor.
 
-It also stores a required name, required active activity type, stable identifier, and display order. It does not store status, priority, team members, notes, or links.
+Supported constraints:
 
-Duration is elapsed calendar-day distance: `0` produces a same-day activity and `N` produces a finish `N` calendar days after its start. Offset is always entered as a non-negative magnitude; the selected rule supplies its direction and anchor.
-
-Supported rules:
-
-| Rule | Required reference | Date formula | Generated constraint |
+| Constraint | Required reference | Boundary | Generated constraint |
 | --- | --- | --- | --- |
-| Finish before project end | None | `finish = project end - offset`; `start = finish - duration` | Advance project-end timing rule |
-| Finish after project end | None | `finish = project end + offset`; `start = finish - duration` | Post-project timing rule and outside-project exception |
-| Start after activity finishes | Another activity in this template | `start = referenced finish + offset`; `finish = start + duration` | Finish-to-start dependency |
-| Finish after activity finishes | Another activity in this template | `finish = referenced finish + offset`; `start = finish - duration` | Finish-to-finish dependency |
+| Finish before project end | None | `finish <= project end - offset` | Advance project-end timing rule |
+| Finish after project end | None | `project end < finish <= project end + offset` | Post-project timing rule and outside-project exception |
+| Start after activity finishes | Another activity in this template | `start >= referenced finish + offset` | Finish-to-start dependency |
+| Finish after activity finishes | Another activity in this template | `finish >= referenced finish + offset` | Finish-to-finish dependency |
 
-`Finish after project end` requires an offset of at least one. All other rules permit zero. A reference cannot target the same activity.
+`Finish after project end` requires an offset of at least one. All other constraints permit zero. A reference cannot target the same activity.
 
-Each template activity has exactly one primary scheduling rule. Display order and creation order do not affect schedule resolution. Every activity-relative reference chain must be acyclic and terminate at an activity directly anchored to project end.
+The resolver places every activity as late as possible while satisfying every constraint and preserving its duration. The result must be deterministic and independent of display or creation order. Every activity must connect directly or transitively to project end, the graph must be acyclic and bounded, and all constraints must be jointly satisfiable. A referenced prerequisite may have no rule of its own when an incoming relationship from an anchored dependent supplies its finite latest placement. A graph with no latest finite placement or with contradictory bounds is invalid.
 
 ## Authoring journey (`TPL-01`)
 
@@ -54,7 +48,13 @@ Each template activity has exactly one primary scheduling rule. Display order an
 - The list supports text search, creation, editing, archive visibility, and archiving.
 - A template derives **Ready** when it contains at least one activity and its complete graph satisfies this contract. Otherwise it derives **Needs setup**; this is not stored workflow status.
 - Needs-setup templates remain editable but do not appear in the project-from-template picker.
-- The activity editor requires name, type, rule, offset, and duration before saving.
+- The activity editor presents name, type, and duration once in activity details, with duration defaulting to `1`. It prevents zero and negative duration entries.
+- The **Schedule** section starts blank and shows **+ Add schedule rule**, matching the staged-item interaction used for links and team members. Selecting it opens a rule editor containing the rule dropdown and offset input.
+- Selecting an activity-relative rule reveals the activity dropdown and an inline **+ Create activity** action. Project-relative rules do not show an activity selector.
+- Saving a complete rule adds a readable row to the Schedule section. Selecting the row reopens that rule for editing. Each saved row also has a separate trash-icon Remove action with an accessible name and a touch-friendly target.
+- An activity may be saved while its Schedule section is blank. It can participate in a Ready template when another project-end-connected activity references it and the complete graph resolves its finite latest placement; otherwise it remains disconnected and the template remains Needs setup.
+- The template activity table shows each activity’s explicit rules and derived incoming relationships. Start dependencies read **Can’t start until [activity] is complete** on the dependent and **[dependent] can’t start until this is complete** on the reference. Finish dependencies use the corresponding **can’t finish** wording. Both directions include the configured offset.
+- In the activity editor, incoming relationships appear in a separate read-only **Targeted by other activities** section beneath Schedule. They cannot be edited or removed from the referenced activity, but each row opens the targeting template activity where the rule is managed.
 - Activity-relative rules require an existing referenced activity. Their selector provides an inline **Create activity** path; after the new activity saves, the user returns to the original editor with it selected.
 - The database validates references, rule shapes, offset bounds, cycles, and complete project-end reachability rather than trusting UI ordering.
 - Templates and template activities are archived rather than permanently deleted in normal use. An archived template is omitted from creation choices. Existing projects are unaffected.
@@ -78,12 +78,14 @@ Each template activity has exactly one primary scheduling rule. Display order an
 A template is not Ready when any of these conditions exists:
 
 - no active template activities;
-- missing name, type, rule, offset, or duration;
-- a negative offset or duration;
+- missing name, type, duration, or fields within a rule that has been added;
+- a zero or negative duration, or a negative offset;
 - a project-after offset below one;
 - a missing, cross-template, archived, or self reference;
 - a reference cycle;
-- a reference chain that does not reach a project-end anchor;
+- an activity that has no direct or transitive trace to project end;
+- an unbounded graph for which no latest finite schedule exists;
+- constraints whose lower and upper bounds cannot coexist for the activity durations;
 - an archived or missing project/activity type.
 
 Materialization repeats authoritative validation in the same transaction. A stale or newly invalid template fails without creating any project records.
@@ -105,6 +107,16 @@ Materialization repeats authoritative validation in the same transaction. A stal
 
 - Add-project choice, searchable Ready-template picker, minimal name/end-date form, schedule preview, atomic confirmation, and redirect to the generated project.
 
+### Slice 4 — positive inclusive durations and multiple constraints
+
+- Migrate existing duration values from elapsed-day distance to inclusive day count (`duration + 1`), default new activity durations to `1`, and reject zero or negative values in the UI and database.
+- Replace the single primary rule fields with ordered repeatable constraints while preserving existing templates through migration.
+- Implement deterministic latest-valid graph resolution, including project-end traceability, cycle detection, boundedness, and joint-satisfiability diagnostics.
+- Update template authoring so duration appears once in activity details and constraints can be added, edited, and removed independently.
+- Implement the blank Schedule section, **+ Add schedule rule** staged editor, conditional activity selector and inline creation path, readable saved-rule rows, row editing, and accessible trash-icon removal across desktop and mobile.
+- Materialize every constraint into the corresponding project-relative timing rule or activity dependency in the same authoritative transaction.
+- Extend unit, database, desktop, and mobile coverage for multiple compatible constraints, contradictory bounds, unbounded graphs, cycles, one-day activities, migration compatibility, and atomic rollback.
+
 ## Release gates
 
 - `pnpm map:generate`
@@ -113,4 +125,3 @@ Materialization repeats authoritative validation in the same transaction. A stal
 - `pnpm build`
 - focused desktop and 390×844 mobile core-journey coverage when live browser testing is authorized
 - repository and deployment checks before merge
-

@@ -279,9 +279,6 @@ export type Database = {
           duration_days: number
           id: string
           name: string
-          offset_days: number
-          relative_activity_id: string | null
-          schedule_rule: Database["public"]["Enums"]["template_schedule_rule"]
           sort_order: number
           template_id: string
           updated_at: string
@@ -290,12 +287,9 @@ export type Database = {
           activity_type_id: string
           archived_at?: string | null
           created_at?: string
-          duration_days: number
+          duration_days?: number
           id?: string
           name: string
-          offset_days: number
-          relative_activity_id?: string | null
-          schedule_rule: Database["public"]["Enums"]["template_schedule_rule"]
           sort_order?: number
           template_id: string
           updated_at?: string
@@ -307,9 +301,6 @@ export type Database = {
           duration_days?: number
           id?: string
           name?: string
-          offset_days?: number
-          relative_activity_id?: string | null
-          schedule_rule?: Database["public"]["Enums"]["template_schedule_rule"]
           sort_order?: number
           template_id?: string
           updated_at?: string
@@ -323,17 +314,58 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "project_template_activities_relative_activity_id_fkey"
+            foreignKeyName: "project_template_activities_template_id_fkey"
+            columns: ["template_id"]
+            isOneToOne: false
+            referencedRelation: "project_templates"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      project_template_activity_rules: {
+        Row: {
+          created_at: string
+          id: string
+          offset_days: number
+          relative_activity_id: string | null
+          schedule_rule: Database["public"]["Enums"]["template_schedule_rule"]
+          sort_order: number
+          template_activity_id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          offset_days: number
+          relative_activity_id?: string | null
+          schedule_rule: Database["public"]["Enums"]["template_schedule_rule"]
+          sort_order?: number
+          template_activity_id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          offset_days?: number
+          relative_activity_id?: string | null
+          schedule_rule?: Database["public"]["Enums"]["template_schedule_rule"]
+          sort_order?: number
+          template_activity_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "project_template_activity_rules_relative_activity_id_fkey"
             columns: ["relative_activity_id"]
             isOneToOne: false
             referencedRelation: "project_template_activities"
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "project_template_activities_template_id_fkey"
-            columns: ["template_id"]
+            foreignKeyName: "project_template_activity_rules_template_activity_id_fkey"
+            columns: ["template_activity_id"]
             isOneToOne: false
-            referencedRelation: "project_templates"
+            referencedRelation: "project_template_activities"
             referencedColumns: ["id"]
           },
         ]
@@ -487,8 +519,14 @@ export type Database = {
     Functions: {
       archive_activity: { Args: { p_activity_id: string }; Returns: undefined }
       archive_project: { Args: { p_project_id: string }; Returns: undefined }
-      archive_project_template: { Args: { p_template_id: string }; Returns: undefined }
-      archive_project_template_activity: { Args: { p_activity_id: string }; Returns: undefined }
+      archive_project_template: {
+        Args: { p_template_id: string }
+        Returns: undefined
+      }
+      archive_project_template_activity: {
+        Args: { p_activity_id: string }
+        Returns: undefined
+      }
       calculate_project_reschedule: {
         Args: { p_new_end: string; p_new_start: string; p_project_id: string }
         Returns: Json
@@ -498,7 +536,11 @@ export type Database = {
         Returns: Json
       }
       create_project_from_template: {
-        Args: { p_project_end: string; p_project_name: string; p_template_id: string }
+        Args: {
+          p_project_end: string
+          p_project_name: string
+          p_template_id: string
+        }
         Returns: string
       }
       discover_activity_mutation_scope: {
@@ -572,7 +614,10 @@ export type Database = {
         Returns: string
       }
       save_project_template: { Args: { p_template: Json }; Returns: string }
-      save_project_template_activity: { Args: { p_activity: Json }; Returns: string }
+      save_project_template_activity: {
+        Args: { p_activity: Json }
+        Returns: string
+      }
       validate_project_schedule: {
         Args: { p_project_id: string }
         Returns: undefined
@@ -583,7 +628,11 @@ export type Database = {
       activity_status: "not_started" | "in_progress" | "blocked" | "completed"
       dependency_type: "finish_to_start" | "finish_to_finish"
       project_status: "draft" | "on_track" | "at_risk" | "blocked" | "completed"
-      template_schedule_rule: "finish_before_project_end" | "finish_after_project_end" | "start_after_activity_finish" | "finish_after_activity_finish"
+      template_schedule_rule:
+        | "finish_before_project_end"
+        | "finish_after_project_end"
+        | "start_after_activity_finish"
+        | "finish_after_activity_finish"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -715,7 +764,12 @@ export const Constants = {
       activity_status: ["not_started", "in_progress", "blocked", "completed"],
       dependency_type: ["finish_to_start", "finish_to_finish"],
       project_status: ["draft", "on_track", "at_risk", "blocked", "completed"],
-      template_schedule_rule: ["finish_before_project_end", "finish_after_project_end", "start_after_activity_finish", "finish_after_activity_finish"],
+      template_schedule_rule: [
+        "finish_before_project_end",
+        "finish_after_project_end",
+        "start_after_activity_finish",
+        "finish_after_activity_finish",
+      ],
     },
   },
 } as const

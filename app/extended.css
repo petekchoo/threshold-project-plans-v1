@@ -191,9 +191,27 @@ body,button,input,select,textarea{font-family:var(--font-ui)}
 .project-add-activity{display:inline-flex!important;white-space:nowrap;flex:0 0 auto}
 .activity-panel .structured-form{gap:10px}
 
+.mobile-header,.mobile-menu-backdrop{display:none}
+
 @media(forced-colors:active){.filter-check input[type=checkbox],.timeline-visibility input[type=checkbox]{appearance:auto}}
 
 @media(max-width:900px){
+  .bottom-nav{display:none!important}
+  .content{padding-bottom:28px}
+  .mobile-header{display:flex;position:relative;align-items:center;justify-content:space-between;height:72px;padding:8px 20px;background:#fff;border-bottom:1px solid var(--line);z-index:5}
+  .mobile-header-brand{display:flex;align-items:center;width:144px;height:54px;overflow:hidden}
+  .mobile-header-brand img{display:block;width:144px;height:auto}
+  .mobile-menu-button{width:44px;height:44px;border:1px solid var(--line);border-radius:3px;background:#fff;display:grid;align-content:center;justify-items:center;gap:5px;padding:10px;cursor:pointer}
+  .mobile-menu-button span{display:block;width:22px;height:2px;background:var(--forest)}
+  .mobile-menu-backdrop{position:fixed;inset:0;z-index:60;display:flex;justify-content:flex-end;background:#10251e99}
+  .mobile-menu-drawer{width:min(320px,86vw);min-height:100%;background:var(--paper);display:flex;flex-direction:column;padding:20px;box-shadow:-12px 0 36px #10251e33}
+  .mobile-menu-heading{display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--line);padding-bottom:14px;font:400 24px Georgia,serif}
+  .mobile-menu-heading button{width:44px;height:44px;border:0;background:transparent;font-size:28px;display:grid;place-items:center;cursor:pointer}
+  .mobile-menu-drawer nav{display:grid;gap:6px;padding:18px 0}
+  .mobile-menu-drawer nav a{display:flex;align-items:center;gap:14px;min-height:52px;padding:12px 14px;border-radius:3px;font-size:16px;color:#56615c}
+  .mobile-menu-drawer nav a span{width:24px;text-align:center;font-size:20px}
+  .mobile-menu-drawer nav a[aria-current="page"]{background:#e7ede9;color:var(--forest);font-weight:700;box-shadow:inset 3px 0 var(--gold)}
+  .mobile-menu-signout{margin-top:auto;min-height:48px;border:1px solid var(--line);background:#fff;border-radius:3px;font-weight:700;text-align:left;padding:12px 14px;cursor:pointer}
   .mobile-more-backdrop{position:fixed;inset:0;z-index:39;display:block;background:#10251e66}
   .mobile-more{z-index:40}
   .bottom-nav{height:calc(68px + env(safe-area-inset-bottom));padding-bottom:env(safe-area-inset-bottom)}

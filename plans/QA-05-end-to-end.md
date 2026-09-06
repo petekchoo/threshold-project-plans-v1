@@ -19,7 +19,7 @@ The first persistent smoke suite covers the regressions most likely to escape co
 
 | Surface | Mobile, 390 × 844 | Desktop, 1440 × 900 |
 | --- | --- | --- |
-| Navigation | Route-aware bottom navigation; hidden sidebar; accessible More dialog, focus, Escape, and focus return | Sidebar remains visible; mobile navigation remains hidden |
+| Navigation | In-flow linked Threshold header; hidden sidebar and bottom navigation; complete route-aware drawer with focus, Escape, and focus return | Sidebar remains visible; mobile header remains hidden |
 | Lists and filters | Activity cards replace the table; filters disclose, count, and clear; project search, sort, archive, and count remain contained; custom checkboxes preserve 20px geometry and accessible labels | Tables and expanded filters remain visible with the same shared checkbox treatment |
 | Project editor | Add team member remains available; Save and Cancel stay inside the viewport and dialog | Add team member and actions remain available and contained |
 | Validation | Error summary, linked inline error, invalid state, and focus on the first invalid field | Covered through the same shared editor implementation |

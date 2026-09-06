@@ -7,7 +7,7 @@ test.beforeEach(async ({ page }) => {
 
 test('retains the desktop sidebar, tables, and expanded filters', async ({ page }) => {
   await expect(page.locator('.sidebar')).toBeVisible();
-  await expect(page.getByRole('navigation', { name: 'Primary navigation' })).toBeHidden();
+  await expect(page.locator('.mobile-header')).toBeHidden();
   await expect(page.locator('.table-card')).toBeVisible();
   await expect(page.locator('.mobile-list')).toBeHidden();
 

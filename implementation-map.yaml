@@ -117,11 +117,11 @@ groups:
         Coverage: Implemented
         Verification / known gap: Manual desktop UI.
       - ID: NAV-02
-        Capability: Mobile bottom navigation with administration/account overflow
+        Capability: In-flow mobile header with complete navigation drawer
         Primary implementation: "`components/shell/mobile-nav.tsx`; `app/extended.css`"
         Database / persistence: Supabase sign-out
         Coverage: Implemented
-        Verification / known gap: Route-aware current state, safe-area layout, and accessible overflow dismissal/focus behavior are implemented. Manual mobile and desktop regression testing remains required.
+        Verification / known gap: The linked Threshold mark returns to Overview. The non-sticky header scrolls with the document, while its hamburger opens a route-aware drawer containing every primary destination and Sign out. Escape, backdrop dismissal, focus trapping/return, and background scroll locking are implemented. The former fixed bottom navigation and its visual-viewport dependency are removed from the rendered shell.
       - ID: SHELL-01
         Capability: Product metadata, document shell, and application identity
         Primary implementation: "`app/layout.tsx`; `RootLayout`; public favicon and logo assets"

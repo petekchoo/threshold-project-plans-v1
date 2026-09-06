@@ -5,20 +5,23 @@ test.beforeEach(async ({ page }) => {
   await expect(page.getByRole('heading', { name: 'Projects', exact: true })).toBeVisible();
 });
 
-test('uses route-aware bottom navigation and an accessible More dialog', async ({ page }) => {
-  const navigation = page.getByRole('navigation', { name: 'Primary navigation' });
-  await expect(navigation).toBeVisible();
-  await expect(navigation.getByRole('link', { name: 'Projects' })).toHaveAttribute('aria-current', 'page');
+test('uses a scrolling mobile header and an accessible navigation drawer', async ({ page }) => {
+  const header = page.locator('.mobile-header');
+  await expect(header).toBeVisible();
+  await expect(header).toHaveCSS('position', 'relative');
+  await expect(header.getByRole('link', { name: 'Threshold overview' })).toHaveAttribute('href', '/');
   await expect(page.locator('.sidebar')).toBeHidden();
+  await expect(page.locator('.bottom-nav')).toHaveCount(0);
 
-  const more = navigation.getByRole('button', { name: 'More' });
-  await more.click();
-  const menu = page.getByRole('dialog', { name: 'More navigation' });
+  const menuButton = header.getByRole('button', { name: 'Open menu' });
+  await menuButton.click();
+  const menu = page.getByRole('dialog', { name: 'Main menu' });
   await expect(menu).toBeVisible();
+  await expect(menu.getByRole('link', { name: 'Projects' })).toHaveAttribute('aria-current', 'page');
   await expect(menu.getByRole('button', { name: 'Close menu' })).toBeFocused();
   await page.keyboard.press('Escape');
   await expect(menu).toBeHidden();
-  await expect(more).toBeFocused();
+  await expect(menuButton).toBeFocused();
 });
 
 test('keeps project team and form actions visible and contained', async ({ page }) => {
@@ -59,7 +62,8 @@ test('presents linked validation errors and focuses the first invalid field', as
 });
 
 test('uses mobile activity cards and supports filter disclosure and reset', async ({ page }) => {
-  await page.getByRole('navigation', { name: 'Primary navigation' }).getByRole('link', { name: 'Activities' }).click();
+  await page.getByRole('button', { name: 'Open menu' }).click();
+  await page.getByRole('dialog', { name: 'Main menu' }).getByRole('link', { name: 'Activities' }).click();
   await expect(page.getByRole('heading', { name: 'Activities', exact: true })).toBeVisible();
   await expect(page.locator('.table-card')).toBeHidden();
   await expect(page.locator('.mobile-list')).toBeVisible();
@@ -96,7 +100,8 @@ test('contains project filters and keeps desktop-only timeline ranges off mobile
   }
   expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(390);
 
-  await page.getByRole('navigation', { name: 'Primary navigation' }).getByRole('link', { name: 'Overview' }).click();
+  await page.getByRole('button', { name: 'Open menu' }).click();
+  await page.getByRole('dialog', { name: 'Main menu' }).getByRole('link', { name: 'Overview' }).click();
   await expect(page.getByRole('heading', { name: 'Active projects' })).toBeVisible();
   await expect(page.locator('.range-tabs')).toBeHidden();
   await expect(page.getByLabel('Draft')).toBeVisible();
@@ -115,7 +120,8 @@ test('contains project filters and keeps desktop-only timeline ranges off mobile
 });
 
 test('contains detail summaries and administration rows on narrow screens', async ({ page }) => {
-  await page.getByRole('navigation', { name: 'Primary navigation' }).getByRole('link', { name: 'Activities' }).click();
+  await page.getByRole('button', { name: 'Open menu' }).click();
+  await page.getByRole('dialog', { name: 'Main menu' }).getByRole('link', { name: 'Activities' }).click();
   const activity = page.locator('.mobile-list a[href^="/activities/"]').first();
   await expect(activity, 'The E2E account must contain at least one activity').toHaveCount(1);
   await activity.click();

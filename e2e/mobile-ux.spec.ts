@@ -134,3 +134,34 @@ test('keeps project schedule month labels distinct on narrow screens', async ({ 
   const boxes = await page.locator('.schedule-header-track span').evaluateAll((labels) => labels.map((label) => label.getBoundingClientRect()).map(({ x, width }) => ({ x, width })));
   for (let index = 1; index < boxes.length; index += 1) expect(boxes[index - 1].x + boxes[index - 1].width).toBeLessThanOrEqual(boxes[index].x + 1);
 });
+
+test('keeps the project activity editor compact and its actions fully reachable', async ({ page }) => {
+  const project = page.locator('.mobile-list a[href^="/projects/"]').first();
+  await expect(project, 'The E2E account must contain at least one active project').toHaveCount(1);
+  await project.click();
+  const activity = page.locator('.project-activity-row').first();
+  await expect(activity, 'The E2E project must contain at least one activity').toHaveCount(1);
+  await activity.click();
+
+  const panel = page.getByRole('dialog', { name: /.+/ });
+  await expect(panel).toBeVisible();
+  const required = panel.locator('label[for="name"] .required-mark');
+  const nameInput = panel.getByLabel('Activity name');
+  const requiredBox = await required.boundingBox();
+  const inputBox = await nameInput.boundingBox();
+  expect(requiredBox).not.toBeNull();
+  expect(inputBox).not.toBeNull();
+  expect(inputBox!.y - requiredBox!.y).toBeLessThan(30);
+
+  for (const legend of ['Activity team members', 'External links', 'Prerequisites']) {
+    await expect(panel.locator('legend').filter({ hasText: legend })).toBeHidden();
+  }
+
+  const actions = panel.locator('.structured-form>.form-actions');
+  await actions.scrollIntoViewIfNeeded();
+  const actionsBox = await actions.boundingBox();
+  expect(actionsBox).not.toBeNull();
+  expect(actionsBox!.y + actionsBox!.height).toBeLessThanOrEqual(844);
+  await expect(actions.getByRole('button', { name: 'Cancel', exact: true })).toBeVisible();
+  await expect(actions.getByRole('button', { name: 'Save', exact: true })).toBeVisible();
+});

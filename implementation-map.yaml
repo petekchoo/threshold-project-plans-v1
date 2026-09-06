@@ -414,13 +414,13 @@ groups:
         Primary implementation: Feature forms; `components/shell/*`; `components/overview/project-card.tsx`; responsive CSS
         Database / persistence: Same persistence paths on all viewports
         Coverage: Implemented
-        Verification / known gap: Editor grids stack on small screens while retaining readable 16px controls and touch-sized actions; team-member and Save controls remain visible and contained. Detail-summary values, project-card titles, administration rows, editors, and relationship URLs wrap within narrow panes. Browser coverage checks containment at 390×844 and preservation at 1440×900; a broader device matrix remains.
+        Verification / known gap: Editor grids stack on small screens while retaining readable 16px controls and touch-sized actions; team-member and Save controls remain visible and contained. The mobile activity panel uses the dynamic viewport and normal-flow final actions so Chrome browser chrome cannot obscure a negatively offset sticky action bar. Detail-summary values, project-card titles, administration rows, editors, and relationship URLs wrap within narrow panes. Browser coverage checks containment at 390×844 and preservation at 1440×900; a broader device matrix remains.
       - ID: A11Y-01
         Capability: Semantic, keyboard-accessible UI with focus visibility and suitable contrast
         Primary implementation: "Form labels, fieldsets, status roles, dialog attributes; `components/shared/modal-keyboard.ts`; `components/shared/icon.tsx`; global/extended CSS"
         Database / persistence: None
         Coverage: Partial
-        Verification / known gap: Central keyboard policy preserves topmost-modal behavior. Forms expose required state and associated inline/summary errors with first-invalid focus; responsive navigation exposes current state and overflow focus restoration. Shared controls provide visible focus treatment, checkboxes retain accessible labels and explicit checked states, and decorative action icons preserve text or aria-label names. No automated accessibility audit; comprehensive focus trapping and keyboard testing remain.
+        Verification / known gap: Central keyboard policy preserves topmost-modal behavior. Forms expose required state and associated inline/summary errors with first-invalid focus; required markers remain on their label line, and disclosure summaries replace visually redundant nested legends while field labels retain their accessible names. Responsive navigation exposes current state and overflow focus restoration. Shared controls provide visible focus treatment, checkboxes retain accessible labels and explicit checked states, and decorative action icons preserve text or aria-label names. No automated accessibility audit; comprehensive focus trapping and keyboard testing remain.
       - ID: VIS-01
         Capability: Threshold identity with warm editorial and restrained operational styling
         Primary implementation: "`components/shell/sidebar.tsx`; `components/shared/icon.tsx`; logo assets; `app/globals.css`; `app/extended.css`"
@@ -477,7 +477,7 @@ groups:
         Capability: End-to-end core-journey tests
         Current implementation: "Playwright smoke suite in `e2e/*`; authenticated read-only setup; mobile Chromium at 390 × 844; desktop Chromium at 1440 × 900"
         Coverage: Partial
-        Next verification need: Slice 1 covers responsive navigation, project-editor team/action containment, accessible project validation, shared checkbox geometry, activity and project filter responsiveness, mobile portfolio controls, detail-summary and administration containment, desktop layout preservation, and project schedule/CTA regressions. Add isolated activity-form, CRUD, dependency, and administration mutation journeys, then require the suite in CI once disposable fixtures or a dedicated CI account are available.
+        Next verification need: Slice 1 covers responsive navigation, project-editor team/action containment, accessible project validation, shared checkbox geometry, activity and project filter responsiveness, mobile portfolio controls, detail-summary and administration containment, mobile project-activity editor label/section/action containment, desktop layout preservation, and project schedule/CTA regressions. Add isolated activity-form mutation, CRUD, dependency, and administration mutation journeys, then require the suite in CI once disposable fixtures or a dedicated CI account are available.
       - ID: QA-06
         Capability: Build and deployment target
         Current implementation: "`package.json`; `next.config.ts`; `.github/workflows/verify.yml`; Tailwind/PostCSS configuration; Supabase CLI configuration and migrations"

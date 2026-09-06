@@ -183,6 +183,9 @@ body,button,input,select,textarea{font-family:var(--font-ui)}
 .inline-edit{grid-template-columns:minmax(0,1fr) auto auto}.inline-edit input{width:100%;min-width:0}
 .relationship-link{grid-template-columns:minmax(0,1fr) auto}
 .modal-close{width:40px;height:40px;padding:0;display:grid;place-items:center;cursor:pointer}
+.edit-form label{grid-template-columns:max-content auto;justify-content:start;column-gap:3px;row-gap:9px}
+.edit-form label>input,.edit-form label>select,.edit-form label>textarea,.edit-form label>.field-error{grid-column:1/-1;width:100%}
+.form-disclosure>.owner-picker>legend,.form-disclosure>.link-editor>legend,.form-disclosure>.dependency-picker>legend{display:none}
 
 @media(forced-colors:active){.filter-check input[type=checkbox],.timeline-visibility input[type=checkbox]{appearance:auto}}
 
@@ -223,4 +226,10 @@ body,button,input,select,textarea{font-family:var(--font-ui)}
 
 @media(max-width:700px){
   .project-summary strong,.activity-summary strong{white-space:normal;overflow:visible;text-overflow:clip;overflow-wrap:anywhere;line-height:1.35}
+}
+
+@media(max-width:620px){
+  .panel-backdrop{height:100dvh}
+  .activity-panel{height:100dvh;max-height:100dvh}
+  .structured-form>.form-actions{position:static;margin-top:0;padding:18px 0 max(24px,env(safe-area-inset-bottom));background:transparent}
 }

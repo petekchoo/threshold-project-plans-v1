@@ -57,6 +57,13 @@ describe('evaluateActivitySchedule', () => {
     expect(result).toMatchObject({ status: 'adjusted', placement: { start_date: '2026-09-15', due_date: '2026-09-17', shift_days: 5 } });
   });
 
+  it('applies a whole-day offset after the referenced activity finishes', () => {
+    const result = evaluateActivitySchedule({ activityName: 'Current', startDate: '2026-09-10', dueDate: '2026-09-12', project,
+      timingRule: null, timingOffsetDays: null, dependencies: [{ depends_on_activity_id: 'source', constraint_type: 'finish_to_start', offset_days: 3 }],
+      activities: [activity('source', '2026-09-01', '2026-09-09')] });
+    expect(result).toMatchObject({ status: 'adjusted', placement: { start_date: '2026-09-12', due_date: '2026-09-14', shift_days: 2 } });
+  });
+
   it('treats an incoming dependent as a fixed upper boundary', () => {
     const dependent = activity('dependent', '2026-09-14', '2026-09-16', [
       { depends_on_activity_id: 'current', constraint_type: 'finish_to_start' },
@@ -66,6 +73,15 @@ describe('evaluateActivitySchedule', () => {
       activities: [activity('source', '2026-09-01', '2026-09-15'), dependent] });
     expect(result.status).toBe('conflict');
     if (result.status === 'conflict') expect(result.message).toContain('dependent is fixed at Sep 14');
+  });
+
+  it('subtracts an incoming dependency offset from the fixed upper boundary', () => {
+    const dependent = activity('dependent', '2026-09-15', '2026-09-17', [
+      { depends_on_activity_id: 'current', constraint_type: 'finish_to_start', offset_days: 2 },
+    ]);
+    const result = evaluateActivitySchedule({ activityId: 'current', activityName: 'Current', startDate: '2026-09-10', dueDate: '2026-09-14', project,
+      timingRule: null, timingOffsetDays: null, dependencies: [], activities: [dependent] });
+    expect(result).toMatchObject({ status: 'adjusted', placement: { start_date: '2026-09-09', due_date: '2026-09-13', shift_days: -1 } });
   });
 
   it('combines a prerequisite with an advance project deadline', () => {

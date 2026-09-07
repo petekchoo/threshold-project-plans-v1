@@ -88,12 +88,14 @@ export function evaluateActivitySchedule(input: EvaluateActivityScheduleInput): 
   }
 
   for (const dependency of input.dependencies.filter((item) => !item.archived_at)) {
+    const offset = dependency.offset_days ?? 0;
+    if (!Number.isInteger(offset) || offset < 0) return { status: 'conflict', constraints, message: 'Enter a valid whole-day activity offset.' };
     const prerequisite = activeActivities.find((activity) => activity.id === dependency.depends_on_activity_id);
     if (!prerequisite) return { status: 'conflict', constraints, message: 'The selected prerequisite is no longer available.' };
     constraints.push({
       kind: dependency.constraint_type === 'finish_to_start' ? 'earliest_start' : 'earliest_due',
-      date: prerequisite.due_date,
-      label: `${prerequisite.name} finishes on ${date(prerequisite.due_date)}`,
+      date: addDays(prerequisite.due_date, offset),
+      label: `${prerequisite.name} finishes on ${date(prerequisite.due_date)} with a ${offset}-day offset`,
     });
   }
 
@@ -103,7 +105,7 @@ export function evaluateActivitySchedule(input: EvaluateActivityScheduleInput): 
     );
     for (const dependency of incoming) constraints.push({
       kind: 'latest_due',
-      date: dependency.constraint_type === 'finish_to_start' ? dependent.start_date : dependent.due_date,
+      date: addDays(dependency.constraint_type === 'finish_to_start' ? dependent.start_date : dependent.due_date, -(dependency.offset_days ?? 0)),
       label: `${dependent.name} is fixed at ${date(dependency.constraint_type === 'finish_to_start' ? dependent.start_date : dependent.due_date)}`,
     });
   }

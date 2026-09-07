@@ -1,7 +1,7 @@
 begin;
 
 create extension if not exists pgtap with schema extensions;
-select plan(39);
+select plan(41);
 
 insert into auth.users(id, email, raw_user_meta_data)
 values
@@ -197,6 +197,16 @@ select throws_ok(
   'P0001', 'Completed activity "Completed dependent" has incomplete prerequisite "Prerequisite".',
   'completed dependents cannot retain incomplete prerequisites'
 );
+
+select lives_ok(
+  $$select public.save_activity(
+    '{"project_id":"65000000-0000-0000-0000-000000000001","name":"Offset dependent","status":"not_started","priority":"normal","start_date":"2026-04-13","due_date":"2026-04-15","allow_outside_project":false}'::jsonb,
+    '{}'::uuid[], '[]'::jsonb,
+    '[{"depends_on_activity_id":"66000000-0000-0000-0000-000000000001","constraint_type":"finish_to_start","offset_days":3}]'::jsonb
+  )$$,
+  'activity dependency offsets persist at the authoritative save boundary'
+);
+select is((select offset_days from public.activity_dependencies d join public.activities a on a.id=d.activity_id where a.name='Offset dependent' and d.archived_at is null),3,'saved dependency retains its calendar-day offset');
 
 select lives_ok($$select public.archive_activity('66000000-0000-0000-0000-000000000002')$$, 'authenticated user can archive an activity');
 select ok((select archived_at is not null from public.activities where id = '66000000-0000-0000-0000-000000000002'), 'activity archive retains and marks the activity');

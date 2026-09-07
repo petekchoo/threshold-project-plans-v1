@@ -46,6 +46,8 @@ Adopt the template interaction pattern in the dated activity editor, add the ful
 
 Status: staged Schedule rows and rule modal are implemented with live unsaved-date evaluation, current-activity adjustment confirmation, fixed incoming relationship context, and final-save revalidation. Authorized desktop and 390×844 browser review against reset development fixtures confirmed valid staging, precise impossible-rule messaging, fixed incoming context, and responsive containment. Persistent automated coverage remains a later QA-05 release-gate extension.
 
+Follow-up scope: activity scheduling now uses one Add scheduling rule modal for project-relative and activity-relative rules. Activity dependencies carry nonnegative calendar-day offsets. Referenced activities are selected through a portfolio-wide picker with name search plus project, type, and team-member filters; a referenced activity can also be created inline, defaulting to the current project, and is selected on successful creation.
+
 ## Acceptance matrix
 
 | ID | Scenario | Required result |

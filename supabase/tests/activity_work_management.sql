@@ -1,7 +1,7 @@
 begin;
 
 create extension if not exists pgtap with schema extensions;
-select plan(37);
+select plan(39);
 
 insert into auth.users(id, email, raw_user_meta_data)
 values
@@ -30,7 +30,8 @@ insert into public.activities(
   ('66000000-0000-0000-0000-000000000002', '65000000-0000-0000-0000-000000000001', '64000000-0000-0000-0000-000000000001', 'Archive Target', 'not_started', 'normal', '2026-04-11', '2026-04-12', '', false, '61000000-0000-0000-0000-000000000001'),
   ('66000000-0000-0000-0000-000000000003', '65000000-0000-0000-0000-000000000001', '64000000-0000-0000-0000-000000000001', 'Archive Dependent', 'not_started', 'normal', '2026-04-12', '2026-04-13', '', false, '61000000-0000-0000-0000-000000000001'),
   ('66000000-0000-0000-0000-000000000004', '65000000-0000-0000-0000-000000000002', '64000000-0000-0000-0000-000000000001', 'Project Archive Activity', 'not_started', 'normal', '2026-05-02', '2026-05-05', '', false, '61000000-0000-0000-0000-000000000001'),
-  ('66000000-0000-0000-0000-000000000010', '65000000-0000-0000-0000-000000000001', '64000000-0000-0000-0000-000000000001', 'Activity to update', 'not_started', 'normal', '2026-04-10', '2026-04-15', '', false, '61000000-0000-0000-0000-000000000001');
+  ('66000000-0000-0000-0000-000000000010', '65000000-0000-0000-0000-000000000001', '64000000-0000-0000-0000-000000000001', 'Activity to update', 'not_started', 'normal', '2026-04-10', '2026-04-15', '', false, '61000000-0000-0000-0000-000000000001'),
+  ('66000000-0000-0000-0000-000000000011', '65000000-0000-0000-0000-000000000001', '64000000-0000-0000-0000-000000000001', 'Fixed downstream activity', 'not_started', 'normal', '2026-04-16', '2026-04-18', '', false, '61000000-0000-0000-0000-000000000001');
 
 insert into public.activity_links(id, activity_id, label, url)
 values
@@ -41,7 +42,8 @@ insert into public.activity_dependencies(id, activity_id, depends_on_activity_id
 values
   ('68000000-0000-0000-0000-000000000001', '66000000-0000-0000-0000-000000000002', '66000000-0000-0000-0000-000000000001', 'finish_to_start'),
   ('68000000-0000-0000-0000-000000000002', '66000000-0000-0000-0000-000000000003', '66000000-0000-0000-0000-000000000002', 'finish_to_start'),
-  ('68000000-0000-0000-0000-000000000003', '66000000-0000-0000-0000-000000000004', '66000000-0000-0000-0000-000000000003', 'finish_to_start');
+  ('68000000-0000-0000-0000-000000000003', '66000000-0000-0000-0000-000000000004', '66000000-0000-0000-0000-000000000003', 'finish_to_start'),
+  ('68000000-0000-0000-0000-000000000004', '66000000-0000-0000-0000-000000000011', '66000000-0000-0000-0000-000000000010', 'finish_to_start');
 
 set local role anon;
 select throws_ok(
@@ -60,7 +62,7 @@ set local role authenticated;
 select set_config('request.jwt.claim.sub', '61000000-0000-0000-0000-000000000002', true);
 
 select is((select count(*)::integer from public.projects), 2, 'every authenticated user can read shared project data');
-select is((select count(*)::integer from public.activities), 5, 'every authenticated user can read shared activity data');
+select is((select count(*)::integer from public.activities), 6, 'every authenticated user can read shared activity data');
 
 select throws_ok(
   $$insert into public.activities(project_id, name, status, priority, start_date, due_date) values ('65000000-0000-0000-0000-000000000001', 'Direct write', 'not_started', 'normal', '2026-04-01', '2026-04-01')$$,
@@ -101,6 +103,22 @@ select is(
 select is((select count(*)::integer from public.activity_owners where activity_id = '66000000-0000-0000-0000-000000000010'), 1, 'activity save persists owners');
 select is((select count(*)::integer from public.activity_links where activity_id = '66000000-0000-0000-0000-000000000010' and archived_at is null), 1, 'activity save persists active links');
 select is((select count(*)::integer from public.activity_dependencies where activity_id = '66000000-0000-0000-0000-000000000010' and archived_at is null), 1, 'activity save persists active dependencies');
+
+select throws_ok(
+  $$select public.save_activity(
+    '{"id":"66000000-0000-0000-0000-000000000010","project_id":"65000000-0000-0000-0000-000000000001","activity_type_id":"64000000-0000-0000-0000-000000000001","name":"Saved activity","status":"in_progress","priority":"high","start_date":"2026-04-12","due_date":"2026-04-17","notes":"Invalid incoming boundary"}'::jsonb,
+    array['62000000-0000-0000-0000-000000000001']::uuid[],
+    '[]'::jsonb,
+    '[{"depends_on_activity_id":"66000000-0000-0000-0000-000000000001","constraint_type":"finish_to_start"}]'::jsonb
+  )$$,
+  'P0001', 'Activity "Fixed downstream activity" starts before prerequisite "Saved activity" finishes.',
+  'authoritative save keeps an incoming dependent fixed and rejects the current activity conflict'
+);
+select is(
+  (select due_date::text from public.activities where id = '66000000-0000-0000-0000-000000000010'),
+  '2026-04-15',
+  'incoming-boundary rejection rolls back the current activity edit'
+);
 
 select throws_ok(
   $$select public.save_activity(

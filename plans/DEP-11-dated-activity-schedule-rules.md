@@ -38,6 +38,8 @@ Status: client planner implemented for project timing, prerequisites, incoming d
 
 Add scoped-locking RPCs and database coverage. Reuse the `PRJ-06` one-hop lock protocol. Apply migrations only after review, dry run, and explicit authorization.
 
+Status: the existing authoritative `save_activity` RPC and deferred `validate_project_schedule` boundary already provide scoped locking, atomic rule persistence, dependency chronology, completed-state, timing, exception, and rollback enforcement. The activity database suite now explicitly covers rejection and rollback when editing the current activity would invalidate a fixed incoming dependent; no new migration is required.
+
 ### Slice 4 — Staged Schedule interface
 
 Adopt the template interaction pattern in the dated activity editor, add the full preview/confirmation dialog, and preserve keyboard, responsive, and validation behavior.

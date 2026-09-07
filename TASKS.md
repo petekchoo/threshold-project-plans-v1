@@ -8,7 +8,7 @@ Synchronization note: local `main` intentionally contains the post-merge PR #31 
 
 ## Active
 
-- DEP-11 dated activity schedule rules: the preservation-first, current-activity-only planner, staged Schedule rows and modal, unsaved-date evaluation, exact adjustment confirmation, incoming fixed-boundary context, cycle detection, and final-save revalidation are implemented with QA-03 coverage. Repository verification and production build pass. Next add authoritative database relationship validation and its disposable-database coverage, then complete authorized responsive browser validation. Multi-activity graph optimization remains deferred.
+- DEP-11 dated activity schedule rules: the preservation-first, current-activity-only planner, staged Schedule rows and modal, unsaved-date evaluation, exact adjustment confirmation, incoming fixed-boundary context, cycle detection, and final-save revalidation are implemented with QA-03 coverage. Repository verification and production build pass. All 96 disposable-database assertions pass, including authoritative incoming-boundary rejection and rollback; existing persistence and scoped validation require no migration. Authorized responsive browser validation against reset development fixtures is pending sign-in confirmation. Multi-activity graph optimization remains deferred.
 
 ## Recently completed
 

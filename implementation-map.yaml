@@ -27,6 +27,7 @@ verification_catalog:
       - lib/planning/overview-timeline.test.ts
       - components/projects/reschedule-preview-dialog.test.ts
       - lib/planning/project-template.test.ts
+      - lib/planning/activity-schedule.test.ts
   - id: prj06-database
     kind: database
     command: pnpm db:test
@@ -385,7 +386,7 @@ groups:
         Primary implementation: "`components/activities/activity-form.tsx` (`submit`, neutral confirmation copy)"
         Database / persistence: Authoritative `save_activity` performs atomic activity/owner/link/dependency save
         Coverage: Partial
-        Verification / known gap: Handles direct changes to the edited dependent. PRJ-06 preserves completed-prerequisite chronology and blocks completed-dependent/incomplete-prerequisite inconsistencies during project rescheduling. Multi-level propagation, downstream impact previews, reverse prerequisite proposals, and the specified update/remove resolution are not implemented.
+        Verification / known gap: Handles direct changes to the edited dependent. PRJ-06 preserves completed-prerequisite chronology and blocks completed-dependent/incomplete-prerequisite inconsistencies during project rescheduling. The earlier multi-activity propagation direction is superseded by DEP-11 isolation; graph optimization remains deferred.
       - ID: DEP-04
         verification:
           - activity-work-management-database
@@ -438,6 +439,16 @@ groups:
         Database / persistence: "`validate_activity_project_timing`; `validate_project_activity_timing`; `save_activity` in `202608300004_project_start_envelope.sql`"
         Coverage: Implemented
         Verification / known gap: Client and database enforcement are implemented; transactional database coverage verifies rejection and the authorized atomic project-start adjustment. Additional client boundary tests remain under QA-03.
+      - ID: DEP-11
+        plans:
+          - plans/DEP-11-dated-activity-schedule-rules.md
+        verification:
+          - unit-vitest
+        Capability: Apply staged schedule rules to dated activities with preservation-first, current-activity-only date derivation
+        Primary implementation: "Binding detail in `plans/DEP-11-dated-activity-schedule-rules.md`; placement and isolated rule-viability planner in `lib/planning/activity-schedule.ts`; unified rule modal, portfolio activity picker, nested creation, and staged interface in `components/activities/activity-schedule-editor.tsx` and `components/activities/activity-form.tsx`"
+        Database / persistence: "Activity timing fields plus dependency `offset_days`; authoritative `save_activity`, deferred `validate_project_schedule`, offset-aware schedule fingerprints, and project-scoped locking; migrations `202609070001` and `202609070002`"
+        Coverage: Partial
+        Verification / known gap: The planner preserves valid unsaved dates or applies the minimum duration-preserving shift to the current activity against fixed project, prerequisite, and incoming-dependent bounds. QA-03 covers unchanged and adjusted dates, contradictions, post-project windows, fixed incoming boundaries, cycles, and calendar arithmetic. The staged modal applies only confirmed current-activity changes and final Save revalidates. The disposable database suite proves authoritative incoming-boundary rejection and atomic rollback in addition to existing dependency, timing, exception, and cycle coverage. Authorized desktop and 390x844 browser validation against reset, visibly development-labeled hosted fixtures confirmed valid staging, exact impossible-rule messaging, fixed incoming context, and responsive containment. Multi-activity graph optimization is deferred.
   - title: Administration, archives, responsive design, and presentation
     scope: product-presentation
     design_refs:

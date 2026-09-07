@@ -293,6 +293,7 @@ export function planProjectReschedule(input: ProjectRescheduleInput): ProjectRes
 
     const dependentDates = finalDates(dependent);
     const prerequisiteDates = finalDates(prerequisite);
+    const dependencyBoundary = addDays(prerequisiteDates.due_date, dependency.offset_days ?? 0);
     const dependencyScope: ProjectRescheduleConflict['dependency_scope'] = dependent.project_id === input.project.id
       ? prerequisite.project_id === input.project.id ? 'internal' : 'incoming'
       : 'outgoing';
@@ -316,32 +317,32 @@ export function planProjectReschedule(input: ProjectRescheduleInput): ProjectRes
     }
     if (
       dependency.constraint_type === 'finish_to_start' &&
-      dependentDates.start_date < prerequisiteDates.due_date
+      dependentDates.start_date < dependencyBoundary
     ) {
       conflicts.push({
         ...common,
         code: 'FINISH_TO_START_VIOLATION',
-        message: `${dependent.name} starts before prerequisite ${prerequisite.name} finishes.`,
+        message: `${dependent.name} starts before prerequisite ${prerequisite.name} finishes${dependency.offset_days ? ` plus its ${dependency.offset_days}-day offset` : ''}.`,
         dates: {
           dependent_start: dependentDates.start_date,
-          prerequisite_due: prerequisiteDates.due_date,
+          prerequisite_due: dependencyBoundary,
         },
-        difference_days: dayDifference(dependentDates.start_date, prerequisiteDates.due_date),
+        difference_days: dayDifference(dependentDates.start_date, dependencyBoundary),
       });
     }
     if (
       dependency.constraint_type === 'finish_to_finish' &&
-      dependentDates.due_date < prerequisiteDates.due_date
+      dependentDates.due_date < dependencyBoundary
     ) {
       conflicts.push({
         ...common,
         code: 'FINISH_TO_FINISH_VIOLATION',
-        message: `${dependent.name} finishes before prerequisite ${prerequisite.name} finishes.`,
+        message: `${dependent.name} finishes before prerequisite ${prerequisite.name} finishes${dependency.offset_days ? ` plus its ${dependency.offset_days}-day offset` : ''}.`,
         dates: {
           dependent_due: dependentDates.due_date,
-          prerequisite_due: prerequisiteDates.due_date,
+          prerequisite_due: dependencyBoundary,
         },
-        difference_days: dayDifference(dependentDates.due_date, prerequisiteDates.due_date),
+        difference_days: dayDifference(dependentDates.due_date, dependencyBoundary),
       });
     }
   }

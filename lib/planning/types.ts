@@ -35,6 +35,7 @@ export type Dependency = {
   activity_id?: string;
   depends_on_activity_id: string;
   constraint_type: 'finish_to_start' | 'finish_to_finish';
+  offset_days?: number;
   archived_at?: string | null;
 };
 

@@ -97,6 +97,7 @@ export type Database = {
           created_at: string
           depends_on_activity_id: string
           id: string
+          offset_days: number
         }
         Insert: {
           activity_id: string
@@ -105,6 +106,7 @@ export type Database = {
           created_at?: string
           depends_on_activity_id: string
           id?: string
+          offset_days?: number
         }
         Update: {
           activity_id?: string
@@ -113,6 +115,7 @@ export type Database = {
           created_at?: string
           depends_on_activity_id?: string
           id?: string
+          offset_days?: number
         }
         Relationships: [
           {

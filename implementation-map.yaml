@@ -27,6 +27,7 @@ verification_catalog:
       - lib/planning/overview-timeline.test.ts
       - components/projects/reschedule-preview-dialog.test.ts
       - lib/planning/project-template.test.ts
+      - lib/planning/activity-schedule.test.ts
   - id: prj06-database
     kind: database
     command: pnpm db:test
@@ -438,6 +439,16 @@ groups:
         Database / persistence: "`validate_activity_project_timing`; `validate_project_activity_timing`; `save_activity` in `202608300004_project_start_envelope.sql`"
         Coverage: Implemented
         Verification / known gap: Client and database enforcement are implemented; transactional database coverage verifies rejection and the authorized atomic project-start adjustment. Additional client boundary tests remain under QA-03.
+      - ID: DEP-11
+        plans:
+          - plans/DEP-11-dated-activity-schedule-rules.md
+        verification:
+          - unit-vitest
+        Capability: Apply staged schedule rules to dated activities with preservation-first derivation and confirmed atomic propagation
+        Primary implementation: "Binding detail in `plans/DEP-11-dated-activity-schedule-rules.md`; Slice 1 placement kernel in `lib/planning/activity-schedule.ts`; later connected-graph planner and staged activity Schedule interface"
+        Database / persistence: "Existing activity timing and dependency fields for Slice 1; authoritative preview/commit RPCs deferred to Slice 3"
+        Coverage: Partial
+        Verification / known gap: Slice 1 deterministically preserves valid dates or applies the minimum duration-preserving shift against combined start/due bounds, including contradiction and calendar-boundary coverage. Connected-graph propagation, authoritative persistence, and the staged dated-activity interface remain planned.
   - title: Administration, archives, responsive design, and presentation
     scope: product-presentation
     design_refs:

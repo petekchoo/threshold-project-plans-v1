@@ -8,7 +8,7 @@ Synchronization note: local `main` intentionally contains the post-merge PR #31 
 
 ## Active
 
-- Next feature handoff: evaluate applying the project-template Schedule section and staged schedule-rule modal to dated project activities. Begin with discovery against the current activity editor, scheduling engine, dependency rules, project-relative timing, exceptions, propagation, and project-rescheduling behavior; resolve the date-derivation and confirmation contract before assigning a requirement or implementation slice.
+- DEP-11 dated activity schedule rules: the preservation-first date-derivation and confirmation contract is recorded in `plans/DEP-11-dated-activity-schedule-rules.md`. The shared staged Schedule presentation is compatible, but template latest-valid placement is explicitly excluded from live projects. Slice 1 implements the pure single-activity placement kernel; next build the connected-graph preview planner and cross-review it against PRJ-06 before persistence or UI work.
 
 ## Recently completed
 

@@ -72,6 +72,30 @@ export function resolveTemplateSchedule(activities: TemplateScheduleActivity[], 
     if (!changed) break;
     if (pass === activities.length - 1) throw new Error('The schedule contains a cycle.');
   }
+
+  // A branch may point at a prerequisite that was resolved backward from an
+  // anchored chain without itself being an ancestor of that anchor. Place
+  // those dependents at their earliest valid finish, then repeat so branches
+  // of any depth resolve deterministically.
+  for (let pass = 0; pass < activities.length; pass += 1) {
+    let changed = false;
+    for (const activity of activities) {
+      if (Number.isFinite(latestFinish.get(activity.id))) continue;
+      const relationshipRules = activity.rules.filter((rule) => activityRule(rule.schedule_rule));
+      if (!relationshipRules.length) continue;
+      const requiredFinishes = relationshipRules.map((rule) => {
+        const referenceDue = latestFinish.get(rule.relative_activity_id!);
+        if (!Number.isFinite(referenceDue)) return undefined;
+        return rule.schedule_rule === 'start_after_activity_finish'
+          ? referenceDue! + rule.offset_days + (activity.duration_days - 1)
+          : referenceDue! + rule.offset_days;
+      });
+      if (requiredFinishes.some((bound) => bound === undefined)) continue;
+      latestFinish.set(activity.id, Math.max(...requiredFinishes as number[]));
+      changed = true;
+    }
+    if (!changed) break;
+  }
   const unbounded = activities.find((activity) => !Number.isFinite(latestFinish.get(activity.id)));
   if (unbounded) throw new Error(`“${unbounded.name}” does not trace to a project-end rule.`);
 

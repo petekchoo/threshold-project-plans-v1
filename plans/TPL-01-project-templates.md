@@ -40,7 +40,7 @@ Supported constraints:
 
 `Finish after project end` requires an offset of at least one. All other constraints permit zero. A reference cannot target the same activity.
 
-The resolver places every activity as late as possible while satisfying every constraint and preserving its duration. The result must be deterministic and independent of display or creation order. Every activity must connect directly or transitively to project end, the graph must be acyclic and bounded, and all constraints must be jointly satisfiable. A referenced prerequisite may have no rule of its own when an incoming relationship from an anchored dependent supplies its finite latest placement. A graph with no latest finite placement or with contradictory bounds is invalid.
+The resolver places the project-end-anchored chain as late as possible while satisfying every constraint and preserving each duration. A referenced prerequisite may have no rule of its own when an incoming relationship from an anchored dependent supplies its finite latest placement. Once that backward pass resolves a shared prerequisite, an otherwise-unplaced dependent branch is scheduled forward at its earliest valid date; all of that branch's referenced activities must already be resolved, and multiple prerequisites use the latest required date. This forward pass repeats for branches of any depth. The result must be deterministic and independent of display or creation order. Every activity must connect directly or transitively to the resolved graph, the graph must be acyclic, and all constraints must be jointly satisfiable. A disconnected graph or a graph with contradictory bounds is invalid.
 
 ## Authoring journey (`TPL-01`)
 
@@ -83,7 +83,7 @@ A template is not Ready when any of these conditions exists:
 - a project-after offset below one;
 - a missing, cross-template, archived, or self reference;
 - a reference cycle;
-- an activity that has no direct or transitive trace to project end;
+- an activity that cannot be reached through either the backward project-end-anchored chain or a forward dependent branch from that resolved graph;
 - an unbounded graph for which no latest finite schedule exists;
 - constraints whose lower and upper bounds cannot coexist for the activity durations;
 - an archived or missing project/activity type.
@@ -115,7 +115,7 @@ Materialization repeats authoritative validation in the same transaction. A stal
 - Update template authoring so duration appears once in activity details and constraints can be added, edited, and removed independently.
 - Implement the blank Schedule section, **+ Add schedule rule** staged editor, conditional activity selector and inline creation path, readable saved-rule rows, row editing, and accessible trash-icon removal across desktop and mobile.
 - Materialize every constraint into the corresponding project-relative timing rule or activity dependency in the same authoritative transaction.
-- Extend unit, database, desktop, and mobile coverage for multiple compatible constraints, contradictory bounds, unbounded graphs, cycles, one-day activities, migration compatibility, and atomic rollback.
+- Extend unit, database, desktop, and mobile coverage for multiple compatible constraints, shared-prerequisite dependent branches, contradictory bounds, disconnected graphs, cycles, one-day activities, offset-preserving materialization, migration compatibility, and atomic rollback.
 
 ## Release gates
 

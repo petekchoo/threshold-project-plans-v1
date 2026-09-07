@@ -43,7 +43,18 @@ export default function ThresholdApp({view,id}:{view:Kind;id?:string}){
    setData(next);
   }catch(error){console.error('Threshold data refresh failed',error);setToast('Unable to refresh project data. Please reload or sign in again.')}finally{refreshInFlight.current=false}
  };
- useEffect(()=>{supabase.auth.getSession().then(({data:{session}})=>{if(!session){location.href='/sign-in'}else refresh()});const channel=supabase.channel('threshold-live').on('postgres_changes',{event:'*',schema:'public'},refresh).subscribe();return()=>{supabase.removeChannel(channel)}},[]);
+ useEffect(()=>{
+  supabase.auth.getUser().then(async({data:{user},error})=>{
+   if(error||!user){
+    await supabase.auth.signOut({scope:'local'});
+    location.href='/sign-in';
+    return;
+   }
+   refresh();
+  });
+  const channel=supabase.channel('threshold-live').on('postgres_changes',{event:'*',schema:'public'},refresh).subscribe();
+  return()=>{supabase.removeChannel(channel)};
+ },[]);
  const selectedProject=data.projects.find(p=>p.id===id),selectedActivity=data.activities.find(a=>a.id===id),selectedTemplate=data.templates.find(template=>template.id===id);
  const openActivity=(projectId?:string)=>{setActivityProjectId(projectId);setModal('activity')};
  const closeModal=()=>{setModal(null);setActivityProjectId(undefined)};

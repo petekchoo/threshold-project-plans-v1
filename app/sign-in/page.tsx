@@ -14,7 +14,9 @@ export default function SignIn() {
     event.preventDefault(); setBusy(true); setMessage('');
     const result = mode === 'sign-in' ? await supabase.auth.signInWithPassword({email,password}) : await supabase.auth.signUp({email,password,options:{data:{full_name:email.split('@')[0]}}});
     setBusy(false);
-    if(result.error) setMessage(result.error.message);
+    if(result.error) setMessage(mode==='sign-in'&&result.error.code==='invalid_credentials'
+      ? 'Email or password is incorrect, or no account exists for this email. Check your details or create an account.'
+      : result.error.message);
     else if(mode === 'sign-up') setMessage('Check your email to confirm your account.');
     else window.location.href = '/';
   }

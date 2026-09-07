@@ -14,7 +14,7 @@ QA-05 protects complete user journeys that cross routing, responsive layout, aut
 - Without `E2E_BASE_URL`, Playwright starts or reuses `http://localhost:3000`. With `E2E_BASE_URL`, it targets that explicit server and does not start the local Next.js process.
 - The targeted application's `NEXT_PUBLIC_SUPABASE_URL` determines its backend. Docker-local Supabase is used by database tests but does not become the browser backend unless the application process is explicitly configured for it.
 - Before every browser run, classify the target backend as Docker-local, dedicated development, preview/staging, or production/shared without exposing its URL, credentials, or project identifier. Record that classification in the task handoff.
-- Tests authenticate with a dedicated non-production account supplied through `THRESHOLD_E2E_EMAIL` and `THRESHOLD_E2E_PASSWORD`.
+- Tests authenticate with the dedicated development account supplied through `THRESHOLD_DEV_E2E_EMAIL` and `THRESHOLD_DEV_E2E_PASSWORD`. The development suite must never fall back to production smoke credentials.
 - Local runs load those values directly from the ignored `.env.local` file when present; shell sourcing is not required.
 - The baseline account and resettable fixture graph live in the dedicated hosted development project. `pnpm db:seed:dev` creates or updates the account and replaces only records using reserved fixture identifiers; credentials, generated browser state, screenshots, traces, and reports are never committed.
 - Slice 1 is read-only: editors are opened and cancelled, and tests must not save, archive, or otherwise change application data.

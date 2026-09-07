@@ -44,7 +44,7 @@ Status: the existing authoritative `save_activity` RPC and deferred `validate_pr
 
 Adopt the template interaction pattern in the dated activity editor, add the full preview/confirmation dialog, and preserve keyboard, responsive, and validation behavior.
 
-Status: staged Schedule rows and rule modal are implemented with live unsaved-date evaluation, current-activity adjustment confirmation, fixed incoming relationship context, and final-save revalidation. Automated browser coverage remains a release gate requiring authorization.
+Status: staged Schedule rows and rule modal are implemented with live unsaved-date evaluation, current-activity adjustment confirmation, fixed incoming relationship context, and final-save revalidation. Authorized desktop and 390×844 browser review against reset development fixtures confirmed valid staging, precise impossible-rule messaging, fixed incoming context, and responsive containment. Persistent automated coverage remains a later QA-05 release-gate extension.
 
 ## Acceptance matrix
 

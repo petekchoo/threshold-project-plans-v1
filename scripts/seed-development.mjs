@@ -76,8 +76,8 @@ const secretEntry = keys.find((entry) => (entry.type || entry.name || entry.key_
 const secretKey = secretEntry && (secretEntry.api_key || secretEntry.key || secretEntry.value);
 if (!secretKey) fail('development secret key is unavailable.');
 
-const email = values.THRESHOLD_E2E_EMAIL;
-const password = values.THRESHOLD_E2E_PASSWORD;
+const email = values.THRESHOLD_DEV_E2E_EMAIL;
+const password = values.THRESHOLD_DEV_E2E_PASSWORD;
 if (!email || !password) fail('dedicated E2E credentials are missing.');
 
 const admin = createClient(values.SUPABASE_DEV_URL, secretKey, {
@@ -170,4 +170,4 @@ const seedResult = spawnSync('supabase', ['db', 'query', '--linked', sql], {
 });
 if (seedResult.status !== 0) fail('database fixture transaction did not complete.');
 
-console.log('Development fixtures reset: 1 test user, 3 projects, 5 activities, and supporting reference data.');
+console.log('Development-only fixtures reset: 1 test user, 3 Development-labeled projects, 5 activities, and supporting reference data.');

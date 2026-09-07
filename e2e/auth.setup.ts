@@ -8,10 +8,10 @@ const authFile = 'e2e/.auth/user.json';
 
 export default async function globalSetup(config: FullConfig) {
   if (existsSync('.env.local')) loadEnvFile('.env.local');
-  const email = process.env.THRESHOLD_E2E_EMAIL;
-  const password = process.env.THRESHOLD_E2E_PASSWORD;
+  const email = process.env.THRESHOLD_DEV_E2E_EMAIL;
+  const password = process.env.THRESHOLD_DEV_E2E_PASSWORD;
   if (!email || !password) {
-    throw new Error('Set THRESHOLD_E2E_EMAIL and THRESHOLD_E2E_PASSWORD to run the browser smoke suite.');
+    throw new Error('Set THRESHOLD_DEV_E2E_EMAIL and THRESHOLD_DEV_E2E_PASSWORD to run the development browser suite.');
   }
 
   const browser = await chromium.launch();

@@ -25,6 +25,7 @@ Synchronization note: local `main` intentionally contains the post-merge PR #31 
 
 ## Next
 
+- Deepen the build-and-release environment guide without turning it into a runbook burden: add one concise source-of-truth matrix covering what runs locally, in GitHub, and in Vercel; which Supabase backend each stage uses; where environment selection and write guards are configured; which unit, database, build, browser, preview, and production checks run at each stage; what requires explicit authorization; and which evidence belongs in the release handoff. Cross-link existing detailed setup sections instead of duplicating them, and verify the documented Vercel preview/production environment-variable scopes before stating their targets as fact.
 - Extend scheduling unit coverage as later project-rescheduling slices and dependency behaviors are implemented (`QA-03`).
 - Extend QA-05 beyond the responsive smoke slice with disposable-fixture authentication, overview, CRUD, dependency, timeline, and administration journeys, then make it a required CI job.
 

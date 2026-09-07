@@ -8,7 +8,7 @@ Synchronization note: local `main` intentionally contains the post-merge PR #31 
 
 ## Active
 
-- DEP-11 dated activity schedule rules: the preservation-first, current-activity-only contract is recorded in `plans/DEP-11-dated-activity-schedule-rules.md`. The staged rule modal evaluates unsaved form dates, may adjust only the activity being edited, and blocks with fixed relationship boundaries when no isolated placement works. Slice 1 implements the placement kernel; next build the isolated rule-viability planner and QA-03 coverage. Multi-activity graph optimization is deferred.
+- DEP-11 dated activity schedule rules: the preservation-first, current-activity-only planner, staged Schedule rows and modal, unsaved-date evaluation, exact adjustment confirmation, incoming fixed-boundary context, cycle detection, and final-save revalidation are implemented with QA-03 coverage. Repository verification and production build pass. Next add authoritative database relationship validation and its disposable-database coverage, then complete authorized responsive browser validation. Multi-activity graph optimization remains deferred.
 
 ## Recently completed
 

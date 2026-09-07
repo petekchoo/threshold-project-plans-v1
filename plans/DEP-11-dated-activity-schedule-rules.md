@@ -26,9 +26,13 @@ This plan governs applying the template activity **Schedule** interaction to dat
 
 Implement and unit-test deterministic, duration-preserving placement of one dated activity against combined start and finish bounds. This slice performs no persistence or UI changes.
 
+Status: implemented.
+
 ### Slice 2 — Isolated rule-viability planner
 
 Compile the current activity's staged project and relationship rules into fixed bounds, add project-start and exception proposals, and return structured no-change, current-activity-change, or blocking-conflict outcomes. Evaluate unsaved form values and never propose another activity's dates.
+
+Status: client planner implemented for project timing, prerequisites, incoming dependents, missing references, contradictions, and cycles. Authoritative stale-state protection remains in Slice 3.
 
 ### Slice 3 — Authoritative preview and atomic commit
 
@@ -37,6 +41,8 @@ Add scoped-locking RPCs and database coverage. Reuse the `PRJ-06` one-hop lock p
 ### Slice 4 — Staged Schedule interface
 
 Adopt the template interaction pattern in the dated activity editor, add the full preview/confirmation dialog, and preserve keyboard, responsive, and validation behavior.
+
+Status: staged Schedule rows and rule modal are implemented with live unsaved-date evaluation, current-activity adjustment confirmation, fixed incoming relationship context, and final-save revalidation. Automated browser coverage remains a release gate requiring authorization.
 
 ## Acceptance matrix
 

@@ -386,7 +386,7 @@ groups:
         Primary implementation: "`components/activities/activity-form.tsx` (`submit`, neutral confirmation copy)"
         Database / persistence: Authoritative `save_activity` performs atomic activity/owner/link/dependency save
         Coverage: Partial
-        Verification / known gap: Handles direct changes to the edited dependent. PRJ-06 preserves completed-prerequisite chronology and blocks completed-dependent/incomplete-prerequisite inconsistencies during project rescheduling. Multi-level propagation, downstream impact previews, reverse prerequisite proposals, and the specified update/remove resolution are not implemented.
+        Verification / known gap: Handles direct changes to the edited dependent. PRJ-06 preserves completed-prerequisite chronology and blocks completed-dependent/incomplete-prerequisite inconsistencies during project rescheduling. The earlier multi-activity propagation direction is superseded by DEP-11 isolation; graph optimization remains deferred.
       - ID: DEP-04
         verification:
           - activity-work-management-database
@@ -445,10 +445,10 @@ groups:
         verification:
           - unit-vitest
         Capability: Apply staged schedule rules to dated activities with preservation-first, current-activity-only date derivation
-        Primary implementation: "Binding detail in `plans/DEP-11-dated-activity-schedule-rules.md`; Slice 1 placement kernel in `lib/planning/activity-schedule.ts`; later isolated rule-viability planner and staged activity Schedule interface"
+        Primary implementation: "Binding detail in `plans/DEP-11-dated-activity-schedule-rules.md`; placement and isolated rule-viability planner in `lib/planning/activity-schedule.ts`; staged interface in `components/activities/activity-schedule-editor.tsx` and `components/activities/activity-form.tsx`"
         Database / persistence: "Existing activity timing and dependency fields for Slice 1; authoritative preview/commit RPCs deferred to Slice 3"
         Coverage: Partial
-        Verification / known gap: Slice 1 deterministically preserves valid dates or applies the minimum duration-preserving shift to the current activity against fixed combined bounds, including contradiction and calendar-boundary coverage. Unsaved-form rule evaluation, structured related-activity conflicts, authoritative persistence, and the staged dated-activity interface remain planned; multi-activity graph optimization is deferred.
+        Verification / known gap: The planner preserves valid unsaved dates or applies the minimum duration-preserving shift to the current activity against fixed project, prerequisite, and incoming-dependent bounds. QA-03 covers unchanged and adjusted dates, contradictions, post-project windows, fixed incoming boundaries, cycles, and calendar arithmetic. The staged modal applies only confirmed current-activity changes and final Save revalidates. Authoritative database relationship validation and automated browser coverage remain; multi-activity graph optimization is deferred.
   - title: Administration, archives, responsive design, and presentation
     scope: product-presentation
     design_refs:

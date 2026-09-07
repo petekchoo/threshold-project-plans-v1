@@ -12,12 +12,12 @@ This plan governs applying the template activity **Schedule** interaction to dat
 - Removing a rule removes only the constraint and never changes dates. Dates that gain scheduling space remain where the user put them.
 - Project-relative rules contribute finish bounds: advance deadline supplies an inclusive upper bound; post-project completion supplies an inclusive range from the day after project end through the configured deadline.
 - Prerequisites contribute lower bounds to the dependent. Existing incoming relationships contribute upper bounds to the edited prerequisite. Multiple rules form one intersection; an empty intersection is a blocking conflict, not a partially applied schedule.
-- After the edited activity is placed, invalid downstream relationships propagate the minimum required forward shifts while preserving duration. A downstream date that remains valid is preserved. If a downstream constraint instead requires moving a prerequisite earlier, the proposal may propagate backward using the same minimum-change rule.
-- Every derived change is calculated over the complete active connected graph. Cycles, contradictory bounds, missing endpoints, and inconsistent completed relationships block confirmation with factual conflict details.
+- Rule viability is evaluated for the activity being edited against the fixed dates of related activities. Adding or editing a rule may propose dates only for the current activity; it never changes a referenced prerequisite or downstream dependent.
+- Incoming and outgoing relationships both contribute fixed boundaries. If the current activity cannot fit between them, or moving it would invalidate another activity, the rule is blocked with the conflicting activity names, boundary dates, and reason. Graph optimization and multi-activity propagation are deferred because they require a separate, deliberately initiated workflow.
 - Completed activity dates and archived activities/relationships never move automatically. A required completed-date change blocks and offers separate reopening or rule revision. Cross-project activities also remain fixed and produce manual-resolution conflicts.
 - If a proposal starts before the project, preview may include the existing atomic project-start adjustment. A finish after project end is authorized automatically only by a conforming post-project rule; otherwise preview requires the existing explicit exception confirmation. Removing a post-project rule preserves dates and offers conversion to an ordinary exception when needed. A stale exception is cleared when the final finish is within the project.
 - Creating an activity without complete dates remains invalid. When dates are present, rules use the same preservation-first derivation.
-- Any rule addition, edit, or removal that changes a date, project boundary, or exception flag requires a complete preview and confirmation before one authoritative atomic save. A rule-only change whose existing dates and exception remain valid may save without a date-change preview. Cancel writes nothing.
+- The rule modal evaluates the current unsaved project, dates, and staged rules. A valid rule with unchanged dates is staged immediately; a viable date change requires an explicit **Apply rule and update dates** action that changes only the unsaved current activity; an impossible placement keeps the modal open and blocks the rule. Final form save revalidates the same state. Any current-activity date, project-boundary, or exception change requires preview and confirmation before one authoritative atomic save. Cancel writes nothing.
 - Project rescheduling continues to shift eligible activities by project-end delta and then validates these same persisted rules. It does not invoke template latest-valid placement or compress scheduling slack.
 
 ## Delivery slices
@@ -26,9 +26,9 @@ This plan governs applying the template activity **Schedule** interaction to dat
 
 Implement and unit-test deterministic, duration-preserving placement of one dated activity against combined start and finish bounds. This slice performs no persistence or UI changes.
 
-### Slice 2 — Connected-graph preview planner
+### Slice 2 — Isolated rule-viability planner
 
-Add preservation-first propagation, completed/cross-project barriers, project-start and exception proposals, structured conflicts, and deterministic fingerprints. Cross-review the planner against `PRJ-06` behavior before persistence work.
+Compile the current activity's staged project and relationship rules into fixed bounds, add project-start and exception proposals, and return structured no-change, current-activity-change, or blocking-conflict outcomes. Evaluate unsaved form values and never propose another activity's dates.
 
 ### Slice 3 — Authoritative preview and atomic commit
 
@@ -48,14 +48,16 @@ Adopt the template interaction pattern in the dated activity editor, add the ful
 | DEP11-04 | Multiple bounds overlap | Choose the placement nearest the current dates; equal-distance ambiguity resolves later. |
 | DEP11-05 | Bounds do not overlap | Return a blocking contradiction and no proposed write. |
 | DEP11-06 | Rule removed | Preserve dates; resolve only exception validity if necessary. |
-| DEP11-07 | Downstream work remains valid | Preserve its dates and scheduling slack. |
-| DEP11-08 | Downstream work becomes invalid | Preview minimum forward propagation through the active connected graph. |
-| DEP11-09 | Completed or cross-project activity would move | Keep it fixed and block for manual resolution. |
+| DEP11-07 | Related activity dates establish a viable range | Change only the current activity by the minimum required shift. |
+| DEP11-08 | Current activity cannot fit between fixed relationship bounds | Keep the rule modal open and explain the conflicting activities and dates. |
+| DEP11-09 | Current activity movement would invalidate a dependent | Keep every related activity fixed and block the rule for manual resolution. |
 | DEP11-10 | Proposal crosses project boundary | Include project-start adjustment or exception handling in the same preview. |
 | DEP11-11 | Rule-only change leaves final state valid | Save atomically without a date-change preview. |
 | DEP11-12 | Any derived state changes | Preview all changes and save only after confirmation. |
 | DEP11-13 | Project is rescheduled later | Existing PRJ-06 movement and validation semantics remain unchanged. |
 | DEP11-14 | Concurrent graph edit follows preview | Reject stale state under the PRJ-06 scoped-lock contract. |
+| DEP11-15 | Rule is added before the activity exists | Evaluate the live unsaved dates and staged rules exactly as for an existing activity. |
+| DEP11-16 | Dates change after a rule is staged | Revalidate on final form save and block or preview the current-activity correction. |
 
 ## Release gates
 

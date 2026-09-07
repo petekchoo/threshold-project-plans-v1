@@ -444,11 +444,11 @@ groups:
           - plans/DEP-11-dated-activity-schedule-rules.md
         verification:
           - unit-vitest
-        Capability: Apply staged schedule rules to dated activities with preservation-first derivation and confirmed atomic propagation
-        Primary implementation: "Binding detail in `plans/DEP-11-dated-activity-schedule-rules.md`; Slice 1 placement kernel in `lib/planning/activity-schedule.ts`; later connected-graph planner and staged activity Schedule interface"
+        Capability: Apply staged schedule rules to dated activities with preservation-first, current-activity-only date derivation
+        Primary implementation: "Binding detail in `plans/DEP-11-dated-activity-schedule-rules.md`; Slice 1 placement kernel in `lib/planning/activity-schedule.ts`; later isolated rule-viability planner and staged activity Schedule interface"
         Database / persistence: "Existing activity timing and dependency fields for Slice 1; authoritative preview/commit RPCs deferred to Slice 3"
         Coverage: Partial
-        Verification / known gap: Slice 1 deterministically preserves valid dates or applies the minimum duration-preserving shift against combined start/due bounds, including contradiction and calendar-boundary coverage. Connected-graph propagation, authoritative persistence, and the staged dated-activity interface remain planned.
+        Verification / known gap: Slice 1 deterministically preserves valid dates or applies the minimum duration-preserving shift to the current activity against fixed combined bounds, including contradiction and calendar-boundary coverage. Unsaved-form rule evaluation, structured related-activity conflicts, authoritative persistence, and the staged dated-activity interface remain planned; multi-activity graph optimization is deferred.
   - title: Administration, archives, responsive design, and presentation
     scope: product-presentation
     design_refs:

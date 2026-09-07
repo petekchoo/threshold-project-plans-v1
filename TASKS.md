@@ -8,7 +8,7 @@ Synchronization note: local `main` intentionally contains the post-merge PR #31 
 
 ## Active
 
-- DEP-11 dated activity schedule rules: the preservation-first date-derivation and confirmation contract is recorded in `plans/DEP-11-dated-activity-schedule-rules.md`. The shared staged Schedule presentation is compatible, but template latest-valid placement is explicitly excluded from live projects. Slice 1 implements the pure single-activity placement kernel; next build the connected-graph preview planner and cross-review it against PRJ-06 before persistence or UI work.
+- DEP-11 dated activity schedule rules: the preservation-first, current-activity-only contract is recorded in `plans/DEP-11-dated-activity-schedule-rules.md`. The staged rule modal evaluates unsaved form dates, may adjust only the activity being edited, and blocks with fixed relationship boundaries when no isolated placement works. Slice 1 implements the placement kernel; next build the isolated rule-viability planner and QA-03 coverage. Multi-activity graph optimization is deferred.
 
 ## Recently completed
 

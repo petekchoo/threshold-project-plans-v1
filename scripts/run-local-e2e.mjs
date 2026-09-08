@@ -39,6 +39,8 @@ const ids = {
   activityTypes: ['73000000-0000-0000-0000-000000000001', '73000000-0000-0000-0000-000000000002', '73000000-0000-0000-0000-000000000003'],
   projects: ['74000000-0000-0000-0000-000000000001', '74000000-0000-0000-0000-000000000002', '74000000-0000-0000-0000-000000000003'],
   activities: ['75000000-0000-0000-0000-000000000001', '75000000-0000-0000-0000-000000000002', '75000000-0000-0000-0000-000000000003', '75000000-0000-0000-0000-000000000004', '75000000-0000-0000-0000-000000000005'],
+  template: '78000000-0000-0000-0000-000000000001',
+  templateActivity: '79000000-0000-0000-0000-000000000001',
 };
 
 const { url, publishableKey, serviceKey } = localEnvironment();
@@ -56,6 +58,7 @@ if (user) {
 if (!user) fail('the local E2E user was not returned.');
 
 await requireSuccess(admin.from('projects').delete().in('id', ids.projects), 'clear projects');
+await requireSuccess(admin.from('project_templates').delete().eq('id', ids.template), 'clear template');
 await requireSuccess(admin.from('team_members').delete().in('id', ids.members), 'clear members');
 await requireSuccess(admin.from('project_types').delete().in('id', ids.projectTypes), 'clear project types');
 await requireSuccess(admin.from('activity_types').delete().like('name', 'DEV QA E2E %'), 'clear QA activity types');
@@ -72,6 +75,14 @@ await requireSuccess(admin.from('project_types').insert([
 await requireSuccess(admin.from('activity_types').insert([
   { id: ids.activityTypes[0], name: 'DEV Planning' }, { id: ids.activityTypes[1], name: 'DEV Production' }, { id: ids.activityTypes[2], name: 'DEV Communications' },
 ]), 'seed activity types');
+await requireSuccess(admin.from('project_templates').insert({
+  id: ids.template, name: 'DEV Gala template', project_type_id: ids.projectTypes[0], created_by: user.id,
+}), 'seed template');
+await requireSuccess(admin.from('project_template_activities').insert({
+  id: ids.templateActivity, template_id: ids.template, activity_type_id: ids.activityTypes[0],
+  name: 'DEV Prepare gala brief', schedule_rule: 'finish_before_project_end', offset_days: 2,
+  duration_days: 3, relative_activity_id: null, sort_order: 0,
+}), 'seed template activity');
 await requireSuccess(admin.from('projects').insert([
   { id: ids.projects[0], name: 'DEV Gala', description: 'Disposable browser fixture.', project_type_id: ids.projectTypes[0], status: 'on_track', start_date: addDays(-10), end_date: addDays(30), created_by: user.id },
   { id: ids.projects[1], name: 'DEV Fall Campaign', description: 'Future fixture.', project_type_id: ids.projectTypes[1], status: 'draft', start_date: addDays(20), end_date: addDays(60), created_by: user.id },

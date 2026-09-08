@@ -189,19 +189,19 @@ groups:
         Primary implementation: "`components/overview/overview.tsx`; `components/overview/activity-attention-list.tsx`; `components/activities/activity-panel.tsx`; `lib/planning/dates.ts` (`isoDate`, `addDays`)"
         Database / persistence: Activity dates, status, and owners
         Coverage: Implemented
-        Verification / known gap: Metric cards link to matching sections above Team Workload. Rows open the shared activity editor panel; due-in-seven-days explicitly excludes overdue work. Derived client-side; no boundary-date unit tests.
+        Verification / known gap: Three saturated, high-contrast metric cards use a shared two-level sans-serif hierarchy without decorative glyph icons and link to matching quiet detail sections above Team Workload. Rows open the shared activity editor panel; due-in-seven-days explicitly excludes overdue work. Browser coverage verifies the metric family and links; derived date boundaries have no unit tests.
       - ID: OVR-05
         Capability: Activity breakdown by team member segmented by status
         Primary implementation: "`components/overview/owner-breakdown.tsx`"
         Database / persistence: Team members, activity owners, activity status
         Coverage: Implemented
-        Verification / known gap: Manual UI.
+        Verification / known gap: Bar length is explicitly defined as relative activity count; the scale carries the Overview palette through gold Not Started, green In Progress, navy Completed, and exception-red Blocked segments. A visible legend names every status, and each team member has an accessible total and status-count summary. Desktop browser coverage verifies the explanation, legend, and text equivalent.
       - ID: OVR-06
         Capability: Mobile project tiles with health, progress, counts, and next activity
         Primary implementation: "`components/overview/project-card.tsx`; `lib/planning/progress.ts`; `app/extended.css`"
         Database / persistence: Projects and activities
         Coverage: Implemented
-        Verification / known gap: Manual responsive UI.
+        Verification / known gap: Overview and Projects share one compact saturated-navy-header project tile with balanced vertical padding, a quiet planning body, equal-height navy project-window and activity-completion tracks, a navy Today treatment, semantic exception signals, and a distinct next-activity footer. Mobile browser coverage verifies the shared fields, header treatment, typography, Today state, and track alignment.
   - title: Projects
     scope: product-behavior
     design_refs:
@@ -222,7 +222,7 @@ groups:
         Primary implementation: "`components/projects/projects-list.tsx`; `/projects` route; shared search in `components/threshold-app.tsx`"
         Database / persistence: Projects, types, owners, activities
         Coverage: Partial
-        Verification / known gap: Core columns and selector sorting exist. Primary table content uses 14px text and tabular numerals, and project briefs have an expandable desktop disclosure. Search covers project name and type; status, team member, type, end-date window, sort, and archive controls remain expanded on desktop and use the same counted mobile filter disclosure as Activities. Projects and Overview share one mobile project-tile component, including aligned project-window and activity-progress tracks. Labels shorten “Activity Progress” and “Overdue Activities,” and status sorting is lexical rather than workflow ordered.
+        Verification / known gap: Core columns and selector sorting exist. Primary table content uses 14px text and tabular numerals, and project briefs have an expandable desktop disclosure. Search covers project name and type; status, team member, type, end-date window, sort, and archive controls remain expanded on desktop and use the same counted mobile filter disclosure as Activities. Projects and Overview share one compact saturated-navy-header mobile project tile with a compact sans-serif hierarchy, quiet planning body, equal-height navy project-window and activity-progress tracks, semantic exception signals, and a next-activity footer. Labels shorten “Activity Progress” and “Overdue Activities,” and status sorting is lexical rather than workflow ordered.
       - ID: PRJ-02
         Capability: Create and edit project name, description, type, status, dates, and assigned team members
         Primary implementation: "`components/projects/project-form.tsx`; `components/shared/editor.tsx`; `components/projects/project-detail.tsx`"
@@ -278,7 +278,7 @@ groups:
         Primary implementation: "`components/activities/activities-list.tsx`; `/activities` route"
         Database / persistence: Activities, projects, types, owners
         Coverage: Implemented
-        Verification / known gap: Desktop table content uses 14px text and tabular numerals. Mobile cards expose project, type, assignment, status, dates, and a prominent upper-right overdue state; priority remains available in the desktop table, filters, and activity detail without crowding the mobile tile. The read-only activity summary uses four equal cells on desktop and a balanced two-by-two grid on mobile.
+        Verification / known gap: Desktop table content uses 14px text and tabular numerals. Mobile cards use a saturated dark-green identity header above a quiet status/date body and neutral assignment footer, exposing project, type, assignment, status, dates, and a prominent upper-right overdue state through one compact sans-serif hierarchy. Priority remains available in the desktop table, filters, and activity detail without crowding the mobile tile. The read-only activity summary uses four equal cells on desktop and a balanced two-by-two grid on mobile.
       - ID: ACT-02
         Capability: Filter activities by project, team member, type, status, priority, due date, and archive state; sort meaningful fields
         Primary implementation: "`components/activities/activity-filters.tsx`; `components/activities/activities-list.tsx`; `components/projects/project-activity-list.tsx`"
@@ -397,10 +397,10 @@ groups:
         Verification / known gap: Form-time and database checks reject cycles. The picker does not yet prevent invalid selection or explain the complete relationship path.
       - ID: DEP-05
         Capability: Activity-level dependency timeline shows project, selected activity, prerequisites, and dependents with filters
-        Primary implementation: "`components/activities/activity-detail.tsx` focus timeline"
+        Primary implementation: "`components/activities/activity-context-timeline.tsx`; `components/activities/activity-detail.tsx`"
         Database / persistence: Dependency data
-        Coverage: Partial
-        Verification / known gap: Project and selected activity render. Relationship lanes, dependents, direction labels, and All/Prerequisites/Dependents filters are not implemented.
+        Coverage: Implemented
+        Verification / known gap: The shared daily date scale renders the project, selected activity, direct prerequisites, and direct dependents with textual direction and constraint labels, a conditional Today marker, and All/Prerequisites/Dependents filters. Desktop defaults to All; small screens default to the first available relationship group. Browser coverage verifies desktop filtering, the mobile single-group default, and intermediate-width containment. Transitive paths and dependency connectors are intentionally excluded.
       - ID: DEP-06
         verification:
           - activity-work-management-database
@@ -504,19 +504,19 @@ groups:
         Primary implementation: Feature forms; `components/shell/*`; `components/overview/project-card.tsx`; responsive CSS
         Database / persistence: Same persistence paths on all viewports
         Coverage: Implemented
-        Verification / known gap: Editor grids stack on small screens while retaining readable 16px controls and touch-sized actions; team-member and Save controls remain visible and contained. The mobile activity panel uses the dynamic viewport and normal-flow final actions so Chrome browser chrome cannot obscure a negatively offset sticky action bar. Detail-summary values, project-card titles, administration rows, editors, and relationship URLs wrap within narrow panes. Browser coverage checks containment at 390×844 and preservation at 1440×900; a broader device matrix remains.
+        Verification / known gap: Editor grids stack on small screens while retaining readable 16px controls and touch-sized actions; team-member and Save controls remain visible and contained. The mobile activity panel uses the dynamic viewport and normal-flow final actions so Chrome browser chrome cannot obscure a negatively offset sticky action bar. Detail-summary values, project-card titles, administration rows, editors, and relationship URLs wrap within narrow panes. Browser coverage checks containment at 390×844 and preservation at 1440×900, with an additional 820px activity-context containment check; a broader device matrix remains.
       - ID: A11Y-01
         Capability: Semantic, keyboard-accessible UI with focus visibility and suitable contrast
         Primary implementation: "Form labels, fieldsets, status roles, dialog attributes; `components/shared/modal-keyboard.ts`; `components/shared/icon.tsx`; global/extended CSS"
         Database / persistence: None
         Coverage: Partial
-        Verification / known gap: Shared top-level editors and activity panels move focus into the dialog, contain Tab navigation, and restore prior focus; mobile navigation and child-modal keyboard policies retain their behavior. No automated accessibility, contrast, or screen-reader audit exists.
+        Verification / known gap: Shared top-level editors and activity panels move focus into the dialog, contain Tab navigation, and restore prior focus; mobile navigation and child-modal keyboard policies retain their behavior. Workload charts and activity-context timelines now expose textual equivalents, and affected links, rows, and filter controls have visible focus treatment. No automated contrast or full-page accessibility audit exists.
       - ID: VIS-01
         Capability: Threshold identity with warm editorial and restrained operational styling
         Primary implementation: "`components/shell/sidebar.tsx`; `components/shared/icon.tsx`; logo assets; `app/globals.css`; `app/extended.css`"
         Database / persistence: "`public/threshold-logo.png`; `public/threshold-logo-white.png`"
         Coverage: Implemented
-        Verification / known gap: Sidebar presentation crops the square assets' transparent margins at display time so the Threshold mark and Projects wordmark form a balanced lockup without modifying source artwork. Shared display, interface, and type-scale tokens preserve the editorial hierarchy while normalizing operational text, recurring buttons, form controls, checkboxes, focus states, and high-visibility action icons. Exact brand typography and color confirmation remain open under D-16.
+        Verification / known gap: Sidebar presentation crops the square assets' transparent margins at display time so the Threshold mark and Projects wordmark form a balanced lockup without modifying source artwork. Shared display, interface, and type-scale tokens preserve the editorial hierarchy while normalizing operational text, recurring buttons, form controls, checkboxes, focus states, and high-visibility action icons. Overview concentrates deep navy, rich gold, and dark green in its principal metrics and workload scale; shared project and activity tiles use matching three-zone systems with navy and green identity headers respectively, quiet operational bodies, and neutral footers. Exact brand typography outside these confirmed treatments remains open under D-16.
       - ID: VIS-02
         Capability: Gentle responsive transitions, restrained status colors, and no dark mode
         Primary implementation: Global and extended CSS
@@ -569,7 +569,7 @@ groups:
         Capability: End-to-end core-journey tests
         Current implementation: "Playwright smoke suite in `e2e/*`; authenticated read-only setup; mobile Chromium at 390 × 844; desktop Chromium at 1440 × 900; guarded dedicated-development environment and reserved fixture reset in `scripts/supabase-environment.mjs` and `scripts/seed-development.mjs`"
         Coverage: Partial
-        Next verification need: Slice 1 covers responsive header/drawer navigation, project-editor team/action containment, accessible project validation, shared checkbox geometry, complete activity/project filter responsiveness, stacked mobile portfolio controls, shared aligned project-tile tracks and Today state, activity-card simplification, equal detail summaries, administration containment, fixed daily schedule spacing and boundary clipping, and mobile project-activity editor disclosure defaults plus label/section/action/notes containment. The hosted development backend and reserved resettable fixture graph now unblock isolated activity-form mutation, CRUD, dependency, and administration journeys; add those journeys with cleanup before making the suite required in CI.
+        Next verification need: Slice 1 covers responsive header/drawer navigation, project-editor team/action containment, accessible project validation, shared checkbox geometry, complete activity/project filter responsiveness, stacked mobile portfolio controls, shared aligned project-tile tracks and Today state, activity-card simplification, equal detail summaries, administration containment, fixed daily schedule spacing and boundary clipping, accessible workload semantics, activity relationship filtering and responsive context, an intermediate-width containment check, and mobile project-activity editor disclosure defaults plus label/section/action/notes containment. The hosted development backend and reserved resettable fixture graph now unblock isolated activity-form mutation, CRUD, dependency, and administration journeys; add those journeys with cleanup before making the suite required in CI.
       - ID: QA-06
         Capability: Build and deployment target
         Current implementation: "`package.json`; `next.config.ts`; `.github/workflows/verify.yml`; Tailwind/PostCSS configuration; Supabase CLI configuration and migrations; guarded hosted-environment selection in `scripts/supabase-environment.mjs`"

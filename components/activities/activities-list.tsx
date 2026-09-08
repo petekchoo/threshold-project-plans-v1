@@ -21,12 +21,9 @@ export function ActivitiesList({ data, query, onNew }: { data: AppData; query: s
         const owners = activity.activity_owners?.map(item => item.team_members) || [];
         const overdue = activity.status !== 'completed' && activity.due_date < today;
         return <Link className="activity-card" href={`/activities/${activity.id}`} key={activity.id}>
-          <div className="activity-card-heading"><small>{activity.projects?.name}</small>{overdue && <span className="activity-card-overdue">Overdue</span>}</div>
-          <h3>{activity.name}</h3>
-          <p className="activity-card-type">{activity.activity_types?.name || 'Activity'}</p>
-          <div><Pill value={activity.status}/></div>
+          <div className="activity-card-header"><div className="activity-card-heading"><small>{activity.projects?.name}</small>{overdue && <span className="activity-card-overdue">Overdue</span>}</div><h3>{activity.name}</h3></div>
+          <div className="activity-card-body"><p className="activity-card-type">{activity.activity_types?.name || 'Activity'}</p><div className="activity-card-status"><Pill value={activity.status}/></div><p className="activity-card-dates"><span className="activity-card-label">Dates</span><strong>{date(activity.start_date)} — {date(activity.due_date)}</strong></p></div>
           <div className="activity-card-team"><span className="activity-card-label">Team members</span>{owners.length ? <AvatarList owners={owners}/> : <span>Unassigned</span>}</div>
-          <p>{date(activity.start_date)} — {date(activity.due_date)}</p>
         </Link>;
       })}</div>
     </> : <section className="activity-list-empty" aria-live="polite"><strong>{hasActiveFilters ? 'No activities match these filters.' : 'No activities yet.'}</strong><p>{hasActiveFilters ? 'Clear the filters to see all available activities.' : 'Add the first activity to begin planning the work.'}</p>{hasActiveFilters ? <button type="button" className="secondary-btn" onClick={clearFilters}>Clear filters</button> : <button type="button" className="create-btn" onClick={onNew}>＋ Add activity</button>}</section>}

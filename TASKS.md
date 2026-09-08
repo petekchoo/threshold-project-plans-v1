@@ -8,7 +8,7 @@ Synchronization note: local `main` intentionally contains the post-merge PR #33 
 
 ## Active
 
-- First-round verified design gaps are ready for review on `feature/first-round-design-gaps` (`OVR-05`, `ACT-05`, `DEP-05`, `RSP-01`, `A11Y-01`, `QA-05`). The release adds accessible workload semantics, a direct-relationship activity timeline, simplified saturated overview/project/activity tiles, aligned interaction states, responsive regression coverage, and consistently `DEV`-named development fixtures including team members. Local release gates pass: implementation-map validation, typecheck, lint, all 78 unit tests, the production build, and all 15 Playwright checks across 390×844 mobile, 1440×900 desktop, and the intermediate relationship-timeline viewport. The dedicated development fixture was reset successfully; no schema migration is included. Pull request creation and hosted checks are pending.
+- First-round verified design gaps are ready for review in GitHub PR #34 on `feature/first-round-design-gaps` (`OVR-05`, `ACT-05`, `DEP-05`, `RSP-01`, `A11Y-01`, `QA-05`). The release adds accessible workload semantics, a direct-relationship activity timeline, simplified saturated overview/project/activity tiles, aligned interaction states, responsive regression coverage, and consistently `DEV`-named development fixtures including team members. Local release gates pass: implementation-map validation, typecheck, lint, all 78 unit tests, the production build, and all 15 Playwright checks across 390×844 mobile, 1440×900 desktop, and the intermediate relationship-timeline viewport. The dedicated development fixture was reset successfully; no schema migration is included. Hosted checks and merge are pending.
 
 ## Recently completed
 

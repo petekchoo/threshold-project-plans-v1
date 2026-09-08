@@ -18,6 +18,8 @@ Do not rely on prior chat context in place of these durable sources. This routed
 4. Classify the change as `conforms`, `clarifies`, `changes-design`, or `no-product-impact` using `DEVELOPMENT.md`.
 5. Follow the startup, branching, verification, and completion workflow in `DEVELOPMENT.md`.
 
+Edit existing files only through targeted changes. Never delete and recreate an existing file as an editing or patching workaround; if a targeted edit cannot be applied safely, stop and inspect or reformat the file before trying again.
+
 For documentation-only workflow changes that do not alter product behavior, state that no product requirement applies and inspect the documentation sources being changed. Do not invent a product requirement ID for contributor-process work.
 
 ## Design conflict gate

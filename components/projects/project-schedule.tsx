@@ -6,7 +6,7 @@ import { projectScheduleBar, projectScheduleOffset, projectScheduleScale } from 
 import type { Activity, Project } from '../../lib/planning/types';
 import { statusLabel } from '../shared/status-pill';
 
-export function ProjectSchedule({ project, activities, onEdit }: { project: Project; activities: Activity[]; onEdit: (activity: Activity) => void }) {
+export function ProjectSchedule({ project, activities, onEdit }: { project: Project; activities: Activity[]; onEdit?: (activity: Activity) => void }) {
   const domainStart = [project.start_date, ...activities.map((activity) => activity.start_date)].sort()[0];
   const domainEnd = [project.end_date, ...activities.map((activity) => activity.due_date)].sort().at(-1) || project.end_date;
   const { trackWidth, dayWidth, major, minor } = projectScheduleScale(domainStart, domainEnd);
@@ -25,7 +25,7 @@ export function ProjectSchedule({ project, activities, onEdit }: { project: Proj
         <div className="schedule-track project-track">{grid}<b aria-hidden="true" className="project-schedule-bar" style={projectScheduleBar(domainStart, project.start_date, addDays(project.end_date, 1))}/><em className="project-end-marker" style={{ left: endPosition(project.end_date) }}><span>{date(project.end_date)}</span></em></div>
         {ordered.map((activity) => (
           <div className="schedule-row" key={activity.id}>
-            <button className="schedule-row-label" type="button" onClick={() => onEdit(activity)}><strong>{activity.name}</strong><small>{statusLabel(activity.status)} · {date(activity.start_date)} – {date(activity.due_date)}</small></button>
+            {onEdit ? <button className="schedule-row-label" type="button" onClick={() => onEdit(activity)}><strong>{activity.name}</strong><small>{statusLabel(activity.status)} · {date(activity.start_date)} – {date(activity.due_date)}</small></button> : <div className="schedule-row-label"><strong>{activity.name}</strong><small>{statusLabel(activity.status)} · {date(activity.start_date)} – {date(activity.due_date)}</small></div>}
             <div className="schedule-track">{grid}<i aria-hidden="true" className={`schedule-activity-bar status-${activity.status}`} style={projectScheduleBar(domainStart, activity.start_date, addDays(activity.due_date, 1))}/></div>
           </div>
         ))}

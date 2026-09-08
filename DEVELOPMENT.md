@@ -58,6 +58,33 @@ Treat the delivery pipeline as three separate stages, and identify both the appl
 
 Passing a build or deployment check proves compilation and deployment readiness, not safe database targeting or end-to-end behavior. Record the verified backend classification in the task handoff whenever browser or deployed-preview validation occurs.
 
+#### Delivery pathway and release gates
+
+Use the following progression for changes that move toward production. The progression is ordered, but the required validation within each gate depends on the change classification and risk. Do not run every suite mechanically for every change, and do not skip a relevant suite merely because a lighter change category normally permits it.
+
+| Gate | Application and backend | Required evidence before progressing |
+| --- | --- | --- |
+| 1. Classify and inspect | Local working tree; no backend assumption | Classify the change as `conforms`, `clarifies`, `changes-design`, or `no-product-impact`; identify applicable requirements, plans, implementation locations, and tests. |
+| 2. Local baseline | Local working tree; Docker-local Supabase only when database tests are required | Run the baseline and risk-specific checks below. Confirm a production build for deployment-affecting changes. |
+| 3. Local browser validation | Local Next.js; explicitly classified Docker-local, dedicated development, preview/staging, or production/shared backend | Confirm HTTP 200 before testing. Run the relevant desktop/mobile journeys. Data-changing journeys require explicit authorization, a safe backend, reserved fixtures, and verified cleanup. |
+| 4. Pull request and CI | GitHub runner; disposable Docker-local Supabase for the database job | Record local evidence and known omissions in `TASKS.md`; require GitHub repository verification and the disposable-database job to pass on the final revision. |
+| 5. Vercel preview | Vercel preview; backend determined from verified environment-variable scope | Require the preview deployment check. Before behavioral validation, verify and record the backend classification; never infer it from the word “preview.” |
+| 6. Merge and production promotion | Vercel production application; production Supabase only for a separately authorized migration | Require all applicable final-revision checks and review. Treat application deployment and database migration as separate promotions; production database writes require a reviewed dry run, explicit authorization, and the production write guard. |
+| 7. Post-release reconciliation | Production smoke target as authorized; local configuration restored to development | Record merge commit, deployment result, migration state, proportionate smoke evidence, remaining risks, branch cleanup, and synchronization of local `main` with `origin/main`. |
+
+Select validation by the behavior and systems affected:
+
+| Change type | Local baseline | Additional required validation |
+| --- | --- | --- |
+| Documentation or contributor workflow only | Relevant documentation, generated-map, or consistency check | No build or runtime suite unless the documentation changes generated output, executable configuration, or release behavior that can be verified locally. |
+| Pure planning or scheduling logic | `pnpm verify` and the directly affected Vitest files | Run the production build when application behavior or deployment output changes; add database tests when the same rule is enforced persistently. |
+| UI or responsive presentation | `pnpm verify` and `pnpm build` | Run the affected mobile or desktop Playwright project; run both when shared components, breakpoints, navigation, forms, or routing affect both layouts. |
+| Shared form, routing, or end-to-end workflow | `pnpm verify` and `pnpm build` | Run the complete relevant Playwright suite; include database tests when the workflow depends on changed persistence behavior. |
+| Database schema, function, access, or security | `pnpm verify`, migration replay, `pnpm db:test`, schema lint, generated types, and migration dry run | Run the concurrency suite for scoped-lock or rescheduling changes and browser validation when user-visible behavior changes. Apply hosted migrations only through the separately authorized environment-specific path. |
+| Cross-cutting or release-sensitive | `pnpm verify`, `pnpm build`, and every affected unit/database suite | Run the complete relevant browser suite and verify preview behavior against a confirmed safe backend before merge. |
+
+These categories are defaults, not a substitute for engineering judgment. Notify the user before progressing when the prescribed pathway appears materially more conservative than the actual risk, or when it leaves a meaningful coverage gap. Explain which gate or suite is disproportionate or missing, the practical cost or risk, and the recommended adjustment. Obtain direction when relaxing a required gate would materially increase release risk or conflict with the documented workflow.
+
 Dedicated development-testing credentials are stored in the ignored `.env.local` file as `THRESHOLD_DEV_E2E_EMAIL` and `THRESHOLD_DEV_E2E_PASSWORD`. Development seed and browser tooling must use only these variables. The existing `THRESHOLD_E2E_EMAIL` and `THRESHOLD_E2E_PASSWORD` variables identify the separate production smoke account and must never be used to seed development. Peter has authorized agents to use the dedicated development account for Threshold local application and browser validation without asking him to perform the login manually. Read credential values programmatically, never print or quote them in tool output or handoffs, and never copy them into tracked files. This standing project instruction identifies the approved test account and avoids credential-discovery questions; follow any runtime security requirement that still calls for confirmation immediately before credential transmission. Authentication remains origin-specific, so establish a fresh session when changing between localhost and the current LAN URL.
 
 ### Local application and validation environments

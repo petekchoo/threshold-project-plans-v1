@@ -118,6 +118,7 @@ const activities = [
 const sql = `
 begin;
 delete from public.projects where id = any(array['${fixtureIds.projects.join("','")}']::uuid[]);
+delete from public.activity_types where name like 'DEV QA E2E %';
 delete from public.team_members where id = any(array['${fixtureIds.members.join("','")}']::uuid[]);
 delete from public.project_types where id = any(array['${fixtureIds.projectTypes.join("','")}']::uuid[]);
 delete from public.activity_types where id = any(array['${fixtureIds.activityTypes.join("','")}']::uuid[]);

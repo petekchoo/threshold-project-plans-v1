@@ -44,12 +44,20 @@ The desktop project also checks activity-context containment at an intermediate 
 - Run the complete `pnpm test:e2e` suite before merging changes that affect shared shell behavior, responsive breakpoints, forms, routing, or both layouts.
 - Install the pinned Chromium runtime once per machine or CI image with `pnpm exec playwright install chromium`.
 
+## Slice 2: isolated core journeys and required CI
+
+- `e2e/core-journeys.spec.ts` covers unauthenticated routing, the authenticated overview, activity create/edit/archive with a persisted dependency, and administration create/edit/archive.
+- Mutation journeys run only when `THRESHOLD_E2E_MUTATIONS=1`. The required CI job sets this flag only through `scripts/run-local-e2e.mjs`, which requires a running disposable local Supabase stack, creates a local-only account, and replaces only deterministic QA fixtures before Playwright starts.
+- Guarded development runs use the reserved fixture graph and delete standalone reference rows only when their names carry the `DEV QA E2E` prefix; reset the fixtures after every mutation run.
+- The required browser job always reports a result. `scripts/e2e-scope.mjs` selects requirement-tagged core journeys for narrow changes, skips execution for documentation-only changes, and runs the complete responsive and core suite for shared, persistence, test-infrastructure, or otherwise cross-cutting changes.
+- Automated scope selection may increase but never reduce ambiguous coverage. The complete suite remains the release gate for shared shell behavior, routing, forms, responsive breakpoints, persistence, and QA-05 infrastructure.
+- Manual focused runs may pass a Playwright tag expression such as `@activities|@dependencies`; they do not replace the automatically selected pull-request gate.
+
 ## Future slices
 
-- Add isolated authentication, deeper overview interactions, validation-driven activity-editor disclosure, dependency, and administration journeys.
-- Add create/edit/archive tests only against the reserved development fixture graph with explicit reset/cleanup. They must refuse production and must not mutate unrelated development rows.
-- Add a required GitHub Actions browser-test job after a dedicated CI account or disposable local Supabase fixture lifecycle is available.
+- Add project/template mutation journeys and deeper validation-recovery coverage as those workflows change.
+- Add an automated accessibility audit after choosing and documenting its standards and exception policy.
 
 ## Acceptance gate
 
-Slice 1 is complete when Playwright discovers both viewport projects, the repository verification suite passes, the production build passes, and the browser smoke suite passes with dedicated E2E credentials. Failed runs retain traces and screenshots outside version control.
+QA-05 is release-gate ready when Playwright discovers both responsive projects plus the core journeys, repository verification and the production build pass, the disposable local mutation run passes, and the required GitHub browser job passes on the final revision. Failed runs retain traces and screenshots outside version control.

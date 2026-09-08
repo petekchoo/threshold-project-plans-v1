@@ -40,3 +40,41 @@ jobs:
       - name: Stop disposable Supabase
         if: always()
         run: pnpm db:stop
+
+  browser:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+      - uses: pnpm/action-setup@v6
+        with:
+          version: 11.19.0
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 22.13.0
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm exec playwright install --with-deps chromium
+      - name: Select required browser journeys
+        id: scope
+        env:
+          GITHUB_BASE_SHA: ${{ github.event.pull_request.base.sha || github.event.before }}
+          GITHUB_HEAD_SHA: ${{ github.sha }}
+        run: node scripts/e2e-scope.mjs
+      - name: Start disposable Supabase
+        if: steps.scope.outputs.mode != 'none'
+        run: pnpm db:start > /dev/null
+      - name: Run complete browser suite
+        if: steps.scope.outputs.mode == 'all'
+        run: pnpm test:e2e:local
+      - name: Run affected browser journeys
+        if: steps.scope.outputs.mode == 'scoped'
+        run: pnpm test:e2e:local --grep '${{ steps.scope.outputs.grep }}'
+      - name: Record documentation-only gate
+        if: steps.scope.outputs.mode == 'none'
+        run: echo 'QA-05 browser execution is not required for documentation-only changes.'
+      - name: Stop disposable Supabase
+        if: always() && steps.scope.outputs.mode != 'none'
+        run: pnpm db:stop

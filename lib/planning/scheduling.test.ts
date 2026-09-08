@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { addDays, dayDifference } from './dates';
-import { projectTimingConflict, projectTimingDeadline } from './scheduling';
+import { activityMovesProjectStart, projectTimingConflict, projectTimingDeadline } from './scheduling';
 import type { Project } from './types';
 
 const project = {
@@ -28,6 +28,14 @@ describe('projectTimingDeadline', () => {
   it('keeps calendar arithmetic stable across daylight-saving changes', () => {
     expect(addDays('2026-10-31', 2)).toBe('2026-11-02');
     expect(dayDifference('2026-10-31', '2026-11-02')).toBe(2);
+  });
+});
+
+describe('activityMovesProjectStart', () => {
+  it('moves the project boundary only when an activity begins before it', () => {
+    expect(activityMovesProjectStart('2026-08-31', project)).toBe(true);
+    expect(activityMovesProjectStart('2026-09-01', project)).toBe(false);
+    expect(activityMovesProjectStart('2026-09-02', project)).toBe(false);
   });
 });
 

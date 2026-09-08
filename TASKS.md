@@ -8,7 +8,7 @@ Synchronization note: **start the next working session from local `main`**. Loca
 
 ## Active
 
-- No feature set is active. Select the next scope from the documented follow-up work below after reading the project documentation and current traceability entries.
+- QA-03 scheduling-boundary coverage and QA-05 isolated core journeys/required selective CI are active on `feature/qa03-qa05-required-coverage`. Static verification passes with 79 unit tests, the production build passes, and all 19 Playwright checks pass against the guarded dedicated-development backend in 15.2 seconds, including activity CRUD/dependency and administration mutations. The reserved fixture graph was reset before and after the run, and QA-only reference rows are now included in that scoped cleanup. Docker-local execution, GitHub pull request, and required checks remain.
 
 ## Recently completed
 
@@ -28,8 +28,8 @@ Synchronization note: **start the next working session from local `main`**. Loca
 
 ## Next
 
-- Extend scheduling unit coverage as later project-rescheduling slices and dependency behaviors are implemented (`QA-03`).
-- Extend QA-05 beyond the responsive smoke slice with disposable-fixture authentication, overview, CRUD, dependency, timeline, and administration journeys, then make it a required CI job.
+- Extend scheduling unit coverage alongside later project-rescheduling or dependency behavior rather than as a separate generic slice (`QA-03`).
+- Extend QA-05 with project/template mutation journeys and automated accessibility auditing after defining the audit policy.
 - Establish a protected Vercel preview pathway for reviewing committed work from Peter's mobile devices away from the local network. Verify and document that the preview application targets the dedicated development Supabase backend, confirm authentication and redirect behavior at the preview origin, choose an appropriately restricted access policy, and record which read-only and data-changing validation is permitted. Keep application deployment separate from database migration, require the reserved development fixture and verified cleanup for mutations, and document how to obtain the current branch or commit preview URL without exposing credentials.
 
 ## Distant future

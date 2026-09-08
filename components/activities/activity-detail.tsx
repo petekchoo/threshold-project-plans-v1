@@ -9,6 +9,7 @@ import { date } from '../../lib/planning/dates';
 import type { Activity, AppData } from '../../lib/planning/types';
 import { supabase } from '../../lib/supabase';
 import { ActivityForm } from './activity-form';
+import { ActivityContextTimeline } from './activity-context-timeline';
 
 export function ActivityDetail({ activity, data, refresh, setToast }: { activity: Activity; data: AppData; refresh: () => void; setToast: (value: string) => void }) {
   const [edit, setEdit] = useState(false);
@@ -38,11 +39,7 @@ export function ActivityDetail({ activity, data, refresh, setToast }: { activity
     </section>
     <div className="activity-workspace">
       <div>
-        <section className="focus-timeline">
-          <div className="section-head"><div><p className="eyebrow">Schedule</p><h2>Project context</h2></div></div>
-          <div><strong>{activity.projects?.name}</strong><i className="project-line"/></div>
-          <div><strong>{activity.name}</strong><i className={`activity-line status-${activity.status}`}/></div>
-        </section>
+        <ActivityContextTimeline activity={activity} data={data}/>
         <section className="activity-detail notes-panel"><article><p className="eyebrow">Working notes</p><h2>Notes</h2><p>{activity.notes || 'No notes added.'}</p></article></section>
       </div>
       <aside className="relations-panel">

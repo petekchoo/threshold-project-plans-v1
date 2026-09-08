@@ -8,7 +8,7 @@ Synchronization note: local `main` intentionally contains the post-merge PR #33 
 
 ## Active
 
-- No feature set is active. Select the next scope from the documented follow-up work below after reading the project documentation and current traceability entries.
+- First-round verified design gaps are ready for review on `feature/first-round-design-gaps` (`OVR-05`, `ACT-05`, `DEP-05`, `RSP-01`, `A11Y-01`, `QA-05`). The release adds accessible workload semantics, a direct-relationship activity timeline, simplified saturated overview/project/activity tiles, aligned interaction states, responsive regression coverage, and consistently `DEV`-named development fixtures including team members. Local release gates pass: implementation-map validation, typecheck, lint, all 78 unit tests, the production build, and all 15 Playwright checks across 390×844 mobile, 1440×900 desktop, and the intermediate relationship-timeline viewport. The dedicated development fixture was reset successfully; no schema migration is included. Pull request creation and hosted checks are pending.
 
 ## Recently completed
 
@@ -29,6 +29,7 @@ Synchronization note: local `main` intentionally contains the post-merge PR #33 
 
 - Extend scheduling unit coverage as later project-rescheduling slices and dependency behaviors are implemented (`QA-03`).
 - Extend QA-05 beyond the responsive smoke slice with disposable-fixture authentication, overview, CRUD, dependency, timeline, and administration journeys, then make it a required CI job.
+- Establish a protected Vercel preview pathway for reviewing committed work from Peter's mobile devices away from the local network. Verify and document that the preview application targets the dedicated development Supabase backend, confirm authentication and redirect behavior at the preview origin, choose an appropriately restricted access policy, and record which read-only and data-changing validation is permitted. Keep application deployment separate from database migration, require the reserved development fixture and verified cleanup for mutations, and document how to obtain the current branch or commit preview URL without exposing credentials.
 
 ## Distant future
 

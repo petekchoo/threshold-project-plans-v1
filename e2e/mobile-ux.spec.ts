@@ -98,8 +98,13 @@ test('uses mobile activity cards and supports filter disclosure and reset', asyn
   await expect(page.getByLabel('Filter by status')).toHaveValue('all');
 
   const firstActivity = page.locator('.activity-card').first();
+  await expect(firstActivity.locator('.activity-card-header')).toHaveCSS('background-color', 'rgb(23, 77, 59)');
+  await expect(firstActivity.locator('.activity-card-header h3')).toHaveCSS('font-family', /Arial/);
+  await expect(firstActivity.locator('.activity-card-header h3')).toHaveCSS('font-size', '16px');
+  await expect(firstActivity.locator('.activity-card-dates strong')).toHaveCSS('color', 'rgb(23, 77, 59)');
+  await expect(firstActivity.locator('.activity-card-team')).toHaveCSS('color', 'rgb(23, 77, 59)');
   await firstActivity.click();
-  await expect(page.getByText('Dates', { exact: true })).toBeVisible();
+  await expect(page.locator('.activity-summary').getByText('Dates', { exact: true })).toBeVisible();
   const summaryBoxes = await page.locator('.activity-summary>div').evaluateAll(items => items.map(item => ({ width: item.getBoundingClientRect().width, height: item.getBoundingClientRect().height })));
   expect(new Set(summaryBoxes.map(box => box.width)).size).toBe(1);
   expect(new Set(summaryBoxes.map(box => box.height)).size).toBe(1);
@@ -133,10 +138,29 @@ test('contains project filters and keeps desktop-only timeline ranges off mobile
   }
   expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(390);
   const projectTile = page.locator('.project-tile[href="/projects/74000000-0000-0000-0000-000000000001"]');
+  await expect(projectTile, 'The reserved development project fixture must be present').toHaveCount(1);
   const projectTracks = await projectTile.locator('.project-date-track,.project-completion-track').evaluateAll(items => items.map(item => item.getBoundingClientRect().width));
   expect(projectTracks).toHaveLength(2);
   expect(projectTracks[0]).toBe(projectTracks[1]);
   await expect(projectTile.getByText('Today', { exact: true })).toBeVisible();
+  await expect(projectTile.locator('.project-tile-header')).toHaveCSS('background-color', 'rgb(8, 47, 79)');
+  await expect(projectTile.locator('.project-tile-header')).toHaveCSS('padding-top', '14px');
+  await expect(projectTile.locator('.project-tile-header')).toHaveCSS('padding-bottom', '14px');
+  await expect(projectTile.locator('.project-tile-header')).toHaveCSS('align-items', 'center');
+  await expect(projectTile.locator('.card-title h3')).toHaveCSS('font-family', /Arial/);
+  await expect(projectTile.locator('.card-title h3')).toHaveCSS('font-size', '16px');
+  await expect(projectTile.locator('.project-tile-footer')).toContainText('Next');
+  await expect(projectTile.locator('.project-date-labels')).toHaveCSS('color', 'rgb(8, 47, 79)');
+  await expect(projectTile.locator('.progress>div:first-child span')).toHaveCSS('font-weight', '700');
+  await expect(projectTile.locator('.progress strong')).toHaveCSS('color', 'rgb(8, 47, 79)');
+  await expect(projectTile.locator('.project-tile-footer span')).toHaveCSS('color', 'rgb(8, 47, 79)');
+  await expect(projectTile.locator('.project-tile-footer strong')).toHaveCSS('font-weight', '400');
+  await expect(projectTile.locator('.project-tile-body')).toHaveCSS('padding-bottom', '12px');
+  await expect(projectTile.locator('.project-date-track')).toHaveCSS('height', '6px');
+  await expect(projectTile.locator('.project-completion-track')).toHaveCSS('height', '6px');
+  await expect(projectTile.locator('.project-date-track>i')).toHaveCSS('background-color', 'rgb(8, 47, 79)');
+  await expect(projectTile.locator('.project-completion-track>i')).toHaveCSS('background-color', 'rgb(8, 47, 79)');
+  await expect(projectTile.locator('.project-date-track>small')).toHaveCSS('color', 'rgb(8, 47, 79)');
 
   await page.getByRole('button', { name: 'Open menu' }).click();
   await page.getByRole('dialog', { name: 'Main menu' }).getByRole('link', { name: 'Overview' }).click();
@@ -154,7 +178,7 @@ test('contains project filters and keeps desktop-only timeline ranges off mobile
   if (await activityName.count() && await projectName.count()) {
     expect(await activityName.evaluate(element => getComputedStyle(element).fontFamily)).toBe(await projectName.evaluate(element => getComputedStyle(element).fontFamily));
   }
-  const portfolioTitle = page.locator('.portfolio-card>.section-head>div').first();
+  const portfolioTitle = page.locator('.portfolio-card>.section-head>h2');
   const portfolioFilters = page.locator('.portfolio-card .timeline-visibility');
   const titleBox = await portfolioTitle.boundingBox();
   const filtersBox = await portfolioFilters.boundingBox();
@@ -172,6 +196,14 @@ test('contains detail summaries and administration rows on narrow screens', asyn
   const activity = page.locator('.mobile-list a[href^="/activities/"]').first();
   await expect(activity, 'The E2E account must contain at least one activity').toHaveCount(1);
   await activity.click();
+  const timeline = page.getByRole('region', { name: 'Project and relationship context' });
+  await expect(timeline.locator('.activity-context-label').first()).toHaveCSS('background-color', 'rgb(255, 255, 255)');
+  await expect(timeline.locator('.activity-context-grid')).toHaveCSS('grid-template-columns', /190px/);
+  if (await timeline.getByRole('button', { name: 'Prerequisites' }).count()) {
+    const prerequisiteSelected = await timeline.getByRole('button', { name: 'Prerequisites' }).getAttribute('aria-pressed');
+    const dependentSelected = await timeline.getByRole('button', { name: 'Dependents' }).getAttribute('aria-pressed');
+    expect([prerequisiteSelected, dependentSelected]).toContain('true');
+  }
   for (const value of await page.locator('.activity-summary>div').all()) {
     const cell = await value.boundingBox();
     const content = await value.locator('strong,.status-pill').first().boundingBox();

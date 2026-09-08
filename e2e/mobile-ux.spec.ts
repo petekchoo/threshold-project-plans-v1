@@ -5,6 +5,13 @@ test.beforeEach(async ({ page }) => {
   await expect(page.getByRole('heading', { name: 'Projects', exact: true })).toBeVisible();
 });
 
+async function openBlankProjectEditor(page: import('@playwright/test').Page) {
+  await page.getByRole('button', { name: /Add project/ }).click();
+  const dialog = page.getByRole('dialog', { name: 'Project' });
+  await dialog.getByRole('button', { name: 'Start a blank project' }).click();
+  return dialog;
+}
+
 test('uses a scrolling mobile header and an accessible navigation drawer', async ({ page }) => {
   const header = page.locator('.mobile-header');
   await expect(header).toBeVisible();
@@ -31,8 +38,7 @@ test('uses a scrolling mobile header and an accessible navigation drawer', async
 });
 
 test('keeps project team and form actions visible and contained', async ({ page }) => {
-  await page.getByRole('button', { name: /Add project/ }).click();
-  const dialog = page.getByRole('dialog', { name: 'Project' });
+  const dialog = await openBlankProjectEditor(page);
   await expect(dialog).toBeVisible();
   await expect(dialog.getByRole('button', { name: 'Close editor' })).toBeVisible();
   await expect(dialog.getByText('Project team members')).toBeVisible();
@@ -49,12 +55,13 @@ test('keeps project team and form actions visible and contained', async ({ page 
     expect(box!.x + box!.width).toBeLessThanOrEqual(390);
   }
   await dialog.getByRole('button', { name: 'Cancel', exact: true }).click();
+  await expect(dialog.getByRole('button', { name: 'Start a blank project' })).toBeVisible();
+  await dialog.getByRole('button', { name: 'Close editor' }).click();
   await expect(dialog).toBeHidden();
 });
 
 test('presents linked validation errors and focuses the first invalid field', async ({ page }) => {
-  await page.getByRole('button', { name: /Add project/ }).click();
-  const dialog = page.getByRole('dialog', { name: 'Project' });
+  const dialog = await openBlankProjectEditor(page);
   await dialog.getByRole('button', { name: 'Save', exact: true }).click();
 
   const summary = dialog.getByRole('alert').filter({ hasText: 'Check the highlighted fields' });
@@ -125,7 +132,7 @@ test('contains project filters and keeps desktop-only timeline ranges off mobile
     expect(box!.x + box!.width).toBeLessThanOrEqual(390);
   }
   expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(390);
-  const projectTile = page.locator('.project-tile').first();
+  const projectTile = page.locator('.project-tile[href="/projects/74000000-0000-0000-0000-000000000001"]');
   const projectTracks = await projectTile.locator('.project-date-track,.project-completion-track').evaluateAll(items => items.map(item => item.getBoundingClientRect().width));
   expect(projectTracks).toHaveLength(2);
   expect(projectTracks[0]).toBe(projectTracks[1]);
@@ -181,7 +188,7 @@ test('contains detail summaries and administration rows on narrow screens', asyn
 });
 
 test('keeps the fixed daily project schedule readable on narrow screens', async ({ page }) => {
-  const project = page.locator('.mobile-list a[href^="/projects/"]').first();
+  const project = page.locator('.mobile-list a[href="/projects/74000000-0000-0000-0000-000000000001"]');
   await expect(project, 'The E2E account must contain at least one active project').toHaveCount(1);
   await project.click();
   const schedule = page.locator('.project-schedule-scroll');
@@ -198,7 +205,7 @@ test('keeps the fixed daily project schedule readable on narrow screens', async 
 });
 
 test('keeps the project activity editor compact and its actions fully reachable', async ({ page }) => {
-  const project = page.locator('.mobile-list a[href^="/projects/"]').first();
+  const project = page.locator('.mobile-list a[href="/projects/74000000-0000-0000-0000-000000000001"]');
   await expect(project, 'The E2E account must contain at least one active project').toHaveCount(1);
   await project.click();
   const activity = page.locator('.project-activity-row').first();
@@ -211,7 +218,7 @@ test('keeps the project activity editor compact and its actions fully reachable'
   const panel = page.getByRole('dialog', { name: /.+/ });
   await expect(panel).toBeVisible();
   const disclosureStates = await panel.locator('.form-disclosure').evaluateAll((items) => items.map((item) => (item as HTMLDetailsElement).open));
-  expect(disclosureStates).toEqual([true, false, false, false, false, false]);
+  expect(disclosureStates).toEqual([true, false, false, false]);
   await expect(panel.locator('.structured-form')).toHaveCSS('gap', '10px');
   const required = panel.locator('label[for="name"] .required-mark');
   const nameInput = panel.getByLabel('Activity name');
@@ -247,7 +254,7 @@ test('keeps the project activity editor compact and its actions fully reachable'
     expect(fieldBox!.width).toBeLessThanOrEqual(notesBox!.width + 1);
   }
 
-  for (const legend of ['Activity team members', 'External links', 'Prerequisites']) {
+  for (const legend of ['Activity team members', 'External links']) {
     await expect(panel.locator('legend').filter({ hasText: legend })).toBeHidden();
   }
 

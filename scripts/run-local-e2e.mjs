@@ -41,6 +41,7 @@ const ids = {
   activities: ['75000000-0000-0000-0000-000000000001', '75000000-0000-0000-0000-000000000002', '75000000-0000-0000-0000-000000000003', '75000000-0000-0000-0000-000000000004', '75000000-0000-0000-0000-000000000005'],
   template: '78000000-0000-0000-0000-000000000001',
   templateActivity: '79000000-0000-0000-0000-000000000001',
+  templateRule: '7a000000-0000-0000-0000-000000000001',
 };
 
 const { url, publishableKey, serviceKey } = localEnvironment();
@@ -80,9 +81,12 @@ await requireSuccess(admin.from('project_templates').insert({
 }), 'seed template');
 await requireSuccess(admin.from('project_template_activities').insert({
   id: ids.templateActivity, template_id: ids.template, activity_type_id: ids.activityTypes[0],
-  name: 'DEV Prepare gala brief', schedule_rule: 'finish_before_project_end', offset_days: 2,
-  duration_days: 3, relative_activity_id: null, sort_order: 0,
+  name: 'DEV Prepare gala brief', duration_days: 3, sort_order: 0,
 }), 'seed template activity');
+await requireSuccess(admin.from('project_template_activity_rules').insert({
+  id: ids.templateRule, template_activity_id: ids.templateActivity,
+  schedule_rule: 'finish_before_project_end', offset_days: 2, relative_activity_id: null, sort_order: 0,
+}), 'seed template rule');
 await requireSuccess(admin.from('projects').insert([
   { id: ids.projects[0], name: 'DEV Gala', description: 'Disposable browser fixture.', project_type_id: ids.projectTypes[0], status: 'on_track', start_date: addDays(-10), end_date: addDays(30), created_by: user.id },
   { id: ids.projects[1], name: 'DEV Fall Campaign', description: 'Future fixture.', project_type_id: ids.projectTypes[1], status: 'draft', start_date: addDays(20), end_date: addDays(60), created_by: user.id },

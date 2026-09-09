@@ -39,6 +39,10 @@ export function projectTimingConflict(
   return `“${name}” must finish by ${date(deadline)}—${basis}. Its current finish date is ${date(due)}, ${days} day${days === 1 ? '' : 's'} later.`;
 }
 
+export function activityMovesProjectStart(start: string, project: Project) {
+  return start < project.start_date;
+}
+
 export const timelinePosition = (
   start: string,
   end: string,

@@ -167,7 +167,7 @@ test('contains project filters and keeps desktop-only timeline ranges off mobile
   await expect(page.getByRole('heading', { name: 'Active projects' })).toBeVisible();
   await expect(page.locator('.range-tabs')).toBeHidden();
   await expect(page.getByLabel('Draft')).toBeVisible();
-  await expect(page.getByLabel('Completed')).toBeVisible();
+  await expect(page.getByRole('checkbox', { name: 'Completed' })).toBeVisible();
   await expect(page.locator('.project-cards')).toBeVisible();
   const overviewTracks = await page.locator('.project-cards .project-tile').first().locator('.project-date-track,.project-completion-track').evaluateAll(items => items.map(item => item.getBoundingClientRect().width));
   expect(overviewTracks).toHaveLength(2);

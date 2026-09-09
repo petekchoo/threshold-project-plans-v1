@@ -24,12 +24,12 @@ export default defineConfig({
     },
     {
       name: 'desktop-chromium',
-      testMatch: /desktop-ux\.spec\.ts/,
+      testMatch: /(?:desktop-ux|core-journeys)\.spec\.ts/,
       use: { ...devices['Desktop Chrome'], viewport: { width: 1440, height: 900 } },
     },
   ],
   webServer: process.env.E2E_BASE_URL ? undefined : {
-    command: 'pnpm dev',
+    command: process.env.THRESHOLD_E2E_LOCAL === '1' ? 'pnpm exec next dev' : 'pnpm dev',
     url: baseURL,
     reuseExistingServer: !process.env.CI,
     timeout: 120_000,

@@ -8,7 +8,7 @@ Synchronization note: **start the next working session from local `main`**. Loca
 
 ## Active
 
-- QA-03 scheduling-boundary coverage and QA-05 isolated core journeys/required selective CI are in GitHub PR #35 on `feature/qa03-qa05-required-coverage`. Static verification passes with 79 unit tests, the production build passes, and all 19 Playwright checks pass against the guarded dedicated-development backend in 15.2 seconds, including activity CRUD/dependency and administration mutations. The reserved fixture graph was reset before and after the run, and QA-only reference rows are now included in that scoped cleanup. GitHub Verify and Vercel passed on the initial revision except for a disposable-seed bulk-insert default mismatch in the new browser job; required activity fields are now explicit and final-revision checks are pending.
+- QA-03 scheduling-boundary coverage and QA-05 isolated core journeys/required selective CI are ready for review in GitHub PR #35 on `feature/qa03-qa05-required-coverage`. Static verification passes with 79 unit tests, the production build passes, and all 19 Playwright checks pass against the guarded dedicated-development backend in 15.2 seconds, including activity CRUD/dependency and administration mutations. The reserved fixture graph was reset before and after the run, and QA-only reference rows are included in that scoped cleanup. GitHub Verify run 93 passed repository verification, the existing disposable database job, and the new disposable-Supabase browser job after CI hardened required activity fields, added a normalized template fixture, and disambiguated the Completed checkbox. The final handoff-only revision and Vercel check remain pending before merge.
 
 ## Recently completed
 

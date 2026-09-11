@@ -53,11 +53,88 @@ The desktop project also checks activity-context containment at an intermediate 
 - Automated scope selection may increase but never reduce ambiguous coverage. The complete suite remains the release gate for shared shell behavior, routing, forms, responsive breakpoints, persistence, and QA-05 infrastructure.
 - Manual focused runs may pass a Playwright tag expression such as `@activities|@dependencies`; they do not replace the automatically selected pull-request gate.
 
-## Future slices
+## Slice 3: isolated project mutation journey
 
-- Add project/template mutation journeys and deeper validation-recovery coverage as those workflows change.
-- Add an automated accessibility audit after choosing and documenting its standards and exception policy.
+Add a `@projects` mutation journey to `e2e/core-journeys.spec.ts`. It must use only deterministic QA fixtures and run only when `THRESHOLD_E2E_MUTATIONS=1`.
+
+The journey covers this complete lifecycle:
+
+1. Create a blank project with a unique QA name, valid dates, project type, status, description, and assigned team member.
+2. Confirm the saved project detail and list representation expose the persisted values.
+3. Edit non-scheduling fields and confirm the updated values persist after navigation or reload.
+4. Change project dates, assert the authoritative reschedule preview identifies the old and proposed windows and affected activities, confirm the applicable movement, and verify the resulting project and activity dates.
+5. Exercise one recoverable validation path before a successful save. Prefer a stable client-owned case such as end before start; do not manufacture a database race solely for browser coverage.
+6. Archive the project, confirm the impact prompt, return to the project list, and verify the record is absent by default and present when archived records are shown.
+
+Fixture and cleanup requirements:
+
+- Extend the disposable seed only where a deterministic project with movable activities is needed; do not mutate a baseline record needed by responsive tests unless the runner can restore it before another test observes it.
+- Make the journey self-identifying through a reserved QA name or ID and safe to rerun after interruption.
+- Verify cleanup through archive state or an explicit scoped reset. A passing UI assertion without fixture cleanup is insufficient.
+- Keep the journey serial if it shares records with another mutation journey; otherwise preserve parallel execution.
+
+## Slice 4: isolated template and materialization journeys
+
+Add `@templates` to the scope selector and cover template authoring separately from project materialization so failures identify the broken boundary.
+
+### Template authoring journey
+
+1. Create a template with a unique QA name and project type.
+2. Add at least two template activities with positive inclusive durations.
+3. Add a project-end rule and an activity-relative rule, then verify the template becomes Ready and the relationship summaries persist after reload.
+4. Edit the template and one activity, including a rule or duration change, and verify the updated schedule summary.
+5. Exercise a recoverable invalid state, such as an unconnected activity or incomplete relative rule, and verify the user can correct it.
+6. Archive the created template and verify default/archived list visibility.
+
+### Project-from-template journey
+
+1. Select the deterministic Ready fixture template from the Add project flow.
+2. Enter a project name and end date and assert the previewed project window and activity dates.
+3. Create the project and verify its Draft status, inherited type, complete Not Started activity graph, durations, rules, and materialized dates through the UI.
+4. Reload the project detail to prove persistence rather than relying on optimistic client state.
+5. Archive the generated project and reset or remove every journey-owned record through the scoped fixture lifecycle.
+
+The browser journey verifies user-visible orchestration; existing Vitest and pgTAP suites remain authoritative for exhaustive graph resolution, rollback, and constraint matrices. Do not duplicate those matrices in Playwright.
+
+## Slice 5: automated accessibility policy
+
+Status: confirmed and implemented.
+
+- Audit the axe-core rules tagged for detectable WCAG 2.2 Level A and AA conformance in Chromium.
+- Fail the browser gate on serious or critical violations. Report moderate findings for triage without failing the gate.
+- Audit sign-in, overview, project/activity/template lists and details, administration, and representative top-level and nested dialogs in both 390 × 844 mobile and 1440 × 900 desktop Chromium. Audit mobile navigation in the mobile project.
+- Use the authenticated development fixture without enabling mutations; use an isolated anonymous context for sign-in.
+- Wait for each named heading or dialog before auditing and exclude only incomplete transition/loading states.
+- Report rule IDs, impact, selectors, failure summaries, and help links in test output and attachments.
+- No exceptions are currently accepted. Any future exception must record the rule ID, exact selector scope, rationale, owner, and review date.
+- No blanket rule disable, broad selector exclusion, or baseline snapshot that silently accepts existing violations is allowed.
+
+## Slice 6: automated accessibility audit
+
+Implementation and enforcement requirements:
+
+1. Add the audit library as a direct development dependency and a small shared Playwright audit helper.
+2. Add a dedicated accessibility spec or clearly marked tests so `scripts/e2e-scope.mjs` can require them for shared shell, responsive, form, and accessibility-related changes.
+3. Audit the confirmed stable states and viewports, including modal focus state where applicable.
+4. Report actionable rule IDs, affected selectors, impact, and help URLs while retaining normal Playwright traces/screenshots on failure.
+5. Fix unexcepted violations before enabling the audit as a required CI gate.
+6. Update `DESIGN.md`, `implementation-map.yaml`, and this plan with the confirmed policy, covered states, exceptions, and verification command.
+
+Baseline implementation completed on 2026-09-09 and promoted to enforcement on 2026-09-11:
+
+- `e2e/accessibility-baseline.spec.ts` audits sign-in, overview, project/activity/template lists and details, administration, representative project/template/nested dialogs, and the mobile navigation dialog.
+- Both 390 × 844 mobile Chromium and 1440 × 900 desktop Chromium run the baseline through `pnpm test:e2e:accessibility` or the complete browser suite.
+- Each state reports violation counts, serious/critical candidates, rule IDs, selectors, failure summaries, and help links. Serious and critical findings fail the release gate; moderate findings remain visible for triage.
+- The first read-only run found color contrast in every audited state, a mobile template-list scroll-region focusability issue, and desktop project/team-member dialog target-size findings. Shared contrast tokens and metadata styles, the template scroll region, and the affected table targets were remediated. On 2026-09-11 the complete read-only suite passed 21 checks with two mutation journeys correctly skipped, and every covered state reported zero detectable violations.
+- No application data was changed.
+
+## Delivery sequence
+
+- Deliver Slice 3 first because it extends the proven isolated mutation pattern and covers the existing project-rescheduling boundary.
+- Deliver Slice 4 second because its fixture graph and cleanup surface are broader and it depends on stable project creation assertions.
+- Slice 5 policy, Slice 6 remediation, and enforcement are complete. Maintain the gate as covered states evolve.
+- QA-03 is not a prerequisite. Add unit coverage only if implementing these journeys exposes or changes pure scheduling behavior.
 
 ## Acceptance gate
 
-QA-05 is release-gate ready when Playwright discovers both responsive projects plus the core journeys, repository verification and the production build pass, the disposable local mutation run passes, and the required GitHub browser job passes on the final revision. Failed runs retain traces and screenshots outside version control.
+Each remaining slice is release-gate ready when Playwright discovers the new tagged journeys in the intended projects, repository verification and the production build pass, the disposable local mutation run passes where applicable, scoped cleanup is verified, and the required GitHub browser job passes on the final revision. Accessibility auditing additionally requires the confirmed policy, zero unexcepted failures at the chosen threshold, and narrow documented exceptions. Failed runs retain traces and screenshots outside version control.

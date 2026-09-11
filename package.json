@@ -15,6 +15,7 @@
     "test:e2e": "playwright test",
     "test:e2e:mobile": "playwright test --project=mobile-chromium",
     "test:e2e:desktop": "playwright test --project=desktop-chromium",
+    "test:e2e:accessibility": "playwright test --grep @accessibility",
     "test:e2e:list": "playwright test --list",
     "test:e2e:local": "node scripts/run-local-e2e.mjs",
     "test:e2e:scope": "playwright test --grep",
@@ -41,6 +42,7 @@
     "react-dom": "19.2.6"
   },
   "devDependencies": {
+    "@axe-core/playwright": "^4.13.0",
     "@playwright/test": "^1.62.1",
     "@tailwindcss/postcss": "4.2.1",
     "@types/node": "22.19.19",

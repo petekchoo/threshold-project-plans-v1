@@ -19,12 +19,12 @@ export default defineConfig({
   projects: [
     {
       name: 'mobile-chromium',
-      testMatch: /mobile-ux\.spec\.ts/,
+      testMatch: /(?:mobile-ux|accessibility-baseline)\.spec\.ts/,
       use: { ...devices['Desktop Chrome'], viewport: { width: 390, height: 844 } },
     },
     {
       name: 'desktop-chromium',
-      testMatch: /(?:desktop-ux|core-journeys)\.spec\.ts/,
+      testMatch: /(?:desktop-ux|core-journeys|accessibility-baseline)\.spec\.ts/,
       use: { ...devices['Desktop Chrome'], viewport: { width: 1440, height: 900 } },
     },
   ],

@@ -346,6 +346,24 @@ body,button,input,select,textarea{font-family:var(--font-ui)}
 
 @media(max-width:900px){.metric-grid .metric-tile{min-height:128px;padding:20px}.metric-grid .metric-tile strong{font-size:34px}}
 
+/* WCAG 2.2 baseline remediation: retain the established palette while ensuring
+   small operational text and repeated interaction targets remain perceivable. */
+.eyebrow{color:#80652f}
+.range-tabs button{color:#5f6762}
+.gantt-header{color:#626963}
+.project-label span{color:#626963}
+.status-green,.status-on_track,.status-in_progress{background:#2f604f}
+.metric-grid .metric-due{background:#765800}
+.filters>span,.activity-filter-count,.project-filter-count{color:#626963}
+.detail-summary>div>span,.detail-grid>div>span{color:#626963}
+.schedule-header-label,.schedule-row-label small,.project-activity-row small{color:#626963}
+.form-section>p,.schedule-empty,.empty-state{color:#626963}
+.avatars em{color:#626963}
+.admin-row small{color:#626963}
+.relationship-link small{color:#626963}
+.activity-today-marker{color:#fff}
+.table-card td:first-child>a,.project-description summary{display:inline-flex;align-items:center;min-height:24px}
+
 /* Shared mobile project tiles: saturated identity, quiet planning, compact action. */
 .project-tile{padding:0;border:1px solid #06243d;border-radius:5px;background:#fff;overflow:hidden;box-shadow:0 1px 0 #172a2412;transition:transform .15s ease,box-shadow .15s ease}
 .project-tile:hover{transform:translateY(-1px);box-shadow:0 5px 16px #172a241c}.project-tile:focus-visible{outline:3px solid var(--gold);outline-offset:3px}
@@ -378,3 +396,6 @@ body,button,input,select,textarea{font-family:var(--font-ui)}
 .activity-card-dates .activity-card-label{color:#174d3b}.activity-card-dates strong{color:#174d3b;font-size:12px;font-weight:600;font-variant-numeric:tabular-nums}
 .activity-card>.activity-card-team{display:flex!important;align-items:center;justify-content:space-between;gap:12px!important;margin:0;padding:14px 18px 16px;border-top:1px solid #d7ddd9;background:#f6f7f4;color:#174d3b;font-family:var(--font-ui);font-size:12px}
 .activity-card-team .activity-card-label{color:#174d3b;font-weight:700}.activity-card-team>.avatars{margin-left:auto}.activity-card-team>span:last-child:not(.activity-card-label){font-weight:400}
+
+/* WCAG AA contrast for high-priority labels on white list backgrounds. */
+.priority-high{color:#80602b}

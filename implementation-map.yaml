@@ -19,6 +19,9 @@ verification_catalog:
     kind: unit
     runner: vitest
     command: pnpm test
+    requirements: [OVR-01, OVR-02, PRJ-06, TPL-01, TPL-02, DEP-11, QA-03]
+    ci: GitHub Verify / verify; every pull request and push to main
+    environment: Node.js runner; no database or browser
     test_files:
       - lib/planning/scheduling.test.ts
       - lib/planning/project-schedule.test.ts
@@ -31,32 +34,56 @@ verification_catalog:
   - id: prj06-database
     kind: database
     command: pnpm db:test
+    requirements: [PRJ-06, QA-04]
+    ci: GitHub Verify / database; every pull request and push to main
+    environment: Disposable Docker-local Supabase
     test_files:
       - supabase/tests/prj06_project_rescheduling.sql
   - id: activity-work-management-database
     kind: database
     command: pnpm db:test
+    requirements: [AUTH-02, ACT-03, ACT-04, ACT-07, DEP-04, DEP-06, DEP-07, DEP-09, DEP-10, ARC-02, ARC-03, ARC-04, QA-04]
+    ci: GitHub Verify / database; every pull request and push to main
+    environment: Disposable Docker-local Supabase
     test_files:
       - supabase/tests/activity_work_management.sql
   - id: template-database
     kind: database
     command: pnpm db:test
+    requirements: [TPL-01, TPL-02, QA-04]
+    ci: GitHub Verify / database; every pull request and push to main
+    environment: Disposable Docker-local Supabase
     test_files:
       - supabase/tests/project_templates.sql
   - id: data-api-privileges-database
     kind: database
     command: pnpm db:test
+    requirements: [AUTH-02, QA-04]
+    ci: GitHub Verify / database; every pull request and push to main
+    environment: Disposable Docker-local Supabase
     test_files:
       - supabase/tests/data_api_privileges.sql
   - id: qa05-browser-smoke
     kind: end-to-end
     runner: playwright
     command: pnpm test:e2e
+    requirements: [AUTH-01, OVR-01, ACT-03, DEP-01, ADM-01, ARC-03, RSP-01, A11Y-01, QA-05]
+    ci: GitHub Verify / browser; complete for cross-cutting changes, tagged for scoped changes, skipped for documentation-only changes
+    environment: Local Next.js with disposable Docker-local Supabase in CI; guarded dedicated-development backend for authorized local runs
     test_files:
       - e2e/auth.setup.ts
       - e2e/mobile-ux.spec.ts
       - e2e/desktop-ux.spec.ts
       - e2e/core-journeys.spec.ts
+      - e2e/accessibility-baseline.spec.ts
+  - id: prj06-concurrency
+    kind: database-concurrency
+    command: pnpm db:test:concurrency
+    requirements: [PRJ-06, QA-04]
+    ci: Not currently in GitHub Verify; required locally for scoped-lock, rescheduling, or authoritative scheduling-write changes
+    environment: Disposable Docker-local Supabase with explicit concurrent sessions
+    test_files:
+      - scripts/test-prj06-concurrency.sh
 preamble: |-
   This map connects the functional specification to its current implementation. Requirement IDs are stable references for discussion, implementation, review, and testing. File paths and named symbols are preferred over line numbers because symbols remain useful as files change.
 
@@ -100,11 +127,13 @@ groups:
       - Verification / known gap
     requirements:
       - ID: AUTH-01
+        verification:
+          - qa05-browser-smoke
         Capability: Sign up, sign in, sign out, and redirect unauthenticated users
         Primary implementation: "`app/sign-in/page.tsx`; `components/threshold-app.tsx`; `components/shell/sidebar.tsx`; `components/shell/mobile-nav.tsx`"
         Database / persistence: Supabase Auth; `profiles`; `handle_new_user`
         Coverage: Implemented
-        Verification / known gap: Manual UI; no automated auth tests.
+        Verification / known gap: The browser suite verifies unauthenticated redirect behavior and preservation of an authenticated session. Sign-up, sign-out, password recovery, and realtime session expiry remain manual.
       - ID: AUTH-02
         verification:
           - activity-work-management-database
@@ -165,6 +194,7 @@ groups:
     requirements:
       - ID: OVR-01
         verification:
+          - qa05-browser-smoke
           - unit-vitest
         Capability: Cross-project overview timeline with project bars
         Primary implementation: "`components/overview/overview.tsx`; `lib/planning/overview-timeline.ts`; `/` route"
@@ -255,6 +285,7 @@ groups:
         verification:
           - unit-vitest
           - prj06-database
+          - prj06-concurrency
         Capability: Direct project-date edits preview and atomically move the complete or remaining schedule while preserving activity formation and completed history
         Primary implementation: "Binding detail in `plans/PRJ-06-project-rescheduling.md`; Slice 2.1 concurrency contract in `plans/PRJ-06-project-scoped-locking.md`; pure planner in `lib/planning/project-reschedule.ts`; authoritative preview and commit RPCs; `components/projects/project-form.tsx`; `components/projects/reschedule-preview-dialog.tsx`"
         Database / persistence: "`preview_project_reschedule`, `reschedule_project`, schedule fingerprinting, deferred final validation, and protected write boundary in `202609040001`–`202609040004`; deterministic one-hop project locks, bounded waits, and secure deferred archive validation in `202609040007`–`202609050002`; transactional verification in `202609040002`, `202609040005`, `202609040006`, and `202609040008`"
@@ -289,6 +320,7 @@ groups:
       - ID: ACT-03
         verification:
           - activity-work-management-database
+          - qa05-browser-smoke
         Capability: Create and edit required dates, assigned team members, type, status, priority, notes, and project
         Primary implementation: "`components/activities/activity-form.tsx`; `components/shared/editor.tsx`; `components/activities/activity-panel.tsx`; `components/activities/activity-detail.tsx`; overview and project-detail launch points"
         Database / persistence: Authoritative `save_activity` in `202608300003_project_timing_constraints.sql`; activities and `activity_owners`
@@ -371,6 +403,8 @@ groups:
       - Verification / known gap
     requirements:
       - ID: DEP-01
+        verification:
+          - qa05-browser-smoke
         Capability: Filter non-archived activities by project, search by Activity Name, then stage, save, configure, follow, and remove prerequisites
         Primary implementation: "`components/activities/activity-schedule-editor.tsx`; `components/activities/activity-form.tsx`; `components/activities/activity-detail.tsx`"
         Database / persistence: "`activity_dependencies`; authoritative `save_activity` in migration `202608300003`"
@@ -465,6 +499,8 @@ groups:
       - Verification / known gap
     requirements:
       - ID: ADM-01
+        verification:
+          - qa05-browser-smoke
         Capability: Centrally manage team members, project types, and activity types
         Primary implementation: "`components/administration/administration.tsx`; `components/administration/admin-list.tsx`; `/administration` route"
         Database / persistence: "`team_members`; `project_types`; `activity_types`; active-name uniqueness migration"
@@ -487,6 +523,7 @@ groups:
       - ID: ARC-03
         verification:
           - activity-work-management-database
+          - qa05-browser-smoke
         Capability: Archive an activity with downstream-impact preview and archive affected relationships
         Primary implementation: "`components/activities/activity-detail.tsx` archive action and downstream-impact confirmation"
         Database / persistence: "`archive_activity` in migration `202608300002` archives the activity, links, and relationships"
@@ -501,12 +538,16 @@ groups:
         Coverage: Implemented
         Verification / known gap: Active scheduling and cycle traversal ignore archived relationships. Transactional database coverage verifies that activity and project archive operations retain dependency rows with archive markers. No visible history surface exists.
       - ID: RSP-01
+        verification:
+          - qa05-browser-smoke
         Capability: Full desktop and mobile creation/editing
         Primary implementation: Feature forms; `components/shell/*`; `components/overview/project-card.tsx`; responsive CSS
         Database / persistence: Same persistence paths on all viewports
         Coverage: Implemented
         Verification / known gap: Editor grids stack on small screens while retaining readable 16px controls and touch-sized actions; team-member and Save controls remain visible and contained. The mobile activity panel uses the dynamic viewport and normal-flow final actions so Chrome browser chrome cannot obscure a negatively offset sticky action bar. Detail-summary values, project-card titles, administration rows, editors, and relationship URLs wrap within narrow panes. Browser coverage checks containment at 390×844 and preservation at 1440×900, with an additional 820px activity-context containment check; a broader device matrix remains.
       - ID: A11Y-01
+        verification:
+          - qa05-browser-smoke
         Capability: Semantic, keyboard-accessible UI with focus visibility and suitable contrast
         Primary implementation: "Form labels, fieldsets, status roles, dialog attributes; `components/shared/modal-keyboard.ts`; `components/shared/icon.tsx`; `e2e/accessibility-baseline.spec.ts`; global/extended CSS"
         Database / persistence: None
@@ -557,7 +598,9 @@ groups:
         verification:
           - prj06-database
           - activity-work-management-database
+          - template-database
           - data-api-privileges-database
+          - prj06-concurrency
         Capability: Database integration tests
         Current implementation: "PRJ-06 pgTAP suite in `supabase/tests/prj06_project_rescheduling.sql`; activity work-management pgTAP suite in `supabase/tests/activity_work_management.sql`; Data API privilege suite in `supabase/tests/data_api_privileges.sql`; disposable-Supabase `database` job in `.github/workflows/verify.yml`; explicit-barrier concurrency harness in `scripts/test-prj06-concurrency.sh`; transactional live verification migrations `202609040002`, `202609040005`, `202609040006`, and `202609040008`"
         Coverage: Partial

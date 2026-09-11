@@ -28,9 +28,9 @@ function renderTraceability(group, requirement, verificationById) {
 function renderMap(map) {
   const body = ["## Implementation Map", "", "> Generated from `implementation-map.yaml`. Do not edit this section directly; run `pnpm map:generate`.", "", map.preamble];
   const verificationById = new Map(map.verification_catalog.map((entry) => [entry.id, entry]));
-  body.push("", "### Automated verification catalog", "", "| ID | Kind | Command | Executable files |", "| --- | --- | --- | --- |");
+  body.push("", "### Test and execution matrix", "", "This registry is the canonical inventory for executable tests. Map changes must keep its files, requirements, commands, CI policy, and execution environment current.", "", "| ID | Kind | Requirements | Local command | GitHub execution | Environment | Executable files |", "| --- | --- | --- | --- | --- | --- | --- |");
   for (const entry of map.verification_catalog) {
-    body.push(`| ${entry.id} | ${entry.kind} | \`${entry.command}\` | ${entry.test_files.map((path) => `\`${path}\``).join("; ")} |`);
+    body.push(`| ${entry.id} | ${entry.kind} | ${entry.requirements.map((id) => `\`${id}\``).join("; ")} | \`${entry.command}\` | ${entry.ci} | ${entry.environment} | ${entry.test_files.map((path) => `\`${path}\``).join("; ")} |`);
   }
   for (const group of map.groups) {
     const columns = [...group.columns, "Traceability"];
@@ -84,13 +84,14 @@ async function validate(map, markdown) {
   for (const entry of map.verification_catalog ?? []) {
     if (!entry.id || verificationById.has(entry.id)) errors.push(`duplicate or missing verification catalog ID: ${entry.id ?? "<missing>"}`);
     verificationById.set(entry.id, entry);
-    if (!entry.kind || !entry.command || !Array.isArray(entry.test_files) || entry.test_files.length === 0) errors.push(`${entry.id ?? "<missing>"} has an incomplete verification catalog entry`);
+    if (!entry.kind || !entry.command || !entry.ci || !entry.environment || !Array.isArray(entry.requirements) || entry.requirements.length === 0 || !Array.isArray(entry.test_files) || entry.test_files.length === 0) errors.push(`${entry.id ?? "<missing>"} has an incomplete verification catalog entry`);
     const packageScript = /^pnpm ([a-zA-Z0-9:_-]+)$/.exec(entry.command)?.[1];
     if (!packageScript) errors.push(`${entry.id ?? "<missing>"} command must reference one pnpm script`);
     for (const path of entry.test_files ?? []) {
-      if (path.startsWith("/") || path.split("/").includes("..") || !(/\.test\.tsx?$/.test(path) || /^e2e\/.+\.(?:spec|setup)\.ts$/.test(path) || /^supabase\/tests\/.+\.sql$/.test(path))) {
+      if (path.startsWith("/") || path.split("/").includes("..") || !(/\.test\.tsx?$/.test(path) || /^e2e\/.+\.(?:spec|setup)\.ts$/.test(path) || /^supabase\/tests\/.+\.sql$/.test(path) || /^scripts\/test-.+\.sh$/.test(path))) {
         errors.push(`${entry.id} has invalid test path: ${path}`);
       }
+      if (catalogedTests.has(path)) errors.push(`test file is cataloged more than once: ${path}`);
       catalogedTests.add(path);
       try { await access(resolve(root, path)); } catch { errors.push(`${entry.id} references missing test file: ${path}`); }
     }
@@ -129,6 +130,20 @@ async function validate(map, markdown) {
     }
   }
 
+  const requirementsById = new Map(map.groups.flatMap((group) => group.requirements).map((requirement) => [requirement.ID, requirement]));
+  for (const entry of verificationById.values()) {
+    for (const requirementId of entry.requirements ?? []) {
+      const requirement = requirementsById.get(requirementId);
+      if (!requirement) errors.push(`${entry.id} references unknown requirement: ${requirementId}`);
+      else if (!requirement.verification?.includes(entry.id)) errors.push(`${entry.id} maps ${requirementId}, but the requirement does not reference that verification entry`);
+    }
+  }
+  for (const requirement of requirementsById.values()) {
+    for (const verificationId of requirement.verification ?? []) {
+      if (!verificationById.get(verificationId)?.requirements?.includes(requirement.ID)) errors.push(`${requirement.ID} references ${verificationId}, but the catalog entry does not map that requirement`);
+    }
+  }
+
   const packageJson = JSON.parse(await readFile(resolve(root, "package.json"), "utf8"));
   for (const entry of verificationById.values()) {
     const script = /^pnpm ([a-zA-Z0-9:_-]+)$/.exec(entry.command)?.[1];
@@ -152,8 +167,13 @@ async function validate(map, markdown) {
       errors.push("QA-05 must reference qa05-browser-smoke and describe existing coverage when Playwright is configured");
     }
   }
-  const discoveredTests = await filesMatching("", /\.test\.tsx?$/);
-  for (const path of discoveredTests) if (!catalogedTests.has(path)) errors.push(`uncataloged unit test file: ${path}`);
+  const discoveredTests = [
+    ...(await filesMatching("", /\.test\.tsx?$/)),
+    ...(await filesMatching("e2e", /\.(?:spec|setup)\.ts$/)),
+    ...(await filesMatching("supabase/tests", /\.sql$/)),
+    ...(await filesMatching("scripts", /test-.+\.sh$/)),
+  ];
+  for (const path of discoveredTests) if (!catalogedTests.has(path)) errors.push(`uncataloged executable test file: ${path}`);
   const referencedPlans = new Set(map.groups.flatMap((group) => group.requirements.flatMap((requirement) => requirement.plans ?? [])));
   const discoveredPlans = (await filesMatching("plans", /\.md$/)).filter((path) => path !== "plans/README.md");
   for (const path of discoveredPlans) if (!referencedPlans.has(path)) errors.push(`unmapped requirement plan: ${path}`);

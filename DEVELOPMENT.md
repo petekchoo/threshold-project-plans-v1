@@ -60,6 +60,21 @@ Code moves through GitHub as `feature/*` → pull request into `dev` → stable 
 
 Vercel's general Preview environment includes every non-production branch by default. Scope hosted-development Supabase variables specifically to `dev`, assign `dev` a stable staging domain, and give other preview branches only non-mutating configuration. When the account supports Vercel Custom Environments, a branch-tracked `staging` environment is preferred for clearer policy and variable isolation; a branch-specific Preview deployment is an acceptable equivalent.
 
+#### Hosted configuration bootstrap
+
+Apply these controls before adopting `dev` as the default feature base:
+
+1. **GitHub `dev`:** prohibit deletion and force pushes; require pull requests, conversation resolution, and the `promotion-policy`, `verify`, `database`, `browser`, and Vercel deployment checks. Do not permit direct pushes as a normal workflow.
+2. **GitHub `main`:** retain the same history protections and required checks. Require `promotion-policy` so ordinary changes can arrive only from `dev`; `hotfix/*` is the documented emergency exception. A `dev`-to-`main` pull request forces the complete browser suite through `THRESHOLD_E2E_FORCE_ALL`.
+3. **Vercel Production:** confirm `main` is the Production Branch, production domains point only to this environment, and the environment contains only production Supabase public configuration. Keep production smoke credentials out of the deployment unless a reviewed server-side mechanism requires them.
+4. **Vercel staging:** track only `dev`, assign a stable staging domain, and scope the development Supabase URL and publishable key specifically to that branch or Custom Environment. Do not store the development E2E account password in the application deployment; browser runners receive it separately. Apply deployment protection appropriate for Peter and authorized reviewers.
+5. **Other Vercel previews:** do not inherit hosted-development backend variables by default. If a build requires public Supabase configuration, use a deliberately non-mutating target or disable those deployments until a safe target exists. Never place service-role keys, database passwords, Supabase access tokens, or E2E credentials in client-visible variables.
+6. **Supabase Auth:** allow the stable staging sign-in and callback origins only on the development project, and allow production origins only on the production project. Retain localhost/LAN origins only where needed for guarded development. Verify sign-in, refresh, sign-out, and unauthenticated redirect behavior at each deployed origin.
+
+Bootstrap validation is complete only after a feature pull request passes into `dev`, the resulting stable staging deployment is confirmed to use development Supabase, an authorized reserved-fixture mutation is reset and verified, a `dev`-to-`main` release pull request runs the complete suite, and application promotion is shown not to apply a database migration implicitly. Record the deployed commit, domains, backend classification, checks, fixture cleanup, and rollback owner in `TASKS.md` without recording secrets or project identifiers.
+
+Rollback follows the affected layer. Reassign the previous Vercel deployment or revert the Git commit for application failures. Repair development fixtures only through the reserved seed lifecycle. Database migrations are forward-only by default: prepare and review a corrective migration rather than rewriting applied history. Production rollback and every hosted database write require explicit authorization.
+
 Passing a build or deployment check proves compilation and deployment readiness, not safe database targeting or end-to-end behavior. Record the verified backend classification in the task handoff whenever browser or deployed-preview validation occurs.
 
 #### Delivery pathway and release gates

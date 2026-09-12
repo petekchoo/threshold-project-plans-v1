@@ -50,11 +50,15 @@ Browser authentication storage is origin-specific. A session established at `loc
 
 ### Build and release environments
 
-Treat the delivery pipeline as three separate stages, and identify both the application host and Supabase backend at every stage:
+Treat the delivery pipeline as three isolated tiers, and identify both the application host and Supabase backend at every stage:
 
-1. **Local code and disposable database:** Run formatting, type, lint, unit, and traceability checks against the working tree. Replay migrations and run database integration tests only against Docker-hosted local Supabase. This stage never writes to a hosted project.
-2. **Local application and hosted development:** Run both the local development server and the local production build. Browser validation uses the dedicated hosted development Supabase project, the dedicated E2E account, and the reserved replaceable fixture graph. Data-changing browser tests and development migrations still require explicit authorization and verified cleanup.
-3. **Pull request, preview, and production:** GitHub Verify repeats repository checks and database integration tests against disposable Supabase in CI. A Vercel pull-request check verifies the preview deployment; do not assume its Supabase target from the word “preview.” Verify the Vercel environment-variable scope before relying on runtime behavior, and never run data-changing validation when it targets production or another shared backend. After review and successful checks, merge promotes the application through the production deployment configured with production Supabase. Production database migrations are a separate deliberate promotion requiring dry-run review, explicit authorization, and the production write guard.
+1. **Local:** Run formatting, type, lint, unit, traceability, migration replay, database integration, and destructive browser journeys against the working tree and Docker-hosted local Supabase. This tier never writes to a hosted project. Local Next.js may instead use hosted development for authorized manual validation, but that exception must be identified explicitly and use the reserved fixture lifecycle for mutations.
+2. **Development/staging:** The protected GitHub `dev` branch deploys to a stable Vercel Preview or Custom Environment target backed only by hosted development Supabase. It is the shared integration and acceptance environment. Only the `dev` deployment receives the hosted-development variables; arbitrary feature previews must not inherit credentials that permit unsafe shared mutations. Authorized staging mutations use the dedicated E2E account, reserved fixture identifiers, and verified cleanup.
+3. **Production:** The protected GitHub `main` branch is Vercel's Production Branch and deploys with production-only variables to production Supabase. Production smoke is read-only unless a separate task explicitly authorizes otherwise. Application promotion and database migration promotion remain distinct operations.
+
+Code moves through GitHub as `feature/*` → pull request into `dev` → stable staging validation → release pull request from `dev` into `main`. Feature branches start from current `dev` after it is established. Direct pushes to `dev` and `main` are prohibited by branch protection, and CI rejects pull requests into `main` unless their source is `dev` or `hotfix/*`. Urgent production fixes branch from `main`, merge through a reviewed pull request into `main`, and are immediately merged or cherry-picked back into `dev`.
+
+Vercel's general Preview environment includes every non-production branch by default. Scope hosted-development Supabase variables specifically to `dev`, assign `dev` a stable staging domain, and give other preview branches only non-mutating configuration. When the account supports Vercel Custom Environments, a branch-tracked `staging` environment is preferred for clearer policy and variable isolation; a branch-specific Preview deployment is an acceptable equivalent.
 
 Passing a build or deployment check proves compilation and deployment readiness, not safe database targeting or end-to-end behavior. Record the verified backend classification in the task handoff whenever browser or deployed-preview validation occurs.
 
@@ -67,9 +71,9 @@ Use the following progression for changes that move toward production. The progr
 | 1. Classify and inspect | Local working tree; no backend assumption | Classify the change as `conforms`, `clarifies`, `changes-design`, or `no-product-impact`; identify applicable requirements, plans, implementation locations, and tests. |
 | 2. Local baseline | Local working tree; Docker-local Supabase only when database tests are required | Run the baseline and risk-specific checks below. Confirm a production build for deployment-affecting changes. |
 | 3. Local browser validation | Local Next.js; explicitly classified Docker-local, dedicated development, preview/staging, or production/shared backend | Confirm HTTP 200 before testing. Run the relevant desktop/mobile journeys. Data-changing journeys require explicit authorization, a safe backend, reserved fixtures, and verified cleanup. |
-| 4. Pull request and CI | GitHub runner; disposable Docker-local Supabase for the database job | Record local evidence and known omissions in `TASKS.md`; require GitHub repository verification and the disposable-database job to pass on the final revision. |
-| 5. Vercel preview | Vercel preview; backend determined from verified environment-variable scope | Require the preview deployment check. Before behavioral validation, verify and record the backend classification; never infer it from the word “preview.” |
-| 6. Merge and production promotion | Vercel production application; production Supabase only for a separately authorized migration | Require all applicable final-revision checks and review. Treat application deployment and database migration as separate promotions; production database writes require a reviewed dry run, explicit authorization, and the production write guard. |
+| 4. Feature pull request and CI | Feature branch → `dev`; GitHub runner with disposable Docker-local Supabase | Record local evidence and known omissions in `TASKS.md`; require GitHub repository, disposable-database, scoped browser, and Vercel checks on the final revision. |
+| 5. Stable staging | `dev` Vercel deployment; hosted development Supabase | Require the deployment check, verify the branch-specific environment-variable scope and authentication redirects, and complete proportionate acceptance testing. Shared mutations require authorization, reserved fixtures, and verified cleanup. |
+| 6. Release pull request and production promotion | `dev` → `main`; Vercel production application after merge | Require the complete browser suite plus all repository and database jobs on the final release revision. Treat application deployment and database migration as separate promotions; production database writes require a reviewed dry run, explicit authorization, and the production write guard. |
 | 7. Post-release reconciliation | Production smoke target as authorized; local configuration restored to development | Record merge commit, deployment result, migration state, proportionate smoke evidence, remaining risks, branch cleanup, and synchronization of local `main` with `origin/main`. |
 
 Select validation by the behavior and systems affected:
@@ -119,12 +123,12 @@ Before any GitHub operation in Codex, search both the initially available tools 
 
 - With the connected integration, verify access by reading the repository or pull request before performing a write.
 - Only after the user authorizes installing or using the GitHub CLI fallback, verify authentication with `gh auth status` and the repository with `gh repo view`.
-- Create focused commits on a feature branch based on current `origin/main`, except when `TASKS.md` identifies an intentional local post-merge handoff commit; in that case, base the branch on local `main` and carry the handoff through the feature pull request.
+- Create focused commits on a feature branch based on current `origin/dev`. During initial adoption, or when `TASKS.md` identifies an intentional local-main handoff that predates `dev`, branch from that documented local base and carry the handoff into the pull request that establishes or updates `dev`.
 - Push with `git push -u origin <branch>`.
-- Open and inspect the pull request through the connected integration, or with `gh pr create` and `gh pr view` when using the CLI fallback.
-- Require successful repository verification and Vercel checks before merging.
+- Open ordinary feature pull requests into `dev`. Open a release pull request from `dev` into `main` only after stable staging validation.
+- Require successful repository, database, applicable browser, and Vercel checks before merging. Release pull requests from `dev` to `main` always run the complete browser suite.
 - Before merging, update `TASKS.md` in the pull request with the passed release gates, pull-request identifier, pending-merge state, and next work.
-- Merge through the connected integration or `gh pr merge --delete-branch`; do not force-push or rewrite shared `main`.
+- Merge through the connected integration or `gh pr merge --delete-branch`; do not force-push or rewrite shared `dev` or `main`.
 
 ### Branch cleanup after merge
 

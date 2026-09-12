@@ -18,7 +18,7 @@ QA-05 protects complete user journeys that cross routing, responsive layout, aut
 - Local runs load those values directly from the ignored `.env.local` file when present; shell sourcing is not required.
 - The baseline account and resettable fixture graph live in the dedicated hosted development project. `pnpm db:seed:dev` creates or updates the account and replaces only records using reserved fixture identifiers; credentials, generated browser state, screenshots, traces, and reports are never committed.
 - Slice 1 is read-only: editors are opened and cancelled, and tests must not save, archive, or otherwise change application data.
-- Data-changing journeys must refuse to run against production or another shared backend. The dedicated development backend and reserved fixture-reset lifecycle are available; mutation journeys remain deferred until each test is scoped to those fixtures and proves cleanup or reset behavior.
+- Data-changing journeys must refuse to run against production or another shared backend. Activity and administration mutation journeys run in CI against disposable local Supabase with deterministic fixture setup and teardown. The dedicated development backend and reserved fixture-reset lifecycle remain available for separately authorized local mutation runs. Future project and template mutation journeys must meet the same scoped-fixture and verified-cleanup requirements before enforcement.
 
 ## Slice 1: responsive UX smoke coverage
 

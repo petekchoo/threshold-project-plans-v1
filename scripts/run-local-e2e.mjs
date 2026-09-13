@@ -138,6 +138,10 @@ const result = spawnSync('pnpm', ['exec', 'playwright', 'test', ...process.argv.
     THRESHOLD_E2E_MUTATIONS: '1',
   },
 });
-await requireSuccess(admin.from('projects').delete().like('name', 'DEV QA E2E Project %'), 'clean up QA projects');
-await clearQaTemplates('clean up QA');
+try {
+  await requireSuccess(admin.from('projects').delete().like('name', 'DEV QA E2E Project %'), 'clean up QA projects');
+  await clearQaTemplates('clean up QA');
+} catch (error) {
+  console.warn(`Local E2E teardown warning: ${error instanceof Error ? error.message : String(error)}`);
+}
 process.exit(result.status ?? 1);

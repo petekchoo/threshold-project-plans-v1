@@ -30,6 +30,7 @@ Synchronization note: `docs/record-hosted-release-bootstrap` starts from `origin
 
 ## Next
 
+- Establish a sustainable secrets-management source of truth without collapsing environment boundaries. GitHub environment secrets should contain only credentials required by Actions jobs; Vercel should retain environment-scoped runtime configuration; Supabase should retain database/platform secrets; and local development should receive configuration through an ignored `.env.local` or a future ephemeral injection from a password manager or dedicated secrets manager. Do not centralize broad Supabase administration credentials in GitHub merely to remove the local file. Before enabling unattended staging mutations, design a development-only cleanup capability restricted to the dedicated E2E identity and reserved fixture namespace, then document rotation, recovery, least-privilege access, and synchronization responsibilities.
 - Extend scheduling unit coverage alongside later project-rescheduling or dependency behavior rather than as a separate generic slice (`QA-03`).
 - Extend QA-05 through the remaining sequenced slices in `plans/QA-05-end-to-end.md`: first an isolated project create/edit/reschedule/archive journey, then template authoring and project-from-template materialization. Maintain the implemented accessibility audit as covered states evolve. Keep every mutation on disposable local Supabase or the reserved development fixture lifecycle with verified cleanup.
 

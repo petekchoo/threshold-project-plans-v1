@@ -55,7 +55,7 @@ The desktop project also checks activity-context containment at an intermediate 
 
 ## Slice 3: isolated project mutation journey
 
-Status: implemented locally on 2026-09-13; pending pull-request release gates.
+Status: implemented and promoted to production on 2026-09-13 through PRs #41 and #42.
 
 Add a `@projects` mutation journey to `e2e/core-journeys.spec.ts`. It must use only deterministic QA fixtures and run only when `THRESHOLD_E2E_MUTATIONS=1`.
 
@@ -83,7 +83,7 @@ Implementation notes:
 
 ## Slice 4: isolated template and materialization journeys
 
-Status: implemented locally on 2026-09-13; pending pull-request release gates.
+Status: implemented and promoted to production on 2026-09-13 through PRs #41 and #42.
 
 Add `@templates` to the scope selector and cover template authoring separately from project materialization so failures identify the broken boundary.
 
@@ -146,7 +146,7 @@ Baseline implementation completed on 2026-09-09 and promoted to enforcement on 2
 
 ## Delivery sequence
 
-- Slices 3 and 4 are implemented locally and remain subject to their shared pull-request release gates.
+- Slices 3 and 4 are implemented and promoted to production. Maintain their disposable-fixture isolation and cleanup guarantees as covered workflows evolve.
 - Slice 5 policy, Slice 6 remediation, and enforcement are complete. Maintain the gate as covered states evolve.
 - QA-03 is not a prerequisite. Add unit coverage only if implementing these journeys exposes or changes pure scheduling behavior.
 

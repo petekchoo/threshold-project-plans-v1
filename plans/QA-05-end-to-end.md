@@ -55,6 +55,8 @@ The desktop project also checks activity-context containment at an intermediate 
 
 ## Slice 3: isolated project mutation journey
 
+Status: implemented locally on 2026-09-13; pending pull-request release gates.
+
 Add a `@projects` mutation journey to `e2e/core-journeys.spec.ts`. It must use only deterministic QA fixtures and run only when `THRESHOLD_E2E_MUTATIONS=1`.
 
 The journey covers this complete lifecycle:
@@ -73,7 +75,15 @@ Fixture and cleanup requirements:
 - Verify cleanup through archive state or an explicit scoped reset. A passing UI assertion without fixture cleanup is insufficient.
 - Keep the journey serial if it shares records with another mutation journey; otherwise preserve parallel execution.
 
+Implementation notes:
+
+- `e2e/core-journeys.spec.ts` creates a uniquely named blank project, assigns a team member, verifies list and detail persistence, adds one journey-owned movable activity, exercises end-before-start validation, edits metadata, and confirms an authoritative seven-day whole-schedule move.
+- The journey reloads before rescheduling, verifies both the project end date and moved activity dates after confirmation, archives the project, and checks default and archived list visibility.
+- `scripts/run-local-e2e.mjs` deletes only the reserved `DEV QA E2E Project %` namespace before and after the run, including after a failed Playwright exit, so reruns do not accumulate journey-owned records.
+
 ## Slice 4: isolated template and materialization journeys
+
+Status: implemented locally on 2026-09-13; pending pull-request release gates.
 
 Add `@templates` to the scope selector and cover template authoring separately from project materialization so failures identify the broken boundary.
 
@@ -95,6 +105,12 @@ Add `@templates` to the scope selector and cover template authoring separately f
 5. Archive the generated project and reset or remove every journey-owned record through the scoped fixture lifecycle.
 
 The browser journey verifies user-visible orchestration; existing Vitest and pgTAP suites remain authoritative for exhaustive graph resolution, rollback, and constraint matrices. Do not duplicate those matrices in Playwright.
+
+Implementation notes:
+
+- The `@templates` authoring journey creates a unique template, adds an anchored activity and an activity-relative dependent, verifies readiness and relationship summaries, persists duration/rule edits, exercises a disconnected Needs setup state, repairs it, and verifies archive visibility.
+- The `@templates @projects` materialization journey selects the deterministic Ready fixture, verifies its preview, creates and reloads the inherited Draft project and Not Started dated activity, then archives the generated project.
+- The disposable runner removes journey-owned `DEV QA E2E Template %` rules, activities, and templates in dependency order and removes `DEV QA E2E Project %` records before and after every run.
 
 ## Slice 5: automated accessibility policy
 
@@ -130,8 +146,7 @@ Baseline implementation completed on 2026-09-09 and promoted to enforcement on 2
 
 ## Delivery sequence
 
-- Deliver Slice 3 first because it extends the proven isolated mutation pattern and covers the existing project-rescheduling boundary.
-- Deliver Slice 4 second because its fixture graph and cleanup surface are broader and it depends on stable project creation assertions.
+- Slices 3 and 4 are implemented locally and remain subject to their shared pull-request release gates.
 - Slice 5 policy, Slice 6 remediation, and enforcement are complete. Maintain the gate as covered states evolve.
 - QA-03 is not a prerequisite. Add unit coverage only if implementing these journeys exposes or changes pure scheduling behavior.
 

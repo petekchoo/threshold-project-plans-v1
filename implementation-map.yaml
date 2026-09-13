@@ -67,7 +67,7 @@ verification_catalog:
     kind: end-to-end
     runner: playwright
     command: pnpm test:e2e
-    requirements: [AUTH-01, OVR-01, ACT-03, DEP-01, ADM-01, ARC-03, RSP-01, A11Y-01, QA-05]
+    requirements: [AUTH-01, OVR-01, PRJ-02, PRJ-05, PRJ-06, ACT-03, DEP-01, TPL-01, TPL-02, ADM-01, ARC-02, ARC-03, RSP-01, A11Y-01, QA-05]
     ci: GitHub Verify / browser; complete for cross-cutting changes, tagged for scoped changes, skipped for documentation-only changes
     environment: Local Next.js with disposable Docker-local Supabase in CI; guarded dedicated-development backend for authorized local runs
     test_files:
@@ -255,11 +255,13 @@ groups:
         Coverage: Partial
         Verification / known gap: Core columns and selector sorting exist. Primary table content uses 14px text and tabular numerals, and project briefs have an expandable desktop disclosure. Search covers project name and type; status, team member, type, end-date window, sort, and archive controls remain expanded on desktop and use the same counted mobile filter disclosure as Activities. Projects and Overview share one compact saturated-navy-header mobile project tile with a compact sans-serif hierarchy, quiet planning body, equal-height navy project-window and activity-progress tracks, semantic exception signals, and a next-activity footer. Labels shorten “Activity Progress” and “Overdue Activities,” and status sorting is lexical rather than workflow ordered.
       - ID: PRJ-02
+        verification:
+          - qa05-browser-smoke
         Capability: Create and edit project name, description, type, status, dates, and assigned team members
         Primary implementation: "`components/projects/project-form.tsx`; `components/shared/editor.tsx`; `components/projects/project-detail.tsx`"
         Database / persistence: "`save_project`; `projects`; `project_owners`"
         Coverage: Implemented
-        Verification / known gap: Team members are staged in a searchable multi-select modal and shown with explicit Remove actions on desktop and mobile. Required markers, inline errors, linked summaries, ARIA associations, and first-invalid focus supplement client and database validation; no automated CRUD test.
+        Verification / known gap: Team members are staged in a searchable multi-select modal and shown with explicit Remove actions on desktop and mobile. Required markers, inline errors, linked summaries, ARIA associations, and first-invalid focus supplement client and database validation. The isolated desktop browser journey verifies blank-project creation, assigned team members, persisted list/detail values, metadata editing, and recoverable date validation against disposable Supabase.
       - ID: PRJ-03
         Capability: Manually selected project status remains distinct from calculated activity progress
         Primary implementation: "`components/shared/status-pill.tsx`; `lib/planning/progress.ts`; `components/projects/projects-list.tsx`; `components/projects/project-detail.tsx`"
@@ -273,6 +275,8 @@ groups:
         Coverage: Implemented
         Verification / known gap: The date-scaled timeline occupies the full workspace without a redundant Attention panel, includes the project row and dated end marker, maps activities to their actual dates, and extends for post-project activity finishes. A fixed 18px-per-day scale uses light daily rules and bold labelled Monday rules, so the same distance always represents the same duration and longer schedules scroll horizontally. Sticky opaque row labels mask bars at the timeline boundary during horizontal scrolling. The project activity list shares the global filters, opens an activity from the whole row without a redundant Edit affordance, and uses the shared non-breaking secondary Add activity action. Activity details open first in the editor while the other compact sections remain collapsed until requested or validation requires them. Dependency connectors are intentionally excluded.
       - ID: PRJ-05
+        verification:
+          - qa05-browser-smoke
         Capability: Project date changes respect activity timing constraints and cannot place project start after active work
         Primary implementation: "`components/projects/project-form.tsx`; `components/projects/reschedule-preview-dialog.tsx`; authoritative project-reschedule preview and commit flow"
         Database / persistence: "`preview_project_reschedule`; `reschedule_project`; `validate_project_activity_timing` trigger, authoritative version in `202608300004_project_start_envelope.sql`"
@@ -286,6 +290,7 @@ groups:
           - unit-vitest
           - prj06-database
           - prj06-concurrency
+          - qa05-browser-smoke
         Capability: Direct project-date edits preview and atomically move the complete or remaining schedule while preserving activity formation and completed history
         Primary implementation: "Binding detail in `plans/PRJ-06-project-rescheduling.md`; Slice 2.1 concurrency contract in `plans/PRJ-06-project-scoped-locking.md`; pure planner in `lib/planning/project-reschedule.ts`; authoritative preview and commit RPCs; `components/projects/project-form.tsx`; `components/projects/reschedule-preview-dialog.tsx`"
         Database / persistence: "`preview_project_reschedule`, `reschedule_project`, schedule fingerprinting, deferred final validation, and protected write boundary in `202609040001`–`202609040004`; deterministic one-hop project locks, bounded waits, and secure deferred archive validation in `202609040007`–`202609050002`; transactional verification in `202609040002`, `202609040005`, `202609040006`, and `202609040008`"
@@ -373,22 +378,24 @@ groups:
         verification:
           - unit-vitest
           - template-database
+          - qa05-browser-smoke
         Capability: Create, search, edit, validate, and archive reusable project templates with deterministic project-end-connected activity graphs
         Primary implementation: "Binding detail in `plans/TPL-01-project-templates.md`; `lib/planning/project-template.ts`; `components/templates/*`; `/templates` routes"
         Database / persistence: "`project_templates`; `project_template_activities`; `project_template_activity_rules`; authoritative saves, validation, and archive functions in migrations `202609060001`, `202609060002`, and `202609060003`"
         Coverage: Implemented
-        Verification / known gap: Template authoring, latest-valid graph resolution, relationship summaries, responsive navigation, and inline referenced-activity creation are implemented. Unit tests and the 35-assertion local template database suite pass; automated data-changing browser coverage remains under QA-05.
+        Verification / known gap: Template authoring, latest-valid graph resolution, relationship summaries, responsive navigation, and inline referenced-activity creation are implemented. Unit tests and the 35-assertion local template database suite pass. The isolated desktop browser journey verifies creation, multi-activity rules, Ready and Needs setup transitions, persisted edits, repair of a disconnected activity, archiving, and archived-list visibility against disposable Supabase.
       - ID: TPL-02
         plans:
           - plans/TPL-01-project-templates.md
         verification:
           - unit-vitest
           - template-database
+          - qa05-browser-smoke
         Capability: Search valid templates, preview a schedule from project name and end date, and atomically create an independent dated Draft project and Not Started activity graph
         Primary implementation: "Binding detail in `plans/TPL-01-project-templates.md`; `components/projects/project-create-flow.tsx`; `lib/planning/project-template.ts`"
         Database / persistence: "`preview_project_template`; `create_project_from_template` in migrations `202609060001`, `202609060002`, and `202609060003`"
         Coverage: Implemented
-        Verification / known gap: Searchable Ready-template selection includes project type, activity count, and calculated lead-in; latest-valid preview, atomic creation, generated rules, derived project start, and rollback are implemented. Automated data-changing browser coverage remains under QA-05.
+        Verification / known gap: Searchable Ready-template selection includes project type, activity count, and calculated lead-in; latest-valid preview, atomic creation, generated rules, derived project start, and rollback are implemented. The isolated desktop browser journey verifies preview, Draft project materialization, inherited type, Not Started activity dates, persistence after reload, and archive cleanup against disposable Supabase.
   - title: Scheduling and dependencies
     scope: product-behavior
     design_refs:
@@ -515,11 +522,12 @@ groups:
       - ID: ARC-02
         verification:
           - activity-work-management-database
+          - qa05-browser-smoke
         Capability: Archive projects and their activities/links/dependencies
         Primary implementation: "`components/projects/project-detail.tsx` (`archiveProject`)"
         Database / persistence: "`archive_project`"
         Coverage: Implemented
-        Verification / known gap: Confirmation exists; transactional database coverage verifies retained project, activity, link, and cross-project dependency archive markers. No restore flow.
+        Verification / known gap: Confirmation exists; transactional database coverage verifies retained project, activity, link, and cross-project dependency archive markers. The isolated desktop browser journey verifies default-list exclusion and archived-list visibility after archiving a journey-owned project. No restore flow.
       - ID: ARC-03
         verification:
           - activity-work-management-database
@@ -613,7 +621,7 @@ groups:
         Capability: End-to-end core-journey tests
         Current implementation: "Playwright responsive, core-journey, and required axe-core accessibility suites in `e2e/*`; mobile Chromium at 390 × 844; desktop Chromium at 1440 × 900; guarded hosted-development fixtures; disposable local fixtures in `scripts/run-local-e2e.mjs`; conservative requirement-tag routing in `scripts/e2e-scope.mjs`; required `browser` job in `.github/workflows/verify.yml`"
         Coverage: Partial
-        Next verification need: Responsive smoke coverage remains across mobile, desktop, and the intermediate activity-context width. Core journeys cover unauthenticated routing, authenticated overview interaction, activity create/edit/archive with a persisted dependency, and administration create/edit/archive. CI runs mutations only against disposable local Supabase and selects tagged journeys for narrow changes while defaulting shared or ambiguous changes to the complete suite. The axe-core suite reports zero detectable WCAG 2.2 A/AA violations across its current states and fails on serious or critical findings; moderate findings remain visible for triage and no exceptions are accepted. Next add isolated project create/edit/reschedule/archive coverage, then template authoring and project-from-template materialization coverage.
+        Next verification need: Responsive smoke coverage remains across mobile, desktop, and the intermediate activity-context width. Core journeys cover unauthenticated routing, authenticated overview interaction, project create/edit/reschedule/archive with verified schedule movement, activity create/edit/archive with a persisted dependency, template authoring and project materialization, and administration create/edit/archive. CI runs mutations only against disposable local Supabase and selects tagged journeys for narrow changes while defaulting shared or ambiguous changes to the complete suite. The axe-core suite reports zero detectable WCAG 2.2 A/AA violations across its current states and fails on serious or critical findings; moderate findings remain visible for triage and no exceptions are accepted. Sign-up, sign-out, password recovery, realtime expiry, and broader browser/device coverage remain future candidates.
       - ID: QA-06
         Capability: Build and deployment target
         Current implementation: "`package.json`; `next.config.ts`; `.github/workflows/verify.yml`; Tailwind/PostCSS configuration; Supabase CLI configuration and migrations; guarded hosted-environment selection in `scripts/supabase-environment.mjs`"

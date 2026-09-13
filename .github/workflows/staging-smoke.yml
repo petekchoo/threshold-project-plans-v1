@@ -1,0 +1,47 @@
+name: Staging smoke
+
+on:
+  workflow_dispatch:
+  pull_request:
+    branches: [dev]
+    paths:
+      - .github/workflows/staging-smoke.yml
+      - e2e/**
+      - playwright.config.ts
+
+permissions:
+  contents: read
+
+concurrency:
+  group: staging-smoke
+  cancel-in-progress: false
+
+jobs:
+  browser:
+    name: staging-browser
+    environment: staging
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      E2E_BASE_URL: https://threshold-project-plans-v1-git-dev-petekchoos-projects.vercel.app
+      THRESHOLD_DEV_E2E_EMAIL: ${{ secrets.THRESHOLD_DEV_E2E_EMAIL }}
+      THRESHOLD_DEV_E2E_PASSWORD: ${{ secrets.THRESHOLD_DEV_E2E_PASSWORD }}
+      VERCEL_AUTOMATION_BYPASS_SECRET: ${{ secrets.VERCEL_AUTOMATION_BYPASS_SECRET }}
+    steps:
+      - uses: actions/checkout@v6
+      - uses: pnpm/action-setup@v6
+        with:
+          version: 11.19.0
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 22.13.0
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm exec playwright install --with-deps chromium
+      - name: Confirm staging credentials are configured
+        run: |
+          test -n "$THRESHOLD_DEV_E2E_EMAIL"
+          test -n "$THRESHOLD_DEV_E2E_PASSWORD"
+          test -n "$VERCEL_AUTOMATION_BYPASS_SECRET"
+      - name: Run read-only staging browser suite
+        run: pnpm test:e2e

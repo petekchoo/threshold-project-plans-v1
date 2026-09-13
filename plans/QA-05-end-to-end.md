@@ -55,6 +55,8 @@ The desktop project also checks activity-context containment at an intermediate 
 
 ## Slice 3: isolated project mutation journey
 
+Status: implemented locally on 2026-09-13; pending pull-request release gates.
+
 Add a `@projects` mutation journey to `e2e/core-journeys.spec.ts`. It must use only deterministic QA fixtures and run only when `THRESHOLD_E2E_MUTATIONS=1`.
 
 The journey covers this complete lifecycle:
@@ -72,6 +74,12 @@ Fixture and cleanup requirements:
 - Make the journey self-identifying through a reserved QA name or ID and safe to rerun after interruption.
 - Verify cleanup through archive state or an explicit scoped reset. A passing UI assertion without fixture cleanup is insufficient.
 - Keep the journey serial if it shares records with another mutation journey; otherwise preserve parallel execution.
+
+Implementation notes:
+
+- `e2e/core-journeys.spec.ts` creates a uniquely named blank project, assigns a team member, verifies list and detail persistence, adds one journey-owned movable activity, exercises end-before-start validation, edits metadata, and confirms an authoritative seven-day whole-schedule move.
+- The journey reloads before rescheduling, verifies both the project end date and moved activity dates after confirmation, archives the project, and checks default and archived list visibility.
+- `scripts/run-local-e2e.mjs` deletes only the reserved `DEV QA E2E Project %` namespace before and after the run, including after a failed Playwright exit, so reruns do not accumulate journey-owned records.
 
 ## Slice 4: isolated template and materialization journeys
 
@@ -130,8 +138,8 @@ Baseline implementation completed on 2026-09-09 and promoted to enforcement on 2
 
 ## Delivery sequence
 
-- Deliver Slice 3 first because it extends the proven isolated mutation pattern and covers the existing project-rescheduling boundary.
-- Deliver Slice 4 second because its fixture graph and cleanup surface are broader and it depends on stable project creation assertions.
+- Slice 3 is implemented locally and remains subject to its pull-request release gates.
+- Deliver Slice 4 next because its fixture graph and cleanup surface are broader and it depends on the now-stable project creation assertions.
 - Slice 5 policy, Slice 6 remediation, and enforcement are complete. Maintain the gate as covered states evolve.
 - QA-03 is not a prerequisite. Add unit coverage only if implementing these journeys exposes or changes pure scheduling behavior.
 

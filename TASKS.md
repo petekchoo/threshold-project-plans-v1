@@ -9,6 +9,7 @@ Synchronization note: local `main` is synchronized with `origin/main` at product
 ## Active
 
 - No environment-bootstrap execution remains. Continue enforcing the established feature → `dev` → stable staging → `main` delivery path, environment isolation, proportionate validation, and separate authorization for database writes.
+- QA-05 Slice 3 project lifecycle coverage is implemented locally on `feature/qa05-project-lifecycle`: a disposable desktop journey creates a blank assigned project, persists and edits metadata, exercises recoverable validation, adds movable work, confirms authoritative rescheduling, verifies moved dates, archives the project, and checks archived visibility. Prefix-scoped runner cleanup removes journey-owned projects before and after execution. The focused journey and complete 24-check disposable-Supabase browser suite pass, as do traceability validation, typecheck, lint, all 79 unit tests, and the production build; pull-request and CI release gates remain.
 
 ## Recently completed
 
@@ -33,7 +34,7 @@ Synchronization note: local `main` is synchronized with `origin/main` at product
 
 - Establish a sustainable secrets-management source of truth without collapsing environment boundaries. GitHub environment secrets should contain only credentials required by Actions jobs; Vercel should retain environment-scoped runtime configuration; Supabase should retain database/platform secrets; and local development should receive configuration through an ignored `.env.local` or a future ephemeral injection from a password manager or dedicated secrets manager. Do not centralize broad Supabase administration credentials in GitHub merely to remove the local file. Before enabling unattended staging mutations, design a development-only cleanup capability restricted to the dedicated E2E identity and reserved fixture namespace, then document rotation, recovery, least-privilege access, and synchronization responsibilities.
 - Extend scheduling unit coverage alongside later project-rescheduling or dependency behavior rather than as a separate generic slice (`QA-03`).
-- Extend QA-05 through the remaining sequenced slices in `plans/QA-05-end-to-end.md`: first an isolated project create/edit/reschedule/archive journey, then template authoring and project-from-template materialization. Maintain the implemented accessibility audit as covered states evolve. Keep every mutation on disposable local Supabase or the reserved development fixture lifecycle with verified cleanup.
+- Extend QA-05 with template authoring and project-from-template materialization after Slice 3 clears its release gates. Maintain the implemented accessibility audit as covered states evolve. Keep every mutation on disposable local Supabase or the reserved development fixture lifecycle with verified cleanup.
 
 ## Distant future
 

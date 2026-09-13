@@ -59,6 +59,7 @@ if (user) {
 if (!user) fail('the local E2E user was not returned.');
 
 await requireSuccess(admin.from('projects').delete().in('id', ids.projects), 'clear projects');
+await requireSuccess(admin.from('projects').delete().like('name', 'DEV QA E2E Project %'), 'clear QA projects');
 await requireSuccess(admin.from('project_templates').delete().eq('id', ids.template), 'clear template');
 await requireSuccess(admin.from('team_members').delete().in('id', ids.members), 'clear members');
 await requireSuccess(admin.from('project_types').delete().in('id', ids.projectTypes), 'clear project types');
@@ -123,4 +124,5 @@ const result = spawnSync('pnpm', ['exec', 'playwright', 'test', ...process.argv.
     THRESHOLD_E2E_MUTATIONS: '1',
   },
 });
+await requireSuccess(admin.from('projects').delete().like('name', 'DEV QA E2E Project %'), 'clean up QA projects');
 process.exit(result.status ?? 1);

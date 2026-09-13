@@ -24,7 +24,6 @@ jobs:
     timeout-minutes: 20
     env:
       E2E_BASE_URL: https://threshold-project-plans-v1-git-dev-petekchoos-projects.vercel.app
-      THRESHOLD_E2E_MUTATIONS: '1'
       THRESHOLD_DEV_E2E_EMAIL: ${{ secrets.THRESHOLD_DEV_E2E_EMAIL }}
       THRESHOLD_DEV_E2E_PASSWORD: ${{ secrets.THRESHOLD_DEV_E2E_PASSWORD }}
       VERCEL_AUTOMATION_BYPASS_SECRET: ${{ secrets.VERCEL_AUTOMATION_BYPASS_SECRET }}
@@ -44,5 +43,5 @@ jobs:
           test -n "$THRESHOLD_DEV_E2E_EMAIL"
           test -n "$THRESHOLD_DEV_E2E_PASSWORD"
           test -n "$VERCEL_AUTOMATION_BYPASS_SECRET"
-      - name: Run authorized staging browser suite
+      - name: Run read-only staging browser suite
         run: pnpm test:e2e

@@ -3,9 +3,23 @@ name: Verify
 on:
   pull_request:
   push:
-    branches: [main]
+    branches: [dev, main]
 
 jobs:
+  promotion-policy:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Enforce production promotion sources
+        env:
+          BASE_BRANCH: ${{ github.base_ref }}
+          HEAD_BRANCH: ${{ github.head_ref }}
+        run: |
+          if [[ "$BASE_BRANCH" == "main" && "$HEAD_BRANCH" != "dev" && "$HEAD_BRANCH" != hotfix/* ]]; then
+            echo "Pull requests into main must come from dev or a hotfix/* branch."
+            exit 1
+          fi
+
   verify:
     runs-on: ubuntu-latest
     steps:
@@ -62,6 +76,7 @@ jobs:
         env:
           GITHUB_BASE_SHA: ${{ github.event.pull_request.base.sha || github.event.before }}
           GITHUB_HEAD_SHA: ${{ github.sha }}
+          THRESHOLD_E2E_FORCE_ALL: ${{ github.event_name == 'pull_request' && github.base_ref == 'main' && github.head_ref == 'dev' && '1' || '0' }}
         run: node scripts/e2e-scope.mjs
       - name: Start disposable Supabase
         if: steps.scope.outputs.mode != 'none'

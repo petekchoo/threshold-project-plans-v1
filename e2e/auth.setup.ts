@@ -15,7 +15,10 @@ export default async function globalSetup(config: FullConfig) {
   }
 
   const browser = await chromium.launch();
-  const page = await browser.newPage({ baseURL: config.projects[0].use.baseURL });
+  const page = await browser.newPage({
+    baseURL: config.projects[0].use.baseURL,
+    extraHTTPHeaders: config.projects[0].use.extraHTTPHeaders,
+  });
   await page.goto('/sign-in');
   await page.getByLabel('Email address').fill(email);
   await page.getByLabel('Password').fill(password);

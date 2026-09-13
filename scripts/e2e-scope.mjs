@@ -28,6 +28,7 @@ for (const file of files) {
   if (/^(?:app\/(?:globals|extended)\.css|components\/(?:shared|shell)\/|e2e\/accessibility-baseline|playwright\.config\.)/.test(file)) tags.add('@accessibility');
 }
 if (files.every(file => /^(?:plans\/|docs\/|.*\.md$|implementation-map\.yaml$|TASKS\.md$|DESIGN\.md$)/.test(file))) mode = 'none';
+if (process.env.THRESHOLD_E2E_FORCE_ALL === '1') mode = 'all';
 const grep = [...tags].join('|');
 const output = `mode=${mode}\ngrep=${grep}\nfiles=${files.length}\n`;
 if (process.env.GITHUB_OUTPUT) appendFileSync(process.env.GITHUB_OUTPUT, output);

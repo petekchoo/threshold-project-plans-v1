@@ -83,6 +83,8 @@ Implementation notes:
 
 ## Slice 4: isolated template and materialization journeys
 
+Status: implemented locally on 2026-09-13; pending pull-request release gates.
+
 Add `@templates` to the scope selector and cover template authoring separately from project materialization so failures identify the broken boundary.
 
 ### Template authoring journey
@@ -103,6 +105,12 @@ Add `@templates` to the scope selector and cover template authoring separately f
 5. Archive the generated project and reset or remove every journey-owned record through the scoped fixture lifecycle.
 
 The browser journey verifies user-visible orchestration; existing Vitest and pgTAP suites remain authoritative for exhaustive graph resolution, rollback, and constraint matrices. Do not duplicate those matrices in Playwright.
+
+Implementation notes:
+
+- The `@templates` authoring journey creates a unique template, adds an anchored activity and an activity-relative dependent, verifies readiness and relationship summaries, persists duration/rule edits, exercises a disconnected Needs setup state, repairs it, and verifies archive visibility.
+- The `@templates @projects` materialization journey selects the deterministic Ready fixture, verifies its preview, creates and reloads the inherited Draft project and Not Started dated activity, then archives the generated project.
+- The disposable runner removes journey-owned `DEV QA E2E Template %` rules, activities, and templates in dependency order and removes `DEV QA E2E Project %` records before and after every run.
 
 ## Slice 5: automated accessibility policy
 
@@ -138,8 +146,7 @@ Baseline implementation completed on 2026-09-09 and promoted to enforcement on 2
 
 ## Delivery sequence
 
-- Slice 3 is implemented locally and remains subject to its pull-request release gates.
-- Deliver Slice 4 next because its fixture graph and cleanup surface are broader and it depends on the now-stable project creation assertions.
+- Slices 3 and 4 are implemented locally and remain subject to their shared pull-request release gates.
 - Slice 5 policy, Slice 6 remediation, and enforcement are complete. Maintain the gate as covered states evolve.
 - QA-03 is not a prerequisite. Add unit coverage only if implementing these journeys exposes or changes pure scheduling behavior.
 

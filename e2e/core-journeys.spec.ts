@@ -168,6 +168,118 @@ test('@projects creates, edits, reschedules, and archives a project', async ({ p
   await expect(page.getByRole('link', { name: editedName, exact: true }).first()).toBeVisible();
 });
 
+test('@templates authors, validates, edits, and archives a template', async ({ page }) => {
+  test.skip(!mutationsEnabled, 'Mutation journeys require a disposable or explicitly resettable fixture backend.');
+  const name = `DEV QA E2E Template ${Date.now()}`;
+  const editedName = `${name} edited`;
+  const anchorName = `${name} anchor`;
+  const dependentName = `${name} dependent`;
+  const disconnectedName = `${name} disconnected`;
+
+  await page.goto('/templates');
+  await page.getByRole('button', { name: /Create template/ }).click();
+  const templateDialog = page.getByRole('dialog', { name: 'Project template' });
+  await templateDialog.getByLabel('Name').fill(name);
+  await templateDialog.getByLabel('Project type').selectOption({ label: 'DEV Event' });
+  await templateDialog.getByRole('button', { name: 'Save', exact: true }).click();
+  await expect(page.getByRole('heading', { name })).toBeVisible();
+  await expect(page.locator('.template-readiness-card')).toContainText('Needs setup');
+
+  async function addActivity(activityName: string, duration: string, rule: { type: string; offset: string; reference?: string } | null) {
+    await page.getByRole('button', { name: /Add activity/ }).first().click();
+    const editor = page.getByRole('dialog', { name: 'Template activity' });
+    await editor.getByLabel('Name').fill(activityName);
+    await editor.getByLabel('Duration in calendar days').fill(duration);
+    if (rule) {
+      await editor.getByRole('button', { name: /Add schedule rule/ }).click();
+      const ruleDialog = page.getByRole('dialog', { name: 'Schedule rule' });
+      await ruleDialog.getByLabel('Rule').selectOption(rule.type);
+      if (rule.reference) await ruleDialog.locator('#template-reference').selectOption({ label: rule.reference });
+      await ruleDialog.getByLabel('Offset in calendar days').fill(rule.offset);
+      await ruleDialog.getByRole('button', { name: 'Save', exact: true }).click();
+    }
+    await editor.getByRole('button', { name: 'Save', exact: true }).click();
+    await expect(page.getByRole('status')).toContainText('Template activity saved.');
+  }
+
+  await addActivity(anchorName, '3', { type: 'finish_before_project_end', offset: '2' });
+  await addActivity(dependentName, '2', { type: 'start_after_activity_finish', offset: '1', reference: anchorName });
+  await expect(page.locator('.template-readiness-card')).toContainText('Ready');
+  await expect(page.getByText(`Can’t start until ${anchorName} is complete · 1 day offset`)).toBeVisible();
+
+  await page.getByRole('button', { name: 'Edit template' }).click();
+  const editTemplate = page.getByRole('dialog', { name: 'Project template' });
+  await editTemplate.getByLabel('Name').fill(editedName);
+  await editTemplate.getByRole('button', { name: 'Save', exact: true }).click();
+  await expect(page.getByRole('heading', { name: editedName })).toBeVisible();
+  await page.getByRole('button', { name: dependentName, exact: true }).click();
+  const editActivity = page.getByRole('dialog', { name: 'Template activity' });
+  await editActivity.getByLabel('Duration in calendar days').fill('4');
+  await editActivity.locator('.template-rule-row .link-button').click();
+  const editRule = page.getByRole('dialog', { name: 'Schedule rule' });
+  await editRule.getByLabel('Offset in calendar days').fill('2');
+  await editRule.getByRole('button', { name: 'Save', exact: true }).click();
+  await editActivity.getByRole('button', { name: 'Save', exact: true }).click();
+  await expect(page.getByText(`Can’t start until ${anchorName} is complete · 2 days offset`)).toBeVisible();
+  await expect(page.getByRole('row').filter({ has: page.getByRole('button', { name: dependentName, exact: true }) })).toContainText('4 days');
+
+  await addActivity(disconnectedName, '1', null);
+  await expect(page.locator('.template-readiness-card')).toContainText('Needs setup');
+  await page.getByRole('button', { name: disconnectedName, exact: true }).click();
+  const repairEditor = page.getByRole('dialog', { name: 'Template activity' });
+  await repairEditor.getByRole('button', { name: /Add schedule rule/ }).click();
+  const repairRule = page.getByRole('dialog', { name: 'Schedule rule' });
+  await repairRule.getByRole('button', { name: 'Save', exact: true }).click();
+  await repairEditor.getByRole('button', { name: 'Save', exact: true }).click();
+  await expect(page.locator('.template-readiness-card')).toContainText('Ready');
+
+  await page.goto('/templates');
+  await page.getByLabel('Search templates').fill(editedName);
+  const row = page.getByRole('row').filter({ hasText: editedName });
+  page.once('dialog', confirmation => confirmation.accept());
+  await row.getByRole('button', { name: 'Archive' }).click();
+  await expect(page.getByRole('link', { name: editedName, exact: true })).toHaveCount(0);
+  await page.getByLabel('Archived', { exact: true }).check();
+  await expect(page.getByRole('link', { name: editedName, exact: true })).toBeVisible();
+});
+
+test('@templates @projects materializes a project from a ready template', async ({ page }) => {
+  test.skip(!mutationsEnabled, 'Mutation journeys require a disposable or explicitly resettable fixture backend.');
+  const name = `DEV QA E2E Project from template ${Date.now()}`;
+  const end = isoDaysFromToday(45);
+  const expectedDue = isoDaysFromToday(43);
+  const expectedStart = isoDaysFromToday(41);
+
+  await page.goto('/projects');
+  await page.getByRole('button', { name: /Add project/ }).click();
+  const dialog = page.getByRole('dialog', { name: 'Project' });
+  await dialog.getByRole('button', { name: 'Start from template' }).click();
+  await dialog.getByRole('button', { name: /DEV Gala template/ }).click();
+  await dialog.getByLabel('Project name').fill(name);
+  await dialog.getByLabel('Project end date').fill(end);
+  await expect(dialog.getByRole('heading', { name: 'Schedule preview' })).toBeVisible();
+  await expect(dialog.getByText('DEV Prepare gala brief', { exact: true })).toBeVisible();
+  await dialog.getByRole('button', { name: 'Save', exact: true }).click();
+
+  await expect(page.getByRole('heading', { name })).toBeVisible();
+  await expect(page.getByText('DEV Event · Active project')).toBeVisible();
+  await expect(page.getByText('Draft', { exact: true })).toBeVisible();
+  const activityRow = page.locator('.project-activity-row').filter({ hasText: 'DEV Prepare gala brief' });
+  await expect(activityRow).toContainText('Not Started');
+  await activityRow.click();
+  const activityEditor = page.getByRole('dialog').filter({ has: page.getByLabel('Activity name') });
+  await expect(activityEditor.getByLabel('Start date')).toHaveValue(expectedStart);
+  await expect(activityEditor.getByLabel('Due date')).toHaveValue(expectedDue);
+  await activityEditor.getByRole('button', { name: 'Cancel', exact: true }).click();
+  await page.reload();
+  await expect(page.getByRole('heading', { name })).toBeVisible();
+  await expect(page.locator('.project-activity-row').filter({ hasText: 'DEV Prepare gala brief' })).toBeVisible();
+
+  page.once('dialog', confirmation => confirmation.accept());
+  await page.getByRole('button', { name: 'Archive', exact: true }).click();
+  await expect(page).toHaveURL(/\/projects$/);
+});
+
 test('@administration creates, renames, and archives a reference value', async ({ page }) => {
   test.skip(!mutationsEnabled, 'Mutation journeys require a disposable or explicitly resettable fixture backend.');
   const name = `DEV QA E2E Activity Type ${Date.now()}`;

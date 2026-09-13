@@ -26,6 +26,19 @@ async function requireSuccess(operation, label) {
   return result.data;
 }
 
+async function clearQaTemplates(label) {
+  const templates = await requireSuccess(admin.from('project_templates').select('id').like('name', 'DEV QA E2E Template %'), `${label} templates`);
+  const templateIds = templates.map(template => template.id);
+  if (!templateIds.length) return;
+  const activities = await requireSuccess(admin.from('project_template_activities').select('id').in('template_id', templateIds), `${label} template activities`);
+  const activityIds = activities.map(activity => activity.id);
+  if (activityIds.length) {
+    await requireSuccess(admin.from('project_template_activity_rules').delete().in('template_activity_id', activityIds), `${label} template rules`);
+    await requireSuccess(admin.from('project_template_activities').delete().in('id', activityIds), `${label} template activities`);
+  }
+  await requireSuccess(admin.from('project_templates').delete().in('id', templateIds), `${label} templates`);
+}
+
 function addDays(value) {
   const date = new Date();
   date.setUTCHours(12, 0, 0, 0);
@@ -61,6 +74,7 @@ if (!user) fail('the local E2E user was not returned.');
 await requireSuccess(admin.from('projects').delete().in('id', ids.projects), 'clear projects');
 await requireSuccess(admin.from('projects').delete().like('name', 'DEV QA E2E Project %'), 'clear QA projects');
 await requireSuccess(admin.from('project_templates').delete().eq('id', ids.template), 'clear template');
+await clearQaTemplates('clear QA');
 await requireSuccess(admin.from('team_members').delete().in('id', ids.members), 'clear members');
 await requireSuccess(admin.from('project_types').delete().in('id', ids.projectTypes), 'clear project types');
 await requireSuccess(admin.from('activity_types').delete().like('name', 'DEV QA E2E %'), 'clear QA activity types');
@@ -125,4 +139,5 @@ const result = spawnSync('pnpm', ['exec', 'playwright', 'test', ...process.argv.
   },
 });
 await requireSuccess(admin.from('projects').delete().like('name', 'DEV QA E2E Project %'), 'clean up QA projects');
+await clearQaTemplates('clean up QA');
 process.exit(result.status ?? 1);

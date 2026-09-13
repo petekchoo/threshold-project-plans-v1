@@ -67,7 +67,7 @@ verification_catalog:
     kind: end-to-end
     runner: playwright
     command: pnpm test:e2e
-    requirements: [AUTH-01, OVR-01, PRJ-02, PRJ-05, PRJ-06, ACT-03, DEP-01, ADM-01, ARC-02, ARC-03, RSP-01, A11Y-01, QA-05]
+    requirements: [AUTH-01, OVR-01, PRJ-02, PRJ-05, PRJ-06, ACT-03, DEP-01, TPL-01, TPL-02, ADM-01, ARC-02, ARC-03, RSP-01, A11Y-01, QA-05]
     ci: GitHub Verify / browser; complete for cross-cutting changes, tagged for scoped changes, skipped for documentation-only changes
     environment: Local Next.js with disposable Docker-local Supabase in CI; guarded dedicated-development backend for authorized local runs
     test_files:
@@ -378,22 +378,24 @@ groups:
         verification:
           - unit-vitest
           - template-database
+          - qa05-browser-smoke
         Capability: Create, search, edit, validate, and archive reusable project templates with deterministic project-end-connected activity graphs
         Primary implementation: "Binding detail in `plans/TPL-01-project-templates.md`; `lib/planning/project-template.ts`; `components/templates/*`; `/templates` routes"
         Database / persistence: "`project_templates`; `project_template_activities`; `project_template_activity_rules`; authoritative saves, validation, and archive functions in migrations `202609060001`, `202609060002`, and `202609060003`"
         Coverage: Implemented
-        Verification / known gap: Template authoring, latest-valid graph resolution, relationship summaries, responsive navigation, and inline referenced-activity creation are implemented. Unit tests and the 35-assertion local template database suite pass; automated data-changing browser coverage remains under QA-05.
+        Verification / known gap: Template authoring, latest-valid graph resolution, relationship summaries, responsive navigation, and inline referenced-activity creation are implemented. Unit tests and the 35-assertion local template database suite pass. The isolated desktop browser journey verifies creation, multi-activity rules, Ready and Needs setup transitions, persisted edits, repair of a disconnected activity, archiving, and archived-list visibility against disposable Supabase.
       - ID: TPL-02
         plans:
           - plans/TPL-01-project-templates.md
         verification:
           - unit-vitest
           - template-database
+          - qa05-browser-smoke
         Capability: Search valid templates, preview a schedule from project name and end date, and atomically create an independent dated Draft project and Not Started activity graph
         Primary implementation: "Binding detail in `plans/TPL-01-project-templates.md`; `components/projects/project-create-flow.tsx`; `lib/planning/project-template.ts`"
         Database / persistence: "`preview_project_template`; `create_project_from_template` in migrations `202609060001`, `202609060002`, and `202609060003`"
         Coverage: Implemented
-        Verification / known gap: Searchable Ready-template selection includes project type, activity count, and calculated lead-in; latest-valid preview, atomic creation, generated rules, derived project start, and rollback are implemented. Automated data-changing browser coverage remains under QA-05.
+        Verification / known gap: Searchable Ready-template selection includes project type, activity count, and calculated lead-in; latest-valid preview, atomic creation, generated rules, derived project start, and rollback are implemented. The isolated desktop browser journey verifies preview, Draft project materialization, inherited type, Not Started activity dates, persistence after reload, and archive cleanup against disposable Supabase.
   - title: Scheduling and dependencies
     scope: product-behavior
     design_refs:
@@ -619,7 +621,7 @@ groups:
         Capability: End-to-end core-journey tests
         Current implementation: "Playwright responsive, core-journey, and required axe-core accessibility suites in `e2e/*`; mobile Chromium at 390 × 844; desktop Chromium at 1440 × 900; guarded hosted-development fixtures; disposable local fixtures in `scripts/run-local-e2e.mjs`; conservative requirement-tag routing in `scripts/e2e-scope.mjs`; required `browser` job in `.github/workflows/verify.yml`"
         Coverage: Partial
-        Next verification need: Responsive smoke coverage remains across mobile, desktop, and the intermediate activity-context width. Core journeys cover unauthenticated routing, authenticated overview interaction, project create/edit/reschedule/archive with verified schedule movement, activity create/edit/archive with a persisted dependency, and administration create/edit/archive. CI runs mutations only against disposable local Supabase and selects tagged journeys for narrow changes while defaulting shared or ambiguous changes to the complete suite. The axe-core suite reports zero detectable WCAG 2.2 A/AA violations across its current states and fails on serious or critical findings; moderate findings remain visible for triage and no exceptions are accepted. Next add template authoring and project-from-template materialization coverage.
+        Next verification need: Responsive smoke coverage remains across mobile, desktop, and the intermediate activity-context width. Core journeys cover unauthenticated routing, authenticated overview interaction, project create/edit/reschedule/archive with verified schedule movement, activity create/edit/archive with a persisted dependency, template authoring and project materialization, and administration create/edit/archive. CI runs mutations only against disposable local Supabase and selects tagged journeys for narrow changes while defaulting shared or ambiguous changes to the complete suite. The axe-core suite reports zero detectable WCAG 2.2 A/AA violations across its current states and fails on serious or critical findings; moderate findings remain visible for triage and no exceptions are accepted. Sign-up, sign-out, password recovery, realtime expiry, and broader browser/device coverage remain future candidates.
       - ID: QA-06
         Capability: Build and deployment target
         Current implementation: "`package.json`; `next.config.ts`; `.github/workflows/verify.yml`; Tailwind/PostCSS configuration; Supabase CLI configuration and migrations; guarded hosted-environment selection in `scripts/supabase-environment.mjs`"

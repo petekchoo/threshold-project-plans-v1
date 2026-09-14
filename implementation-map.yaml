@@ -269,11 +269,13 @@ groups:
         Coverage: Implemented
         Verification / known gap: Archived activities are excluded because active data is passed to `progress`. Shared fixed-content status pills use centered, high-contrast labels at project and activity level.
       - ID: PRJ-04
+        plans:
+          - plans/VIS-01-ui-design-closeout.md
         Capability: Project detail summary, timeline before activity list, and quick activity editing
         Primary implementation: "`components/projects/project-detail.tsx`; `components/projects/project-schedule.tsx`; `lib/planning/project-schedule.ts`; `components/projects/project-activity-list.tsx`; `components/activities/activity-panel.tsx`; `/projects/[id]` route"
         Database / persistence: Projects, activities, dependencies
         Coverage: Implemented
-        Verification / known gap: The date-scaled timeline occupies the full workspace without a redundant Attention panel, includes the project row and dated end marker, maps activities to their actual dates, and extends for post-project activity finishes. A fixed 18px-per-day scale uses light daily rules and bold labelled Monday rules, so the same distance always represents the same duration and longer schedules scroll horizontally. Sticky opaque row labels mask bars at the timeline boundary during horizontal scrolling. The project activity list shares the global filters, opens an activity from the whole row without a redundant Edit affordance, and uses the shared non-breaking secondary Add activity action. Activity details open first in the editor while the other compact sections remain collapsed until requested or validation requires them. Dependency connectors are intentionally excluded.
+        Verification / known gap: The date-scaled timeline occupies the full workspace without a redundant Attention panel, includes the project row and dated end marker, maps activities to their actual dates, and extends for post-project activity finishes. The shared bounded responsive scale fits short and medium domains to the available pane, adapts daily/weekly/monthly/quarterly marks, and stops compressing at a readable minimum before longer schedules scroll. Mobile retains an 18px minimum day width and sticky opaque row labels mask bars during horizontal scrolling. The project activity list shares the global filters, opens an activity from the whole row without a redundant Edit affordance, and uses the shared non-breaking secondary Add activity action. Activity details open first in the editor while the other compact sections remain collapsed until requested or validation requires them. Dependency connectors are intentionally excluded.
       - ID: PRJ-05
         verification:
           - qa05-browser-smoke
@@ -546,14 +548,18 @@ groups:
         Coverage: Implemented
         Verification / known gap: Active scheduling and cycle traversal ignore archived relationships. Transactional database coverage verifies that activity and project archive operations retain dependency rows with archive markers. No visible history surface exists.
       - ID: RSP-01
+        plans:
+          - plans/VIS-01-ui-design-closeout.md
         verification:
           - qa05-browser-smoke
         Capability: Full desktop and mobile creation/editing
         Primary implementation: Feature forms; `components/shell/*`; `components/overview/project-card.tsx`; responsive CSS
         Database / persistence: Same persistence paths on all viewports
         Coverage: Implemented
-        Verification / known gap: Editor grids stack on small screens while retaining readable 16px controls and touch-sized actions; team-member and Save controls remain visible and contained. The mobile activity panel uses the dynamic viewport and normal-flow final actions so Chrome browser chrome cannot obscure a negatively offset sticky action bar. Detail-summary values, project-card titles, administration rows, editors, and relationship URLs wrap within narrow panes. Browser coverage checks containment at 390×844 and preservation at 1440×900, with an additional 820px activity-context containment check; a broader device matrix remains.
+        Verification / known gap: Editor grids stack on small screens while retaining readable 16px controls and touch-sized actions; team-member and Save controls remain visible and contained. The mobile activity panel uses the dynamic viewport and normal-flow final actions so Chrome browser chrome cannot obscure a negatively offset sticky action bar. Detail-summary values, project-card titles, administration rows, editors, and relationship URLs wrap within narrow panes. Project and activity-context timelines share a bounded responsive scale, while mobile retains its explicit scrolling affordance. Browser coverage checks containment at 390×844 and preservation at 1440×900, with an additional 820px activity-context containment check; a broader device matrix remains.
       - ID: A11Y-01
+        plans:
+          - plans/VIS-01-ui-design-closeout.md
         verification:
           - qa05-browser-smoke
         Capability: Semantic, keyboard-accessible UI with focus visibility and suitable contrast
@@ -562,17 +568,21 @@ groups:
         Coverage: Partial
         Verification / known gap: Shared top-level editors and activity panels move focus into the dialog, contain Tab navigation, and restore prior focus; mobile navigation and child-modal keyboard policies retain their behavior. Workload charts and activity-context timelines expose textual equivalents, and affected links, rows, filters, scroll regions, and compact table targets have accessible semantics, focus treatment, and remediated contrast. The required axe-core audit covers representative stable page and dialog states on mobile and desktop, reports zero detectable WCAG 2.2 A/AA violations, fails serious or critical findings, reports moderate findings for triage, and accepts no exceptions. Manual assistive-technology and broader device coverage remain outside the automated audit.
       - ID: VIS-01
+        plans:
+          - plans/VIS-01-ui-design-closeout.md
         Capability: Threshold identity with warm editorial and restrained operational styling
         Primary implementation: "`components/shell/sidebar.tsx`; `components/shared/icon.tsx`; logo assets; `app/globals.css`; `app/extended.css`"
         Database / persistence: "`public/threshold-logo.png`; `public/threshold-logo-white.png`"
         Coverage: Implemented
-        Verification / known gap: Sidebar presentation crops the square assets' transparent margins at display time so the Threshold mark and Projects wordmark form a balanced lockup without modifying source artwork. Shared display, interface, and type-scale tokens preserve the editorial hierarchy while normalizing operational text, recurring buttons, form controls, checkboxes, focus states, and high-visibility action icons. Overview concentrates deep navy, rich gold, and dark green in its principal metrics and workload scale; shared project and activity tiles use matching three-zone systems with navy and green identity headers respectively, quiet operational bodies, and neutral footers. Exact brand typography outside these confirmed treatments remains open under D-16.
+        Verification / known gap: Sidebar presentation crops the square assets' transparent margins at display time so the Threshold mark and Projects wordmark form a balanced lockup without modifying source artwork. Shared display, interface, and type-scale tokens preserve the editorial hierarchy while normalizing operational text, recurring buttons, form controls, checkboxes, focus states, and high-visibility action icons. Overview concentrates deep navy, rich gold, and dark green in its principal metrics and workload scale; shared project and activity tiles use matching three-zone systems with navy and green identity headers respectively, quiet operational bodies, and neutral footers. Project detail selectively extends the high-contrast metric language to actionable Activity progress and Next due summaries while keeping routine metadata quiet. Wide project/activity lists remain table-first and use the established tiles at intermediate and mobile widths. Exact brand typography outside these confirmed treatments remains open under D-16.
       - ID: VIS-02
+        plans:
+          - plans/VIS-01-ui-design-closeout.md
         Capability: Gentle responsive transitions, restrained status colors, and no dark mode
         Primary implementation: Global and extended CSS
         Database / persistence: None
         Coverage: Implemented
-        Verification / known gap: Responsive project summaries allocate content-sized columns with wrapping values; cards, administration rows, inline editors, and relationship links shrink within their panes; status pills use stronger semantic colors. Mobile and desktop browser checks cover the shared controls and key containment paths.
+        Verification / known gap: Responsive project summaries allocate content-sized columns with wrapping values and accessible progress graphics; activity metadata and secondary panels avoid unnecessary desktop height; Administration uses counted sections and shared actions; cards, rows, inline editors, and relationship links shrink within their panes; status pills use sentence-case high-contrast semantic colors. Overview attention lists show a bounded preview and a complete-list path. Mobile and desktop browser checks cover the shared controls and key containment paths.
   - title: Verification and delivery coverage
     scope: quality-assurance
     design_refs:
@@ -601,7 +611,7 @@ groups:
         Capability: Automated unit tests for scheduling calculations
         Current implementation: "Vitest; `lib/planning/scheduling.test.ts`; `lib/planning/project-schedule.test.ts`; `lib/planning/project-tile.test.ts`; `lib/planning/project-reschedule.test.ts`"
         Coverage: Partial
-        Next verification need: Project timing, the before/on/after project-start client boundary, project rescheduling, fixed daily project-schedule spacing and Monday marks, project-tile Today positioning for active/future/past/one-day windows, both dependency types, completed chronology, cross-project direction, exceptions, archive behavior, and calendar boundaries are covered. Add unit coverage alongside later scheduling features; transaction coverage remains under QA-04.
+        Next verification need: Project timing, the before/on/after project-start client boundary, project rescheduling, bounded responsive project/activity timeline spacing and adaptive marks, one-day date presentation, project-tile Today positioning for active/future/past/one-day windows, both dependency types, completed chronology, cross-project direction, exceptions, archive behavior, and calendar boundaries are covered. Add unit coverage alongside later scheduling features; transaction coverage remains under QA-04.
       - ID: QA-04
         verification:
           - prj06-database

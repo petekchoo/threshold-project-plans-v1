@@ -66,15 +66,13 @@ test('keeps the desktop project editor contained without changing data', async (
 });
 
 test('retains project schedule and a single activity creation action', async ({ page }) => {
-  const project = page.locator('.table-card tbody a[href^="/projects/"]').first();
-  await expect(project, 'The E2E account must contain at least one active project').toHaveCount(1);
-  await project.click();
+  await page.goto('/projects/74000000-0000-0000-0000-000000000001');
   await expect(page.getByRole('heading', { name: 'Activity sequence' })).toBeVisible();
   const schedule = page.locator('.project-schedule-scroll');
   if (await schedule.count()) {
     await expect(schedule).toBeVisible();
-    const majorLines = await page.locator('.schedule-header-track .schedule-grid-major').evaluateAll((items) => items.slice(0, 2).map((item) => item.getBoundingClientRect().x));
-    if (majorLines.length > 1) expect(majorLines[1] - majorLines[0]).toBeCloseTo(126, 0);
+    const widths = await schedule.evaluate((element) => ({ client: element.clientWidth, scroll: element.scrollWidth }));
+    expect(widths.scroll).toBeLessThanOrEqual(widths.client + 1);
     await expect(page.locator('.project-end-marker span')).not.toHaveText('Project end');
   }
   else await expect(page.getByText('No activities yet', { exact: true }).first()).toBeVisible();
@@ -92,6 +90,8 @@ test('shows activity scheduling context and previews archive impact without chan
   await expect(timeline.locator('.activity-context-label').first()).toHaveCSS('background-color', 'rgb(255, 255, 255)');
   await expect(timeline.locator('.activity-context-grid')).toHaveCSS('grid-template-columns', /220px/);
   await expect(timeline.locator('.activity-context-track').first()).toHaveCSS('min-height', '58px');
+  const timelineWidths = await timeline.locator('.project-schedule-scroll').evaluate((element) => ({ client: element.clientWidth, scroll: element.scrollWidth }));
+  expect(timelineWidths.scroll).toBeLessThanOrEqual(timelineWidths.client + 1);
   const firstTrack = timeline.locator('.activity-context-track').first();
   const firstGridLine = firstTrack.locator('.schedule-grid-minor').first();
   const [trackBox, gridLineBox] = await Promise.all([firstTrack.boundingBox(), firstGridLine.boundingBox()]);

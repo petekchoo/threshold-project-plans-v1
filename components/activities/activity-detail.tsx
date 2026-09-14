@@ -5,7 +5,7 @@ import { useState } from 'react';
 import { AvatarList } from '../shared/avatar-list';
 import { Heading } from '../shared/page-heading';
 import { Pill, statusLabel } from '../shared/status-pill';
-import { date } from '../../lib/planning/dates';
+import { date, dateRange } from '../../lib/planning/dates';
 import type { Activity, AppData } from '../../lib/planning/types';
 import { supabase } from '../../lib/supabase';
 import { ActivityForm } from './activity-form';
@@ -30,12 +30,12 @@ export function ActivityDetail({ activity, data, refresh, setToast }: { activity
   if (edit) return <><Heading eyebrow="Activity settings" title={`Edit ${activity.name}`} copy="Update the work, schedule, and prerequisite relationships, then save or cancel."/><ActivityForm initial={activity} data={data} onCancel={() => setEdit(false)} onSaved={() => { setEdit(false); refresh(); setToast('Activity changes saved.'); }}/></>;
 
   return <>
-    <Heading eyebrow={`${activity.projects?.name || 'Project'} · ${archived ? 'Archived activity' : 'Activity'}`} title={activity.name} copy="Schedule context, accountability, notes, and prerequisite relationships." action={archived ? undefined : <div className="heading-actions"><button className="secondary-btn" onClick={() => setEdit(true)}>Edit activity</button><button className="danger-btn" onClick={archiveActivity}>Archive</button></div>}/>
+    <Heading eyebrow={<>{activity.projects ? <Link href={`/projects/${activity.projects.id}`}>{activity.projects.name}</Link> : 'Project'} <span aria-hidden="true">·</span> {archived ? 'Archived activity' : 'Activity'}</>} title={activity.name} copy="Schedule context, accountability, notes, and prerequisite relationships." action={archived ? undefined : <div className="heading-actions"><button className="secondary-btn" onClick={() => setEdit(true)}>Edit activity</button><button className="danger-btn" onClick={archiveActivity}>Archive</button></div>}/>
     <section className="detail-summary activity-summary">
       <div><span>Status</span><Pill value={activity.status}/></div>
       <div><span>Type</span><strong>{activity.activity_types?.name || '—'}</strong></div>
       <div><span>Priority</span><strong>{statusLabel(activity.priority)}</strong></div>
-      <div><span>Dates</span><strong>{date(activity.start_date)} — {date(activity.due_date)}</strong></div>
+      <div><span>Dates</span><strong>{dateRange(activity.start_date, activity.due_date)}</strong></div>
     </section>
     <div className="activity-workspace">
       <div>

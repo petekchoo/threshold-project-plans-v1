@@ -100,6 +100,7 @@ button.schedule-row-label{cursor:pointer}button.schedule-row-label:hover{backgro
 .overview-activity-list .section-head+.overview-activity-row{margin-top:18px}.overview-activity-row:hover{background:#faf7ef}.overview-activity-row:focus-visible{outline:3px solid #806b43;outline-offset:2px}
 .overview-activity-row>span{min-width:0}.overview-activity-row strong,.overview-activity-row small{display:block}.overview-activity-row strong{font-size:var(--text-subhead);overflow-wrap:anywhere}.overview-activity-row small{margin-top:5px;color:var(--muted);font-size:var(--text-meta);line-height:1.4}
 .overview-activity-empty{border-top:1px solid #ebe8e0;margin:18px 0 0;padding:18px 0 0;color:var(--muted);font-size:var(--text-detail);line-height:1.5}
+.overview-activity-list{align-self:start}.overview-activity-more{display:inline-flex;margin-top:16px;color:#604e2f;font-size:13px;font-weight:700}.overview-activity-more:hover{text-decoration:underline;text-underline-offset:3px}.overview-activity-more:focus-visible{outline:3px solid #806b43;outline-offset:3px}
 @media(max-width:1100px){.overview-attention-grid{grid-template-columns:1fr}}
 
 .overview-scale{position:relative;min-width:0;height:42px;overflow:hidden}
@@ -159,6 +160,7 @@ button.schedule-row-label{cursor:pointer}button.schedule-row-label:hover{backgro
 body,button,input,select,textarea{font-family:var(--font-ui)}
 .ui-icon{display:block;flex:0 0 auto}
 .page-heading h1,.section-head h2,.admin-card h2,.activity-detail article h2,.modal h1,.activity-panel h1,.card-title h3{font-family:var(--font-display)}
+.page-heading .eyebrow a{text-decoration:underline;text-decoration-thickness:1px;text-underline-offset:3px}.page-heading .eyebrow a:focus-visible{outline:3px solid #806b43;outline-offset:3px}
 .eyebrow{font-size:var(--text-eyebrow)}
 .page-heading h1{font-size:var(--text-page)}
 .section-head h2{font-size:var(--text-section)}
@@ -209,6 +211,15 @@ body,button,input,select,textarea{font-family:var(--font-ui)}
 .activity-summary{grid-template-columns:repeat(4,minmax(0,1fr));gap:0;padding:0;align-items:stretch}
 .activity-summary>div{min-width:0;min-height:126px;padding:24px;display:flex;flex-direction:column;justify-content:center;border-right:1px solid var(--line)}
 .activity-summary>div:last-child{border-right:0}
+.activity-summary>div{min-height:104px;padding-block:18px}
+.summary-progress-track{width:min(190px,100%);height:7px;margin-top:10px;background:#dfe5e3;overflow:hidden}.summary-progress-track i{display:block;height:100%;background:#082f4f}
+.project-summary .summary-progress,.project-summary .project-summary-next{color:#fff;border-right:0}.project-summary .summary-progress{background:#082f4f}.project-summary .project-summary-next{background:#174d3b}.project-summary .summary-progress>span,.project-summary .project-summary-next>span{color:#fff;opacity:.78}.project-summary .summary-progress-track{background:#ffffff42}.project-summary .summary-progress-track i{background:#fff}
+.section-head>div:has(>.section-count){display:flex;align-items:baseline;gap:9px}.section-count{color:#626963;font-size:var(--text-meta);font-weight:700;font-variant-numeric:tabular-nums}.admin-add{display:inline-flex;min-height:36px;padding:7px 10px}
+.admin-card>.section-head{padding-bottom:4px}.admin-row{padding-block:11px}.row-actions .destructive-action{color:#934838}
+.inline-edit .create-btn,.inline-edit .secondary-btn{min-height:40px;padding:8px 10px}
+.table-card th.numeric,.table-card td.numeric{text-align:right;font-variant-numeric:tabular-nums}.table-sort{display:inline-flex;align-items:center;gap:5px;border:0;background:transparent;padding:0;color:inherit;font:inherit;font-weight:700;text-transform:inherit;letter-spacing:inherit;cursor:pointer}.table-sort[aria-pressed=true]{color:var(--ink)}.table-sort:hover{text-decoration:underline;text-underline-offset:3px}.table-sort:focus-visible{outline:3px solid #806b43;outline-offset:3px}
+.table-progress{display:grid;grid-template-columns:minmax(54px,1fr) auto;align-items:center;gap:9px;min-width:104px}.table-progress-track{height:6px;background:#dfe5e3;overflow:hidden}.table-progress-track i{display:block;height:100%;background:#082f4f}.table-progress strong{font-size:12px;font-variant-numeric:tabular-nums}
+.activity-workspace{align-items:start}.activity-workspace .notes-panel{min-height:0}.activity-workspace .relations-panel{align-self:start}.activity-links{padding-block:20px}
 
 .mobile-header,.mobile-menu-backdrop{display:none}
 

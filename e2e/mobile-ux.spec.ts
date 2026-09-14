@@ -219,7 +219,7 @@ test('contains detail summaries and administration rows on narrow screens', asyn
   }
 });
 
-test('keeps the fixed daily project schedule readable on narrow screens', async ({ page }) => {
+test('keeps the responsive project schedule readable and scrollable on narrow screens', async ({ page }) => {
   const project = page.locator('.mobile-list a[href="/projects/74000000-0000-0000-0000-000000000001"]');
   await expect(project, 'The E2E account must contain at least one active project').toHaveCount(1);
   await project.click();

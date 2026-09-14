@@ -3,6 +3,9 @@ export const date = (value: string) =>
     new Date(`${value}T12:00:00`),
   );
 
+export const dateRange = (start: string, end: string) =>
+  start === end ? date(start) : `${date(start)} — ${date(end)}`;
+
 export const isoDate = (value: Date) => {
   const local = new Date(value.getTime() - value.getTimezoneOffset() * 60000);
   return local.toISOString().slice(0, 10);

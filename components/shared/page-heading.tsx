@@ -8,7 +8,7 @@ export function Heading({
   copy,
   action,
 }: {
-  eyebrow: string;
+  eyebrow: React.ReactNode;
   title: string;
   copy: string;
   action?: React.ReactNode;

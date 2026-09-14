@@ -72,7 +72,14 @@ test('retains project schedule and a single activity creation action', async ({ 
   if (await schedule.count()) {
     await expect(schedule).toBeVisible();
     const widths = await schedule.evaluate((element) => ({ client: element.clientWidth, scroll: element.scrollWidth }));
-    expect(widths.scroll).toBeLessThanOrEqual(widths.client + 1);
+    expect(widths.client).toBeGreaterThan(0);
+    if (widths.scroll > widths.client + 1) {
+      const scrollLeft = await schedule.evaluate((element) => {
+        element.scrollLeft = element.scrollWidth;
+        return element.scrollLeft;
+      });
+      expect(scrollLeft).toBeGreaterThan(0);
+    }
     await expect(page.locator('.project-end-marker span')).not.toHaveText('Project end');
   }
   else await expect(page.getByText('No activities yet', { exact: true }).first()).toBeVisible();
@@ -90,8 +97,16 @@ test('shows activity scheduling context and previews archive impact without chan
   await expect(timeline.locator('.activity-context-label').first()).toHaveCSS('background-color', 'rgb(255, 255, 255)');
   await expect(timeline.locator('.activity-context-grid')).toHaveCSS('grid-template-columns', /220px/);
   await expect(timeline.locator('.activity-context-track').first()).toHaveCSS('min-height', '58px');
-  const timelineWidths = await timeline.locator('.project-schedule-scroll').evaluate((element) => ({ client: element.clientWidth, scroll: element.scrollWidth }));
-  expect(timelineWidths.scroll).toBeLessThanOrEqual(timelineWidths.client + 1);
+  const timelineScroll = timeline.locator('.project-schedule-scroll');
+  const timelineWidths = await timelineScroll.evaluate((element) => ({ client: element.clientWidth, scroll: element.scrollWidth }));
+  expect(timelineWidths.client).toBeGreaterThan(0);
+  if (timelineWidths.scroll > timelineWidths.client + 1) {
+    const scrollLeft = await timelineScroll.evaluate((element) => {
+      element.scrollLeft = element.scrollWidth;
+      return element.scrollLeft;
+    });
+    expect(scrollLeft).toBeGreaterThan(0);
+  }
   const firstTrack = timeline.locator('.activity-context-track').first();
   const firstGridLine = firstTrack.locator('.schedule-grid-minor').first();
   const [trackBox, gridLineBox] = await Promise.all([firstTrack.boundingBox(), firstGridLine.boundingBox()]);

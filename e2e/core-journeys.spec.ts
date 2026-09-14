@@ -109,7 +109,7 @@ test('@projects creates, edits, reschedules, and archives a project', async ({ p
   await expect(createdProject).toBeVisible();
   const projectRow = createdProject.locator('xpath=ancestor::tr');
   await expect(projectRow).toContainText('DEV Event');
-  await expect(projectRow).toContainText('On Track');
+  await expect(projectRow).toContainText('On track');
   await expect(projectRow.getByTitle('DEV Avery Morgan')).toBeVisible();
   await createdProject.click();
   await expect(page.getByRole('heading', { name })).toBeVisible();
@@ -265,7 +265,7 @@ test('@templates @projects materializes a project from a ready template', async 
   await expect(page.getByText('DEV Event · Active project')).toBeVisible();
   await expect(page.getByText('Draft', { exact: true })).toBeVisible();
   const activityRow = page.locator('.project-activity-row').filter({ hasText: 'DEV Prepare gala brief' });
-  await expect(activityRow).toContainText('Not Started');
+  await expect(activityRow).toContainText('Not started');
   await activityRow.click();
   const activityEditor = page.getByRole('dialog').filter({ has: page.getByLabel('Activity name') });
   await expect(activityEditor.getByLabel('Start date')).toHaveValue(expectedStart);

@@ -19,7 +19,7 @@ verification_catalog:
     kind: unit
     runner: vitest
     command: pnpm test
-    requirements: [OVR-01, OVR-02, PRJ-06, TPL-01, TPL-02, DEP-11, QA-03]
+    requirements: [AUTH-01, OVR-01, OVR-02, PRJ-06, TPL-01, TPL-02, DEP-11, QA-03]
     ci: GitHub Verify / verify; every pull request and push to main
     environment: Node.js runner; no database or browser
     test_files:
@@ -31,6 +31,7 @@ verification_catalog:
       - components/projects/reschedule-preview-dialog.test.ts
       - lib/planning/project-template.test.ts
       - lib/planning/activity-schedule.test.ts
+      - lib/supabase-config.test.ts
   - id: prj06-database
     kind: database
     command: pnpm db:test
@@ -128,6 +129,7 @@ groups:
     requirements:
       - ID: AUTH-01
         verification:
+          - unit-vitest
           - qa05-browser-smoke
         Capability: Sign up, sign in, sign out, and redirect unauthenticated users
         Primary implementation: "`app/sign-in/page.tsx`; `components/threshold-app.tsx`; `components/shell/sidebar.tsx`; `components/shell/mobile-nav.tsx`"
